@@ -1,12 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/app/_lib/stripe';
 
+interface CartLineItem {
+  priceId: string;
+  quantity: number;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { priceId } = (await req.json()) as { priceId?: string };
+    const body = await req.json();
 
-    if (!priceId) {
-      return NextResponse.json({ error: 'Missing priceId' }, { status: 400 });
+    // Support both legacy single-item { priceId } and new multi-item { items }
+    let lineItems: CartLineItem[];
+
+    if (Array.isArray(body.items)) {
+      lineItems = body.items as CartLineItem[];
+    } else if (body.priceId) {
+      lineItems = [{ priceId: body.priceId, quantity: 1 }];
+    } else {
+      return NextResponse.json({ error: 'Missing items or priceId' }, { status: 400 });
+    }
+
+    if (lineItems.length === 0) {
+      return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
     }
 
     const stripe = getStripe();
@@ -16,7 +32,10 @@ export async function POST(req: NextRequest) {
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: lineItems.map((item) => ({
+        price: item.priceId,
+        quantity: item.quantity,
+      })),
       success_url: `${siteUrl}/work?checkout=success`,
       cancel_url: `${siteUrl}/work?checkout=cancelled`,
     });

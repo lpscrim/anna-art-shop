@@ -54,7 +54,7 @@ export function ImageWithFallback({
     ? undefined
     : blurDataURLProp ??
       blurDataUrlCache.get(src) ??
-      (fetchedBlur?.src === src ? fetchedBlur.blurDataURL : undefined)
+      (fetchedBlur?.src === src ? fetchedBlur?.blurDataURL : undefined)
 
   const handleError = () => {
     setDidError(true)

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import NavIcon from "../UI/Nav/NavIcon";
+import { useCart } from "../Cart/CartContext";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,6 +15,7 @@ export function Header() {
 
   const isWorkPage = pathname === "/work";
   const isAdminPage = pathname.startsWith("/admin");
+  const { count, toggleCart } = useCart();
 
 
   useEffect(() => {
@@ -123,6 +125,22 @@ export function Header() {
                   CONTACT
                 </span>
             </button>
+            <button className="relative title text-xl cursor-crosshair" onClick={toggleCart}>
+                <span
+                  className={`text-foreground hover:text-muted-foreground transition-all duration-500 ${
+                    isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
+                  }`}
+                >
+                  CART{count > 0 && <span className="text-muted-foreground"> [{count}]</span>}
+                </span>
+                <span
+                  className={`text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
+                    isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                  }`}
+                >
+                  CART{count > 0 && <span className="text-foreground/60"> [{count}]</span>}
+                </span>
+            </button>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -174,6 +192,16 @@ export function Header() {
               onClick={() => { conditionalScrollTo('#contact'); setIsMenuOpen(false); }}
             >
                 CONTACT
+            </button>
+            <button
+              className={`title pop-up-4 opacity-0 text-left transition-colors cursor-crosshair ${
+                isLight
+                  ? "text-background hover:text-foreground"
+                  : "text-foreground hover:text-muted-foreground"
+              }`}
+              onClick={() => { toggleCart(); setIsMenuOpen(false); }}
+            >
+                CART{count > 0 && <span className="text-muted-foreground"> [{count}]</span>}
             </button>
           </nav>
         )}

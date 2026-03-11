@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Header } from "./_components/Sections/Header";
 import { Footer } from "./_components/Sections/Footer";
+import { CartShell } from "./_components/Cart/CartShell";
 
 
 function getSiteUrl(): string {
@@ -76,9 +77,11 @@ export default function RootLayout({
       <body
         className="antialiased bg-background text-foreground w-full"
       >
-        <Header />
-        {children}
-        <Footer />
+        <CartShell>
+          <Header />
+          {children}
+          <Footer />
+        </CartShell>
       </body>
     </html>
   );
