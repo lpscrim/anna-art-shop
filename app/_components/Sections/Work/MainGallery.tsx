@@ -10,6 +10,9 @@ interface Project {
   imageUrl: string;
   galleryImages?: string[];
   text?: string;
+  price_hw: number;
+  stock_level: number;
+  stripe_price_id: string | null;
 }
 
 export interface MainGalleryProps {

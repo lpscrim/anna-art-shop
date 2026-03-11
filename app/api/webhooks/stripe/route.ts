@@ -21,9 +21,10 @@ export async function POST(req: NextRequest) {
     const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
     const supabase = createServerSupabase();
 
-    // For each purchased product, decrement stock in Supabase
+    const failedItems: string[] = [];
+
+    // For each purchased product, atomically decrement stock in Supabase
     for (const item of lineItems.data) {
-      // Assume product id is stored in price metadata or product metadata
       const stripeProductId = item.price?.product as string;
       const quantity = item.quantity || 1;
 
@@ -36,11 +37,36 @@ export async function POST(req: NextRequest) {
 
       if (error || !product) continue;
 
-      // Decrement stock_level by quantity
-      await supabase.rpc('decrement_stock', {
+      // Atomic decrement — only succeeds if enough stock exists
+      const { data: decremented } = await supabase.rpc('decrement_stock', {
         product_id: product.id,
         quantity,
       });
+
+      if (!decremented) {
+        // Stock was insufficient (race condition — another order got it first)
+        failedItems.push(item.description || stripeProductId);
+      }
+    }
+
+    // If any items couldn't be fulfilled, refund the entire payment
+    if (failedItems.length > 0 && session.payment_intent) {
+      const paymentIntentId =
+        typeof session.payment_intent === 'string'
+          ? session.payment_intent
+          : session.payment_intent.id;
+
+      try {
+        await stripe.refunds.create({
+          payment_intent: paymentIntentId,
+          reason: 'requested_by_customer',
+        });
+        console.error(
+          `Auto-refunded payment ${paymentIntentId}: out of stock for [${failedItems.join(', ')}]`
+        );
+      } catch (refundErr) {
+        console.error('Failed to auto-refund:', refundErr);
+      }
     }
   }
 
