@@ -1,5 +1,6 @@
 import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+import { createServerSupabase } from '@/app/_lib/supabase';
 
 export const runtime = 'nodejs';
 
@@ -16,6 +17,10 @@ export async function GET(req: NextRequest) {
   if (secret !== expectedSecret) {
     return NextResponse.json({ error: 'Invalid secret' }, { status: 401 });
   }
+
+  // Ping Supabase to keep the free-tier database from pausing
+  const supabase = createServerSupabase();
+  await supabase.from('products').select('id').limit(1);
 
   revalidatePath('/');
   revalidatePath('/work');
