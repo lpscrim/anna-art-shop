@@ -7,12 +7,14 @@ import { useState } from 'react';
 export function CartDrawer() {
   const { items, count, isOpen, closeCart, removeItem, updateQuantity, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const total = items.reduce((sum, i) => sum + i.priceHw * i.quantity, 0);
 
   async function handleCheckout() {
     if (items.length === 0 || loading) return;
     setLoading(true);
+    setError(null);
 
     try {
       const res = await fetch('/api/checkout', {
@@ -28,7 +30,17 @@ export function CartDrawer() {
       if (data.url) {
         clearCart();
         window.location.href = data.url;
+      } else if (res.status === 409) {
+        // Stock changed since items were added — remove out-of-stock items
+        setError(data.error ?? 'Some items are no longer available');
+        if (Array.isArray(data.outOfStock)) {
+          for (const name of data.outOfStock) {
+            const item = items.find((i) => i.name === name);
+            if (item) removeItem(item.priceId);
+          }
+        }
       } else {
+        setError(data.error ?? 'Checkout failed');
         console.error('Checkout error:', data.error);
       }
     } catch (err) {
@@ -130,6 +142,9 @@ export function CartDrawer() {
         {/* Footer */}
         {items.length > 0 && (
           <div className="border-t border-muted px-6 py-4 space-y-3">
+            {error && (
+              <p className="text-sm text-red-500">{error}</p>
+            )}
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">TOTAL</span>
               <span className="font-semibold">£{(total / 100).toFixed(2)}</span>

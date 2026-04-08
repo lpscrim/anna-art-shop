@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useCallback, useSyncExternalStore, useRef } from 'react';
+import { createContext, useContext, useCallback, useSyncExternalStore, useRef, useEffect } from 'react';
 
 // ─── Types ───────────────────────────────────────────────────────
 export interface CartItem {
@@ -147,6 +147,62 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [emit]);
 
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
+
+  // ─── Periodic stock sync ───────────────────────────────────────
+  // Every 30 s, check live stock for items in cart.  Caps quantities
+  // and removes items that have hit zero.
+  useEffect(() => {
+    if (items.length === 0) return;
+
+    const controller = new AbortController();
+
+    async function syncStock() {
+      const cart = readCart();
+      if (cart.length === 0) return;
+
+      const ids = cart.map((i) => i.priceId).join(',');
+      try {
+        const res = await fetch(`/api/stock?ids=${encodeURIComponent(ids)}`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) return;
+        const { stock } = (await res.json()) as { stock: Record<string, number> };
+
+        let changed = false;
+        let updated = cart.map((item) => {
+          const live = stock[item.priceId];
+          if (live === undefined) return item;
+          if (live !== item.stockLevel) {
+            changed = true;
+            return { ...item, stockLevel: live, quantity: Math.min(item.quantity, live) };
+          }
+          return item;
+        });
+
+        // Remove items with 0 stock
+        const before = updated.length;
+        updated = updated.filter((i) => i.stockLevel > 0);
+        if (updated.length !== before) changed = true;
+
+        if (changed) {
+          writeCart(updated);
+          emit();
+        }
+      } catch {
+        // Network error — ignore, will retry next interval
+      }
+    }
+
+    // Run immediately, then every 30 seconds
+    syncStock();
+    const id = setInterval(syncStock, 30_000);
+
+    return () => {
+      controller.abort();
+      clearInterval(id);
+    };
+  // Re-run when the number of distinct items changes
+  }, [items.length, emit]);
 
   return (
     <CartContext.Provider value={{
