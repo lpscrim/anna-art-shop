@@ -18,16 +18,16 @@ export function Contact() {
             
             <div className="flex flex-row gap-8 items-center justify-between">
               <a 
-                href="mailto:lpscrim@gmail.com"
+                href="mailto:example@gmail.com"
                 className="flex items-center gap-3 hover:opacity-70 transition-opacity cursor-crosshair group"
               >
                 <Mail size={20} className="text-muted-foreground " />
-                <span>LPSCRIM@GMAIL.COM</span>
+                <span>EMAIL@GMAIL.COM</span>
               </a>
               
               <div className="flex items-center gap-3 text-muted-foreground justify-end">
                 <span className="w-5" />
-                <span>SCOTLAND/ WORLD</span>
+                <span>SCOTLAND</span>
               </div>
             </div>
           </div>
@@ -37,7 +37,7 @@ export function Contact() {
               <p className="text-muted-foreground mb-4">SOCIAL</p>
               <div className="space-y-3 lg:flex lg:flex-row lg:gap-8 lg:space-y-0">
                 <a 
-                  href="https://www.instagram.com/daydreamteam/"
+                  href="https://www.instagram.com/example/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center cursor-crosshair gap-3 hover:opacity-70 transition-opacity"
@@ -46,7 +46,7 @@ export function Contact() {
                   <span>INSTAGRAM</span>
                 </a>
                 <a 
-                  href="https://www.linkedin.com/in/lewis-scrimgeour-13389b243/"
+                  href="https://www.linkedin.com/in/example/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center cursor-crosshair gap-3 hover:opacity-70 transition-opacity"
@@ -55,13 +55,13 @@ export function Contact() {
                   <span>LINKEDIN</span>
                 </a>
                 <a 
-                  href="https://lewisscrimgeour.com"
+                  href="https://example.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 cursor-crosshair hover:opacity-70 transition-opacity whitespace-nowrap"
                 >
                   <Globe size={20} className="text-muted-foreground" />
-                  <span>WEB DESIGN</span>
+                  <span>ETC</span>
                 </a>
               </div>
             </div>

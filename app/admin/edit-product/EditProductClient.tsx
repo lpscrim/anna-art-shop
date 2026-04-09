@@ -8,6 +8,7 @@ import { deleteProduct, updateProduct, type DeleteProductState, type UpdateProdu
 const initialUpdateState: UpdateProductState = { success: false };
 const initialDeleteState: DeleteProductState = { success: false };
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
+const MAX_TOTAL_SIZE = 95 * 1024 * 1024; // stay under server action body limit
 const MAX_SECONDARY = 4;
 
 export default function EditProductClient({ products }: { products: AdminProduct[] }) {
@@ -71,6 +72,20 @@ export default function EditProductClient({ products }: { products: AdminProduct
     }
   }
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    setFileError(null);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    let totalSize = 0;
+    for (const value of formData.values()) {
+      if (value instanceof File) totalSize += value.size;
+    }
+    if (totalSize > MAX_TOTAL_SIZE) {
+      e.preventDefault();
+      setFileError(`Total upload size (${(totalSize / 1024 / 1024).toFixed(1)} MB) exceeds the ${(MAX_TOTAL_SIZE / 1024 / 1024).toFixed(0)} MB limit. Use smaller or fewer images.`);
+    }
+  }
+
   if (!selected) {
     return (
       <div className="min-h-screen bg-background text-foreground px-6 py-16">
@@ -119,7 +134,7 @@ export default function EditProductClient({ products }: { products: AdminProduct
           </div>
         )}
 
-        <form ref={formRef} action={updateAction} className="space-y-5" key={selected.id}>
+        <form ref={formRef} action={updateAction} onSubmit={handleSubmit} className="space-y-5" key={selected.id}>
           <input type="hidden" name="productId" value={selected.id} />
 
           <label className="block">

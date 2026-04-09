@@ -131,14 +131,14 @@ export function Header() {
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
-                  CART{count > 0 && <span className="text-muted-foreground"> [{count}]</span>}
+                  CART{count > 0 && <span className="text-foreground/60"> [{count}]</span>}
                 </span>
                 <span
                   className={`text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
                     isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                   }`}
                 >
-                  CART{count > 0 && <span className="text-foreground/60"> [{count}]</span>}
+                  CART{count > 0 && <span className="text-background/60"> [{count}]</span>}
                 </span>
             </button>
           </nav>

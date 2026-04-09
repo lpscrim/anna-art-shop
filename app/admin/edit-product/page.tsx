@@ -7,7 +7,7 @@ async function getAdminProducts(): Promise<AdminProduct[]> {
   const supabase = createServerSupabase();
   const { data: products, error } = await supabase
     .from('products')
-    .select('*')
+    .select('id, name, description, price_hw, stock_level, categories, year, image_url, stripe_product_id, stripe_price_id')
     .order('id', { ascending: true });
 
   if (error || !products) {

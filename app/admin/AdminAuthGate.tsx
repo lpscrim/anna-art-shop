@@ -41,17 +41,35 @@ export default function AdminAuthGate({ children }: AdminAuthGateProps) {
   useEffect(() => {
     let active = true;
 
-    supabase.auth.getSession().then(async ({ data }) => {
+    async function init() {
+      // getSession can return a stale/expired token from localStorage.
+      // Attempt a refresh first so the access token we sync is valid.
+      const { data: refreshed } = await supabase.auth.refreshSession();
+      const currentSession = refreshed.session;
+
       if (!active) return;
-      setSession(data.session);
-      const result = await syncAdminCookie(data.session?.access_token ?? null);
+
+      if (!currentSession) {
+        // No valid session at all — clear cookie and show login
+        await syncAdminCookie(null);
+        setSession(null);
+        setLoading(false);
+        return;
+      }
+
+      setSession(currentSession);
+      const result = await syncAdminCookie(currentSession.access_token);
+      if (!active) return;
+
       if (!result.ok) {
         setError(result.error);
         await supabase.auth.signOut();
         setSession(null);
       }
       setLoading(false);
-    });
+    }
+
+    init();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (_event, nextSession) => {

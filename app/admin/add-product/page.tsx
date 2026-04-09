@@ -5,6 +5,7 @@ import { addProduct, type AddProductState } from './actions';
 
 const initialState: AddProductState = { success: false };
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15 MB
+const MAX_TOTAL_SIZE = 95 * 1024 * 1024; // stay under server action body limit
 const MAX_SECONDARY = 4;
 
 export default function AddProductPage() {
@@ -54,6 +55,20 @@ export default function AddProductPage() {
     setSecondaryPreviews(files.map(f => URL.createObjectURL(f)));
   }
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    setFileError(null);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    let totalSize = 0;
+    for (const value of formData.values()) {
+      if (value instanceof File) totalSize += value.size;
+    }
+    if (totalSize > MAX_TOTAL_SIZE) {
+      e.preventDefault();
+      setFileError(`Total upload size (${(totalSize / 1024 / 1024).toFixed(1)} MB) exceeds the ${(MAX_TOTAL_SIZE / 1024 / 1024).toFixed(0)} MB limit. Use smaller or fewer images.`);
+    }
+  }
+
   // Reset form on success
   useEffect(() => {
     if (state.success) {
@@ -84,7 +99,7 @@ export default function AddProductPage() {
           </div>
         )}
 
-        <form ref={formRef} action={formAction} className="space-y-5">
+        <form ref={formRef} action={formAction} onSubmit={handleSubmit} className="space-y-5">
           {/* Name */}
           <label className="block">
             <span className="text-sm font-medium">Name *</span>

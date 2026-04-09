@@ -7,9 +7,9 @@ export async function Projects() {
   const projects = await getProjects();
 
   return (
-    <section id="work" className="min-h-screen px-6 py-24">
+    <section id="work" className="min-h-screen px-6 py-24 xl:py-32">
       <div className=" mx-auto">
-        <div className="mb-16">
+        <div className="mb-16 xl:mb-24">
           <p className="text-muted-foreground mb-2">02</p>
           <h2 className="text-3xl md:text-5xl tracking-tight">
             SELECTED WORKS
