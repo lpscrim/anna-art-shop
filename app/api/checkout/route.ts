@@ -88,8 +88,8 @@ export async function POST(req: NextRequest) {
       },
       // 30 min to complete payment before session expires
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-      success_url: `${siteUrl}/work?checkout=success`,
-      cancel_url: `${siteUrl}/work?checkout=cancelled`,
+      success_url: `${siteUrl}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${siteUrl}/purchase/cancelled?session_id={CHECKOUT_SESSION_ID}`,
     });
 
     return NextResponse.json({ url: session.url });
