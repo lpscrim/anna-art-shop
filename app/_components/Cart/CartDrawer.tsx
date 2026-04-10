@@ -105,7 +105,7 @@ export function CartDrawer() {
                 </p>
 
                 {/* Quantity */}
-                {item.quantity > 1 && (
+                {item.stockLevel > 1 && (
                 <div className="flex items-center gap-2 mt-1">
                   <button
                     onClick={() => updateQuantity(item.priceId, item.quantity - 1)}

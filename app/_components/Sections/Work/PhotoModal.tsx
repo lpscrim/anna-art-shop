@@ -199,7 +199,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
       if (now - lastWheelAtRef.current < 120) return;
       lastWheelAtRef.current = now;
 
-      // We want to consume the wheel (don’t scroll the page behind the modal)
+      // Don’t scroll the page behind the modal
       e.preventDefault();
 
       if (e.deltaY < 0 && index > 0) {

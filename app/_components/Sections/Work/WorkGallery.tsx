@@ -1,7 +1,7 @@
 
 "use client";
 
-import  { useEffect, useMemo, useRef, useState } from "react";
+import  { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PhotoModal } from "./PhotoModal";
 import { MainGallery } from "./MainGallery";
@@ -48,6 +48,47 @@ export function WorkGallery({
 
   const lastOpenedProjectIdRef = useRef<number | null>(null);
 
+  // ── Live stock map (single batched poll) ─────────────────────────
+  const [liveStock, setLiveStock] = useState<Record<string, number>>({});
+
+  const allPriceIds = useMemo(
+    () => projects.map((p) => p.stripe_price_id).filter((id): id is string => !!id),
+    [projects]
+  );
+
+  useEffect(() => {
+    if (allPriceIds.length === 0) return;
+    const controller = new AbortController();
+
+    async function pollStock() {
+      try {
+        const res = await fetch(
+          `/api/stock?ids=${encodeURIComponent(allPriceIds.join(','))}`,
+          { signal: controller.signal }
+        );
+        if (!res.ok) return;
+        const { stock } = (await res.json()) as { stock: Record<string, number> };
+        setLiveStock((prev) => {
+          const changed = Object.keys(stock).some((k) => prev[k] !== stock[k]);
+          return changed ? stock : prev;
+        });
+      } catch { /* ignore */ }
+    }
+
+    pollStock();
+    const id = setInterval(pollStock, 30_000);
+    return () => { controller.abort(); clearInterval(id); };
+  }, [allPriceIds]);
+
+  // Helper: get live stock for a price ID, falling back to server prop
+  const getStock = useCallback(
+    (project: Project) =>
+      project.stripe_price_id && project.stripe_price_id in liveStock
+        ? liveStock[project.stripe_price_id]
+        : project.stock_level,
+    [liveStock]
+  );
+
   const projectsById = useMemo(() => {
     return new Map(projects.map((p) => [p.id, p] as const));
   }, [projects]);
@@ -93,7 +134,7 @@ export function WorkGallery({
     setModalIndex(0);
     setText(project.text || "");
     setStripePriceId(project.stripe_price_id ?? null);
-    setStockLevel(project.stock_level);
+    setStockLevel(getStock(project));
     setPriceHw(project.price_hw);
     setModalOpen(true);
   };
@@ -124,7 +165,7 @@ export function WorkGallery({
       setYear(project.year);
       setText(project.text || "");
       setStripePriceId(project.stripe_price_id ?? null);
-      setStockLevel(project.stock_level);
+      setStockLevel(getStock(project));
       setPriceHw(project.price_hw);
       setModalImages(imgs);
       setModalIndex(0);
@@ -134,7 +175,12 @@ export function WorkGallery({
     return () => {
       cancelled = true;
     };
-  }, [searchParams, projectsById, modalOpen]);
+  }, [searchParams, projectsById, modalOpen, getStock]);
+
+  // Keep modal stock in sync with live polling
+  const displayedStockLevel = modalOpen && stripePriceId && stripePriceId in liveStock
+    ? liveStock[stripePriceId]
+    : stockLevel;
 
   const handleCloseModal = () => {
     setModalOpen(false);
@@ -156,6 +202,7 @@ export function WorkGallery({
   return (
     <section id="work" className="min-h-[75svh] px-6 w-full">
       {!modalOpen && <MainGallery
+        getStockLevel={getStock}
         selectedCategories={selectedCategories}
         setSelectedCategories={setSelectedCategories}
         filteredProjects={filteredProjects}
@@ -179,7 +226,7 @@ export function WorkGallery({
         text={text}
         changePhotoId={handleThumbClick}
         stripePriceId={stripePriceId}
-        stockLevel={stockLevel}
+        stockLevel={displayedStockLevel}
         priceHw={priceHw}
       />
     </section>

@@ -22,6 +22,7 @@ export interface MainGalleryProps {
   sortedVisibleCategories: [string, number][];
   toggleCategory: (cat: string) => void;
   onCardClick: (index: number, project: Project) => void;
+  getStockLevel: (project: Project) => number;
 }
 
 export function MainGallery({
@@ -31,15 +32,17 @@ export function MainGallery({
   sortedVisibleCategories,
   toggleCategory,
   onCardClick,
+  getStockLevel,
 }: MainGalleryProps) {
-
   return (
     <>
       <div className="pt-12 pb-4 px-0 rounded-xs flex flex-wrap gap-4 w-full">
         <div className="xl:w-1/2 text-sm sm:text-base py-2">
           <div>
             <button
-              onClick={() => { setSelectedCategories([]); }}
+              onClick={() => {
+                setSelectedCategories([]);
+              }}
               className={`mr-2 cursor-crosshair transition-opacity ${selectedCategories.length === 0 ? "text-foreground" : "text-foreground/50"}`}
             >
               PROJECTS [{filteredProjects.length}]
@@ -51,13 +54,19 @@ export function MainGallery({
               const isSelected = selectedCategories.includes(categoryStr);
               const isUnselectable = count === 0;
               return (
-                <span key={categoryStr} className="inline-flex items-center text-sm sm:text:base">
+                <span
+                  key={categoryStr}
+                  className="inline-flex items-center text-sm sm:text:base"
+                >
                   <button
-                    onClick={() => !isUnselectable && toggleCategory(categoryStr)}
+                    onClick={() =>
+                      !isUnselectable && toggleCategory(categoryStr)
+                    }
                     disabled={isUnselectable}
                     className={`pr-1 py-1 rounded transition-colors cursor-crosshair text-foreground ${isSelected ? "underline font-semibold" : ""} ${isUnselectable ? "opacity-30 cursor-not-allowed" : "hover:bg-background/10"}`}
                   >
-                    {categoryStr} <span className="text-foreground/60">[{count}]</span>
+                    {categoryStr}{" "}
+                    <span className="text-foreground/60">[{count}]</span>
                   </button>
                 </span>
               );
@@ -86,9 +95,14 @@ export function MainGallery({
                 {project.title}
               </h3>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-background wrap-break-word max-w-full">
-                <span className="wrap-break-word max-w-full">[{project.categories.join(', ')}]</span>
+                {/*<span className="wrap-break-word max-w-full">
+                  [{project.categories.join(", ")}]
+                </span>*/}
                 <span>{project.year}</span>
               </div>
+              {getStockLevel(project) === 0 && (
+                <h3 className="text-background line-through">SOLD OUT</h3>
+              )}
             </div>
           </div>
         ))}
