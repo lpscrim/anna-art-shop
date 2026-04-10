@@ -2,6 +2,7 @@ import { getStripe } from "@/app/_lib/stripe";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ClearCart } from "./clearCart";
+import { ImageWithFallback } from '../../_components/UI/Layout/ImageWithFallback';
 
 interface SuccessPageProps {
   searchParams: Promise<{ session_id?: string }>;
@@ -55,6 +56,15 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
               key={item.id}
               className="flex justify-between py-4 border-b border-foreground/10"
             >
+                <div className="relative w-16 h-16 shrink-0 rounded-sm overflow-hidden bg-muted">
+                                <ImageWithFallback
+                                  src={item.imageUrl}
+                                  alt={item.name}
+                                  fill
+                                  className="object-cover"
+                                  sizes="64px"
+                                />
+                              </div>
               <div>
                 <p className="tracking-tight">{name}</p>
                 <p className="text-muted-foreground text-sm">
