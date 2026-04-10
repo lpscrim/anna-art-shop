@@ -16,15 +16,15 @@ export async function Projects() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {projects
             .sort((a, b) => a.id - b.id)
-            .slice(0, 3)
-            .map((project) => (
+            .slice(0, 4)
+            .map((project, idx) => (
               <Link
                 key={project.id}
                 href={`/work?project=${project.id}`}
-                className="group cursor-crosshair"
+                className={`group cursor-crosshair${idx === 3 ? " hidden md:block" : ""}`}
               >
                 <div className="relative aspect-4/5 bg-muted overflow-hidden mb-4 rounded-xs">
                   <ImageWithFallback
