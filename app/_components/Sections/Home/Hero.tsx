@@ -34,7 +34,7 @@ export function Hero() {
           animate={{ opacity: 0.8 }}
           transition={{ duration: 7, delay: 0.15 }}
         >
-          PORTFOLIO
+          ANNAMAIAART
         </motion.h2>
       </div>
       {/* Mobile */}
