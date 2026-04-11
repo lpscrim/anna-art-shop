@@ -34,7 +34,7 @@ export function About() {
         </div>
         <div className="mt-24 text-center  ">
           <Button size="xl">
-            <Link href="/about">MORE</Link>
+            <Link href="/">MORE??</Link>
           </Button>
         </div>
       </div>
