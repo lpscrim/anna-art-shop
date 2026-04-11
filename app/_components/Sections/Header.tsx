@@ -62,14 +62,14 @@ export function Header() {
                 isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
               }`}
             >
-              PORTFOLIO
+              ANNAMAIAART
             </span>
             <span
               className={`tracking-wide title font-semibold text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
                 isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
               }`}
             >
-              PORTFOLIO
+              ANNAMAIAART
             </span>
           </button>
 
