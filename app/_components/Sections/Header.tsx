@@ -56,9 +56,9 @@ export function Header() {
       <div className="relative mx-auto py-4 z-10">
         <div className="flex items-center justify-between">
           {/* Logo with crossfade */}
-          <button className="relative cursor-crosshair" onClick={() => { conditionalScrollTo(''); setIsMenuOpen(false); }}>
+          <button className="relative cursor-crosshair nav-underline" onClick={() => { conditionalScrollTo(''); setIsMenuOpen(false); }}>
             <span
-              className={`tracking-wide title font-semibold text-foreground hover:text-muted-foreground left-0 top-0 transition-all duration-500 ${
+              className={`tracking-wide title font-semibold text-foreground hover:text-black left-0 top-0 transition-all duration-500 ${
                 isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
               }`}
             >
@@ -75,10 +75,10 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex gap-8 ">
-            <button className="relative title text-xl">
+            <button className="relative title text-xl nav-underline">
               <Link href="/work" className="cursor-crosshair">
                 <span
-                  className={`text-foreground hover:text-muted-foreground transition-all duration-500 ${
+                  className={`text-foreground hover:text-black transition-all duration-500 ${
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
@@ -93,9 +93,9 @@ export function Header() {
                 </span>
               </Link>
             </button>
-            <button className="relative title text-xl cursor-crosshair" onClick={() => conditionalScrollTo('#about')}>
+            <button className="relative title text-xl cursor-crosshair nav-underline" onClick={() => conditionalScrollTo('#about')}>
                 <span
-                  className={`text-foreground hover:text-muted-foreground transition-all duration-500 ${
+                  className={`text-foreground hover:text-black transition-all duration-500 ${
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
@@ -109,9 +109,9 @@ export function Header() {
                   ABOUT
                 </span>
             </button>
-            <button className="relative title text-xl cursor-crosshair " onClick={() => conditionalScrollTo('#contact')}>
+            <button className="relative title text-xl cursor-crosshair nav-underline" onClick={() => conditionalScrollTo('#contact')}>
                 <span
-                  className={`text-foreground hover:text-muted-foreground transition-all duration-500 ${
+                  className={`text-foreground hover:text-black transition-all duration-500 ${
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
@@ -125,9 +125,9 @@ export function Header() {
                   CONTACT
                 </span>
             </button>
-            <button className="relative title text-xl cursor-crosshair" onClick={toggleCart}>
+            <button className="relative title text-xl cursor-crosshair nav-underline" onClick={toggleCart}>
                 <span
-                  className={`text-foreground hover:text-muted-foreground transition-all duration-500 ${
+                  className={`text-foreground hover:text-black transition-all duration-500 ${
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
@@ -164,7 +164,7 @@ export function Header() {
               className={`title pop-up opacity-0 text-left transition-colors ${
                 isLight
                   ? "text-background hover:text-foreground"
-                  : "text-foreground hover:text-muted-foreground"
+                  : "text-foreground hover:text-black"
               }`}
               
             >
@@ -177,7 +177,7 @@ export function Header() {
               className={`title pop-up-2 opacity-0 text-left transition-colors cursor-crosshair ${
                 isLight
                   ? "text-background hover:text-foreground"
-                  : "text-foreground hover:text-muted-foreground"
+                  : "text-foreground hover:text-black"
               }`}
               onClick={() => { conditionalScrollTo('#about'); setIsMenuOpen(false); }}
             >
@@ -187,7 +187,7 @@ export function Header() {
               className={`title pop-up-3 opacity-0 text-left transition-colors cursor-crosshair ${
                 isLight
                   ? "text-background hover:text-foreground"
-                  : "text-foreground hover:text-muted-foreground"
+                  : "text-foreground hover:text-black"
               }`}
               onClick={() => { conditionalScrollTo('#contact'); setIsMenuOpen(false); }}
             >
@@ -197,11 +197,11 @@ export function Header() {
               className={`title pop-up-4 opacity-0 text-left transition-colors cursor-crosshair ${
                 isLight
                   ? "text-background hover:text-foreground"
-                  : "text-foreground hover:text-muted-foreground"
+                  : "text-foreground hover:text-black"
               }`}
               onClick={() => { toggleCart(); setIsMenuOpen(false); }}
             >
-                CART{count > 0 && <span className="text-muted-foreground"> [{count}]</span>}
+                CART{count > 0 && <span className="text-black"> [{count}]</span>}
             </button>
           </nav>
         )}
