@@ -7,20 +7,21 @@ import { Suspense, useEffect, useRef } from "react";
 function ExpireSession() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
+  const cancelToken = searchParams.get("cancel_token");
   const expiredRef = useRef(false);
 
   useEffect(() => {
-    if (!sessionId || expiredRef.current) return;
+    if (!sessionId || !cancelToken || expiredRef.current) return;
     expiredRef.current = true;
 
     fetch("/api/checkout/expire", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId }),
+      body: JSON.stringify({ sessionId, cancelToken }),
     }).catch(() => {
       // Session may already be expired or completed — safe to ignore
     });
-  }, [sessionId]);
+  }, [sessionId, cancelToken]);
 
   return null;
 }

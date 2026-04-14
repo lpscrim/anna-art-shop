@@ -28,7 +28,6 @@ export function CartDrawer() {
       const data = await res.json();
 
       if (data.url) {
-        clearCart();
         window.location.href = data.url;
       } else if (res.status === 409) {
         // Stock changed since items were added — remove out-of-stock items

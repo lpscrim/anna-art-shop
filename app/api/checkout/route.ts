@@ -26,6 +26,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
     }
 
+    // Validate each line item
+    for (const item of lineItems) {
+      if (typeof item.priceId !== 'string' || !item.priceId) {
+        return NextResponse.json({ error: 'Invalid price ID' }, { status: 400 });
+      }
+      if (!Number.isInteger(item.quantity) || item.quantity < 1) {
+        return NextResponse.json({ error: 'Quantity must be a positive integer' }, { status: 400 });
+      }
+    }
+
     // ── Reserve stock atomically before creating Stripe session ─────
     const supabase = createServerSupabase();
 
@@ -76,6 +86,8 @@ export async function POST(req: NextRequest) {
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
+    const cancelToken = crypto.randomUUID();
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: lineItems.map((item) => ({
@@ -85,11 +97,12 @@ export async function POST(req: NextRequest) {
       // Store reserved items so we can restore stock on expiry
       metadata: {
         reserved_items: JSON.stringify(reservations),
+        cancel_token: cancelToken,
       },
       // 30 min to complete payment before session expires
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       success_url: `${siteUrl}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/purchase/cancelled?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${siteUrl}/purchase/cancelled?session_id={CHECKOUT_SESSION_ID}&cancel_token=${cancelToken}`,
     });
 
     return NextResponse.json({ url: session.url });
