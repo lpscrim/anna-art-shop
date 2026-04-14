@@ -4,7 +4,7 @@ import { createServerSupabase } from '@/app/_lib/supabase';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   const expectedSecret = process.env.REVALIDATE_SECRET;
   if (!expectedSecret) {
     return NextResponse.json(
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const secret = req.nextUrl.searchParams.get('secret');
+  const secret = req.headers.get('authorization')?.replace('Bearer ', '');
   if (secret !== expectedSecret) {
     return NextResponse.json({ error: 'Invalid secret' }, { status: 401 });
   }
