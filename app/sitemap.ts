@@ -7,7 +7,7 @@ function getSiteUrl(): string {
   const vercel = process.env.VERCEL_URL;
   if (vercel) return `https://${vercel}`;
 
-  return 'https://example.com';
+  return 'https://annamaiaart.com';
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {

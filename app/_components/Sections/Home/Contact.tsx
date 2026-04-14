@@ -1,4 +1,4 @@
-import { Mail, Instagram, Linkedin, Globe } from 'lucide-react';
+import { Mail, Instagram, Globe, Newspaper } from 'lucide-react';
 
 export function Contact() {
   return (
@@ -18,11 +18,11 @@ export function Contact() {
             
             <div className="flex flex-row gap-8 items-center justify-between">
               <a 
-                href="mailto:example@gmail.com"
+                href="mailto:studioannamaia@gmail.com"
                 className="flex items-center gap-3 hover:opacity-70 transition-opacity cursor-crosshair group"
               >
                 <Mail size={20} className="text-muted-foreground " />
-                <span>EMAIL@GMAIL.COM</span>
+                <span>STUDIOANNAMAIA@GMAIL.COM</span>
               </a>
               
               <div className="flex items-center gap-3 text-muted-foreground justify-end">
@@ -37,7 +37,7 @@ export function Contact() {
               <p className="text-muted-foreground mb-4">SOCIAL</p>
               <div className="space-y-3 lg:flex lg:flex-row lg:gap-8 lg:space-y-0">
                 <a 
-                  href="https://www.instagram.com/example/"
+                  href="https://www.instagram.com/annamaiaart/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center cursor-crosshair gap-3 hover:opacity-70 transition-opacity"
@@ -46,22 +46,22 @@ export function Contact() {
                   <span>INSTAGRAM</span>
                 </a>
                 <a 
-                  href="https://www.linkedin.com/in/example/"
+                  href="https://989ae4b7.sibforms.com/serve/MUIFAHRX-TcLtJ4rFsOZZdq839lByDNSXwdvr3gXiy7kvS3Ym9dd9pKpBw6sBvMFWVWtGO_GgD_HOqfnD99P4CZbLXhmYP-3lTpJ8qwXkAimUjgdE7iWxc6BavdxRJ8Wtvip_e_oxpzYuO-kbUMNVLPWmnIFMegLgZg2LmLekKbv0HlJqeqDJee2vKcUHMg9JrJTlxobFazjIMofQw=="
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center cursor-crosshair gap-3 hover:opacity-70 transition-opacity"
+                  className="flex items-center gap-3 cursor-crosshair hover:opacity-70 transition-opacity whitespace-nowrap"
                 >
-                  <Linkedin size={20} className="text-muted-foreground" />
-                  <span>LINKEDIN</span>
+                  <Newspaper size={20} className="text-muted-foreground" />
+                  <span>NEWSLETTER</span>
                 </a>
                 <a 
-                  href="https://example.com"
+                  href="https://st.storedpay.co/l/anna-maia-art/mini-original-artworks"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 cursor-crosshair hover:opacity-70 transition-opacity whitespace-nowrap"
                 >
                   <Globe size={20} className="text-muted-foreground" />
-                  <span>ETC</span>
+                  <span>STORED SHOP</span>
                 </a>
               </div>
             </div>

@@ -14,17 +14,17 @@ export function About() {
         <div className="grid md:grid-cols-2 gap-16 max-w-7xl mx-auto">
           <div className="space-y-6 text-lg">
             <p>
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Corrupti, atque nisi voluptatum aut veniam autem nesciunt officia ducimus accusamus eos ea nulla provident nemo vero, magnam iure, corporis earum odio!
+              Anna is a Scottish artist drawn to the mountains — their weight, their stillness, the way light moves across them. Working primarily in oil on canvas and mixed media, she translates landscape into something more abstract, stripping back detail to capture what a place feels like rather than how it looks.
             </p>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quidem expedita hic nam, quasi temporibus facere velit, necessitatibus est maxime a qui, excepturi totam quo vero eos adipisci soluta labore repudiandae?
+              Her work moves between representation and abstraction, layering colour and texture to echo the rugged forms and shifting atmospheres of the Scottish highlands. Each piece is an invitation to pause and look a little longer.
             </p>
           </div>
 
           <div className="flex justify-end items-center">
             <Image 
               src="/pin.webp"  
-              alt="About Image"
+              alt="Anna Maia"
               width={1600}
               height={900}
               className=" h-full w-full lg:w-4/5 rounded-xs aspect-4/3 object-cover grayscale"
@@ -32,11 +32,11 @@ export function About() {
 
           </div>
         </div>
-        <div className="mt-24 text-center  ">
+        {/* <div className="mt-24 text-center">
           <Button size="xl">
             <Link href="/">MORE??</Link>
           </Button>
-        </div>
+        </div> */}
       </div>
     </section>
   );

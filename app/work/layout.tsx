@@ -5,7 +5,7 @@ export default function WorkLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="border w-full">
+        <div className="w-full">
             {children}
         </div>
     );

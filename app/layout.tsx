@@ -39,33 +39,33 @@ const seoKeywords = [
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Art Shop",
-    template: "%s | Art Shop",
+    default: "Annamaiaart",
+    template: "%s | Annamaiaart",
   },
   description:
-    "Portfolio website showcasing landscape art.",
+    "The portfolio of AnnaMaiaArt showcasing landscape and abstract paintings.",
   alternates: {
     canonical: "/",
   },
   keywords: seoKeywords,
   category: "art",
-  authors: [{ name: "Annamaiaart" }],
-  creator: "Annamaiaart",
-  publisher: "Art Shop",
+  authors: [{ name: "Anna Maia" }],
+  creator: "Anna Maia",
+  publisher: "Anna Maia",
   openGraph: {
     type: "website",
     url: siteUrl,
-    siteName: "Art Shop",
-    title: "Art Shop",
+    siteName: "Annamaiaart",
+    title: "Annamaiaart",
     description:
-      "Portfolio website showcasing landscape art.",
+      "The portfolio of AnnaMaiaArt showcasing landscape and abstract paintings.",
     locale: "en_GB",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Art Shop",
+    title: "Annamaiaart",
     description:
-      "Portfolio website showcasing landscape art.",
+      "The portfolio of AnnaMaiaArt showcasing landscape and abstract paintings.",
   },
 };
 
