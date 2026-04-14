@@ -1,6 +1,13 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { getProjects } from "../_data/projects";
 import { WorkGallery } from "../_components/Sections/Work/WorkGallery";
+
+export const metadata: Metadata = {
+  title: "Work",
+  description:
+    "Browse landscape and abstract paintings by Anna Maia. Oil on canvas, mixed media, and original artwork available to purchase.",
+};
 
 
 

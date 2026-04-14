@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { createClient } from '@supabase/supabase-js';
 
 function getSiteUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
@@ -10,11 +11,11 @@ function getSiteUrl(): string {
   return 'https://annamaiaart.com';
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = new URL(getSiteUrl()).origin;
   const lastModified = new Date();
 
-  return [
+  const entries: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}/`,
       lastModified,
@@ -28,4 +29,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
   ];
+
+  // Pull latest product update date from Supabase if available
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (supabaseUrl && supabaseKey) {
+    try {
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      const { data } = await supabase
+        .from('products')
+        .select('updated_at')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (data?.updated_at) {
+        // Update /work entry with actual last modified date
+        entries[1].lastModified = new Date(data.updated_at);
+      }
+    } catch {
+      // Silently fall back to current date
+    }
+  }
+
+  return entries;
 }
