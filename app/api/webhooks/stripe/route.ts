@@ -20,6 +20,18 @@ export async function POST(req: NextRequest) {
   // created.  On success we do nothing — the reservation becomes the sale.
   // On expiry we restore the reserved stock so it's available again.
 
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object as Stripe.Checkout.Session;
+    console.log('[ORDER COMPLETED]', {
+      sessionId: session.id,
+      email: session.customer_details?.email,
+      amount: session.amount_total,
+      currency: session.currency,
+      items: session.metadata?.reserved_items,
+      paymentStatus: session.payment_status,
+    });
+  }
+
   if (event.type === 'checkout.session.expired') {
     const session = event.data.object as Stripe.Checkout.Session;
     const raw = session.metadata?.reserved_items;
