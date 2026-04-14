@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import AdminAuthGate from "./AdminAuthGate";
 
 export const metadata: Metadata = {
-  title: "Admin — Add Product",
+  title: "Admin",
 };
 
 export default function AdminLayout({

@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import type { AdminProduct } from "./types";
 import {
   deleteProduct,
@@ -228,11 +229,12 @@ export default function EditProductClient({
             </div>
             {selected.image_url ? (
               <div className="relative aspect-4/5 max-w-60 overflow-hidden rounded-md bg-muted">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={selected.image_url}
                   alt="Cover"
-                  className="h-full w-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="240px"
                 />
               </div>
             ) : (
@@ -256,11 +258,12 @@ export default function EditProductClient({
                 {selected.gallery.map((image) => (
                   <label key={image.path} className="space-y-2">
                     <div className="relative aspect-4/5 overflow-hidden rounded-md bg-muted">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image
                         src={image.url}
                         alt="Gallery"
-                        className="h-full w-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="(min-width: 640px) 33vw, 50vw"
                       />
                     </div>
                     <div className="flex items-center gap-2 text-xs">
