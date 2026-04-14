@@ -123,18 +123,29 @@ export async function addProduct(
     // ---------- Create product + price in Stripe ----------
     const stripe = getStripe();
 
-    const stripeProduct = await stripe.products.create({
-      name: name.trim(),
-      description: (description ?? '').trim() || undefined,
-      images: imageUrl ? [imageUrl] : undefined,
-      metadata: { supabase_id: product.id },
-    });
+    let stripeProduct;
+    let stripePrice;
+    try {
+      stripeProduct = await stripe.products.create({
+        name: name.trim(),
+        description: (description ?? '').trim() || undefined,
+        images: imageUrl ? [imageUrl] : undefined,
+        metadata: { supabase_id: product.id },
+      });
 
-    const stripePrice = await stripe.prices.create({
-      product: stripeProduct.id,
-      unit_amount: priceHw,
-      currency: 'gbp',
-    });
+      stripePrice = await stripe.prices.create({
+        product: stripeProduct.id,
+        unit_amount: priceHw,
+        currency: 'gbp',
+      });
+    } catch (stripeError) {
+      // Clean up the orphaned Supabase row
+      await supabase.from('products').delete().eq('id', product.id);
+      return {
+        success: false,
+        error: `Stripe creation failed: ${stripeError instanceof Error ? stripeError.message : 'Unknown error'}`,
+      };
+    }
 
     // ---------- Store Stripe IDs back in Supabase ----------
     const { error: updateError } = await supabase

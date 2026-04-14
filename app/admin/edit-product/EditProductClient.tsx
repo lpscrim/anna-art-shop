@@ -315,7 +315,11 @@ export default function EditProductClient({
           </button>
         </form>
 
-        <form action={deleteAction} className="space-y-3">
+        <form action={deleteAction} onSubmit={(e) => {
+          if (!confirm(`Delete "${selected.name}"? This cannot be undone.`)) {
+            e.preventDefault();
+          }
+        }} className="space-y-3">
           <input type="hidden" name="productId" value={selected.id} />
           <button
             type="submit"

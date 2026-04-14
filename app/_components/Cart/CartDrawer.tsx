@@ -43,6 +43,7 @@ export function CartDrawer() {
         console.error('Checkout error:', data.error);
       }
     } catch (err) {
+      setError('Something went wrong. Please try again.');
       console.error('Checkout error:', err);
     } finally {
       setLoading(false);

@@ -23,13 +23,13 @@ export default function AddProductPage() {
       if (file.size > MAX_FILE_SIZE) {
         setFileError(`Cover image exceeds 15 MB limit (${(file.size / 1024 / 1024).toFixed(1)} MB). Please choose a smaller file.`);
         e.target.value = '';
-        setPreview(null);
+        setPreview((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
         return;
       }
       const url = URL.createObjectURL(file);
-      setPreview(url);
+      setPreview((prev) => { if (prev) URL.revokeObjectURL(prev); return url; });
     } else {
-      setPreview(null);
+      setPreview((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
     }
   }
 
@@ -52,7 +52,10 @@ export default function AddProductPage() {
       return;
     }
 
-    setSecondaryPreviews(files.map(f => URL.createObjectURL(f)));
+    setSecondaryPreviews((prev) => {
+      prev.forEach((url) => { if (url) URL.revokeObjectURL(url); });
+      return files.map(f => URL.createObjectURL(f));
+    });
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -75,8 +78,11 @@ export default function AddProductPage() {
       formRef.current?.reset();
       // Use setTimeout to defer state update and avoid cascading renders
       const timer = setTimeout(() => {
-        setPreview(null);
-        setSecondaryPreviews([]);
+        setPreview((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
+        setSecondaryPreviews((prev) => {
+          prev.forEach((url) => { if (url) URL.revokeObjectURL(url); });
+          return [];
+        });
       }, 0);
       return () => clearTimeout(timer);
     }

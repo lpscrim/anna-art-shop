@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Missing ids query param' }, { status: 400 });
   }
 
-  const priceIds = idsParam.split(',').filter(Boolean);
+  const priceIds = idsParam.split(',').filter(Boolean).slice(0, 50);
   if (priceIds.length === 0) {
     return NextResponse.json({ error: 'No IDs provided' }, { status: 400 });
   }
