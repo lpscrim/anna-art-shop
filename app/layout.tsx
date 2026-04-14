@@ -13,19 +13,26 @@ function getSiteUrl(): string {
   const vercel = process.env.VERCEL_URL;
   if (vercel) return `https://${vercel}`;
 
-  return "https://example.com";
+  return "https://annamaiaart.com";
 }
 
 const siteUrl = new URL(getSiteUrl()).origin;
 
 
 const seoKeywords = [
-  "photography",
-  "fine art photography",
+  "landscape art",
+  "fine art",
   "visual art",
+  "nature art",
+  "oil painting",
   "portfolio",
-  // TODO: Add your keywords here
-];
+  "art shop",
+  "art for sale",
+  "art prints",
+  "original art",
+  "art collection",
+  "art gallery",
+  "artwork",];
 
 
 
@@ -36,14 +43,14 @@ export const metadata: Metadata = {
     template: "%s | Art Shop",
   },
   description:
-    "Portfolio website showcasing photography and visual art projects.",
+    "Portfolio website showcasing landscape art.",
   alternates: {
     canonical: "/",
   },
   keywords: seoKeywords,
-  category: "Photography",
-  authors: [{ name: "Your Name" }],
-  creator: "Your Name",
+  category: "art",
+  authors: [{ name: "Annamaiaart" }],
+  creator: "Annamaiaart",
   publisher: "Art Shop",
   openGraph: {
     type: "website",
@@ -51,14 +58,14 @@ export const metadata: Metadata = {
     siteName: "Art Shop",
     title: "Art Shop",
     description:
-      "Portfolio website showcasing photography and visual art projects.",
+      "Portfolio website showcasing landscape art.",
     locale: "en_GB",
   },
   twitter: {
     card: "summary_large_image",
     title: "Art Shop",
     description:
-      "Portfolio website showcasing photography and visual art projects.",
+      "Portfolio website showcasing landscape art.",
   },
 };
 
