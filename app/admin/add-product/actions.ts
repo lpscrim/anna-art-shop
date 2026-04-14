@@ -5,6 +5,13 @@ import { getStripe } from '@/app/_lib/stripe';
 import { revalidatePath } from 'next/cache';
 import { requireAdminUser } from '@/app/_lib/adminAuth';
 
+const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif'];
+
+function isAllowedImageFile(file: File): boolean {
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+  return ALLOWED_IMAGE_EXTENSIONS.includes(ext);
+}
+
 export interface AddProductState {
   success: boolean;
   error?: string;
@@ -41,6 +48,9 @@ export async function addProduct(
     if (imageFile && imageFile.size > 15 * 1024 * 1024)
       return { success: false, error: 'Cover image exceeds 15 MB limit. Please choose a smaller file.' };
 
+    if (imageFile && imageFile.size > 0 && !isAllowedImageFile(imageFile))
+      return { success: false, error: 'Cover image must be a JPG, PNG, WebP, AVIF, or GIF.' };
+
     const validSecondary = secondaryFiles.filter(f => f.size > 0);
     if (validSecondary.length > 4)
       return { success: false, error: 'You can upload a maximum of 4 gallery images.' };
@@ -48,6 +58,10 @@ export async function addProduct(
     const oversized = validSecondary.find(f => f.size > 15 * 1024 * 1024);
     if (oversized)
       return { success: false, error: `Gallery image "${oversized.name}" exceeds 15 MB limit.` };
+
+    const invalidType = validSecondary.find(f => !isAllowedImageFile(f));
+    if (invalidType)
+      return { success: false, error: `Gallery image "${invalidType.name}" is not an allowed image type.` };
     if (!priceStr?.trim()) return { success: false, error: 'Price is required.' };
 
     const priceHw = Math.round(parseFloat(priceStr) * 100); // pounds → pence

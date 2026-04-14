@@ -5,6 +5,13 @@ import { createServerSupabase } from '@/app/_lib/supabase';
 import { getStripe } from '@/app/_lib/stripe';
 import { requireAdminUser } from '@/app/_lib/adminAuth';
 
+const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif'];
+
+function isAllowedImageFile(file: File): boolean {
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+  return ALLOWED_IMAGE_EXTENSIONS.includes(ext);
+}
+
 export interface UpdateProductState {
   success: boolean;
   error?: string;
@@ -65,6 +72,10 @@ export async function updateProduct(
       return { success: false, error: 'Cover image exceeds 15 MB limit.' };
     }
 
+    if (imageFile && imageFile.size > 0 && !isAllowedImageFile(imageFile)) {
+      return { success: false, error: 'Cover image must be a JPG, PNG, WebP, AVIF, or GIF.' };
+    }
+
     const validSecondary = secondaryFiles.filter((f) => f.size > 0);
     if (validSecondary.length > MAX_SECONDARY) {
       return { success: false, error: 'You can upload a maximum of 4 gallery images.' };
@@ -73,6 +84,11 @@ export async function updateProduct(
     const oversized = validSecondary.find((f) => f.size > MAX_FILE_SIZE);
     if (oversized) {
       return { success: false, error: `Gallery image "${oversized.name}" exceeds 15 MB limit.` };
+    }
+
+    const invalidType = validSecondary.find((f) => !isAllowedImageFile(f));
+    if (invalidType) {
+      return { success: false, error: `Gallery image "${invalidType.name}" is not an allowed image type.` };
     }
 
     const categories = categoriesRaw
