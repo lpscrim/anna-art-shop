@@ -186,6 +186,10 @@ export async function updateProduct(
           currency: 'gbp',
         });
 
+        if (existing.stripe_price_id) {
+          await stripe.prices.update(existing.stripe_price_id, { active: false });
+        }
+
         await supabase
           .from('products')
           .update({ stripe_price_id: stripePrice.id })
