@@ -39,11 +39,12 @@ export function Hero() {
       </div>
       {/* Mobile */}
       <div className="flex md:hidden w-full h-svh relative overflow-hidden justify-center items-center">
-        <Image 
-          src="/pic1.JPG" 
-          alt="Hero background" 
-          fill 
-          className="object-cover object-center"
+        <video 
+          src="/vid.mp4" 
+          autoPlay 
+          loop 
+          muted
+          className="object-cover object-center h-full"
         />
         <motion.div
           className="absolute left-0 right-0 top-0 bg-background"
@@ -58,12 +59,12 @@ export function Hero() {
           transition={{ duration: 2, ease: 'easeInOut', delay: 1.5 }}
         />
         <motion.h2 
-          className="absolute inset-0 flex items-center justify-center text-[15vw] font-mono tracking-wide font-bold text-background z-10"
+          className="absolute inset-0 flex items-center justify-center text-[12vw] font-mono tracking-wide font-bold text-background z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 7, delay: 0.15 }}
+          transition={{ duration: 7, delay: 0.25 }}
         >
-          PORTFOLIO
+          ANNAMAIAART
         </motion.h2>
       </div>
 
