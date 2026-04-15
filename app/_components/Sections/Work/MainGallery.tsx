@@ -18,7 +18,11 @@ interface Project {
 export interface MainGalleryProps {
   selectedCategories: string[];
   setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
+  inStockOnly: boolean;
+  setInStockOnly: React.Dispatch<React.SetStateAction<boolean>>;
   filteredProjects: Project[];
+  totalCount: number;
+  inStockCount: number;
   sortedVisibleCategories: [string, number][];
   toggleCategory: (cat: string) => void;
   onCardClick: (index: number, project: Project) => void;
@@ -28,7 +32,11 @@ export interface MainGalleryProps {
 export function MainGallery({
   selectedCategories,
   setSelectedCategories,
+  inStockOnly,
+  setInStockOnly,
   filteredProjects,
+  totalCount,
+  inStockCount,
   sortedVisibleCategories,
   toggleCategory,
   onCardClick,
@@ -38,14 +46,23 @@ export function MainGallery({
     <>
       <div className="pt-12 pb-4 px-0 rounded-xs flex flex-wrap gap-4 w-full">
         <div className="xl:w-1/2 text-sm sm:text-base py-2">
-          <div>
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => {
                 setSelectedCategories([]);
+                setInStockOnly(false);
               }}
-              className={`mr-2 cursor-crosshair transition-opacity ${selectedCategories.length === 0 ? "text-foreground" : "text-foreground/50"}`}
+              className={`cursor-crosshair transition-opacity ${selectedCategories.length === 0 && !inStockOnly ? "text-foreground" : "text-foreground/50"}`}
             >
-              PROJECTS [{filteredProjects.length}]
+              ALL [{totalCount}]
+            </button>
+            <button
+              onClick={() => {
+                setInStockOnly(!inStockOnly);
+              }}
+              className={`cursor-crosshair transition-opacity ${inStockOnly ? "text-foreground underline font-semibold" : "text-foreground/50"}`}
+            >
+              AVAILABLE [{inStockCount}]
             </button>
           </div>
           <div className="flex flex-wrap gap-0 mt-2">

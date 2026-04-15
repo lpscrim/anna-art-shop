@@ -34,6 +34,7 @@ export function WorkGallery({
   const router = useRouter();
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [inStockOnly, setInStockOnly] = useState(false);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState<string[]>([]);
@@ -94,10 +95,22 @@ export function WorkGallery({
   }, [projects]);
 
 
-  // Filtered projects by selected categories
-  const filteredProjects = selectedCategories.length > 0
-    ? projects.filter((p) => selectedCategories.every(cat => p.categories.includes(cat)))
-    : projects;
+  // Filtered projects by selected categories and stock filter
+  const filteredProjects = useMemo(() => {
+    let result = projects;
+    if (selectedCategories.length > 0) {
+      result = result.filter((p) => selectedCategories.every(cat => p.categories.includes(cat)));
+    }
+    if (inStockOnly) {
+      result = result.filter((p) => getStock(p) > 0);
+    }
+    return result;
+  }, [projects, selectedCategories, inStockOnly, getStock]);
+
+  const inStockCount = useMemo(
+    () => projects.filter((p) => getStock(p) > 0).length,
+    [projects, getStock]
+  );
 
   // Category counts
   const visibleCategoryCounts: Record<string, number> = filteredProjects.reduce((acc, project) => {
@@ -158,6 +171,7 @@ export function WorkGallery({
       if (cancelled) return;
 
       setSelectedCategories([]);
+      setInStockOnly(false);
 
       const imgs = [project.imageUrl, ...(project.galleryImages || [])];
       setIsProject(true);
@@ -205,7 +219,11 @@ export function WorkGallery({
         getStockLevel={getStock}
         selectedCategories={selectedCategories}
         setSelectedCategories={setSelectedCategories}
+        inStockOnly={inStockOnly}
+        setInStockOnly={setInStockOnly}
         filteredProjects={filteredProjects}
+        totalCount={projects.length}
+        inStockCount={inStockCount}
         sortedVisibleCategories={sortedVisibleCategories}
         toggleCategory={toggleCategory}
         onCardClick={handleCardClick}
