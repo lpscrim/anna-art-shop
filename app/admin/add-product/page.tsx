@@ -119,18 +119,6 @@ export default function AddProductPage() {
       <div className="max-w-lg mx-auto">
         <h1 className="text-3xl tracking-tight mb-8">ADD PRODUCT</h1>
 
-        {(state.error || fileError) && (
-          <div className="mb-6 rounded-md border border-red-400 bg-red-50 px-4 py-3 text-red-700 text-sm">
-            {fileError || state.error}
-          </div>
-        )}
-
-        {state.success && (
-          <div className="mb-6 rounded-md border border-green-400 bg-green-50 px-4 py-3 text-green-700 text-sm">
-            Product created successfully!
-          </div>
-        )}
-
         <form ref={formRef} action={formAction} onSubmit={handleSubmit} className="space-y-5">
           {/* Name */}
           <label className="block">
@@ -254,6 +242,21 @@ export default function AddProductPage() {
               ))}
             </div>
           )}
+
+          {/* Notifications */}
+          <div>
+            {(state.error || fileError) && (
+              <div className="rounded-md border border-red-400 bg-red-50 px-4 py-3 text-red-700 text-sm">
+                {fileError || state.error}
+              </div>
+            )}
+
+            {state.success && (
+              <div className="rounded-md border border-green-400 bg-green-50 px-4 py-3 text-green-700 text-sm">
+                Product created successfully!
+              </div>
+            )}
+          </div>
 
           {/* Submit */}
           <button
