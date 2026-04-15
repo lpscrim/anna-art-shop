@@ -23,7 +23,7 @@ export function About() {
 
           <div className="flex justify-end items-center">
             <Image 
-              src="/pin.webp"  
+              src="/ANNA.png"  
               alt="Anna Maia"
               width={1600}
               height={900}
