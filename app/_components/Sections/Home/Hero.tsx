@@ -2,8 +2,20 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { useRef, useCallback } from 'react';
 
 export function Hero() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleEnded = useCallback(() => {
+    // Pause on first frame for 3 seconds before looping
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = 0;
+    video.pause();
+    setTimeout(() => video.play(), 3000);
+  }, []);
+
   return (
     <section id="home" className="min-h-svh flex flex-col justify-center items-center">
       {/* Top image strip - Desktop */}
@@ -40,10 +52,12 @@ export function Hero() {
       {/* Mobile */}
       <div className="flex md:hidden w-full h-svh relative overflow-hidden justify-center items-center">
         <video 
+          ref={videoRef}
           src="/vid.mp4" 
           autoPlay 
-          loop 
           muted
+          playsInline
+          onEnded={handleEnded}
           className="object-cover object-center h-full"
         />
         <motion.div
