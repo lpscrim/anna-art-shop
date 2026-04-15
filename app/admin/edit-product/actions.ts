@@ -22,7 +22,7 @@ export interface DeleteProductState {
   error?: string;
 }
 
-const MAX_FILE_SIZE = 15 * 1024 * 1024;
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
 const MAX_SECONDARY = 4;
 
 function parseStoragePath(publicUrl: string, bucket: string): string | null {

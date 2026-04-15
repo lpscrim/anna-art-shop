@@ -45,8 +45,8 @@ export async function addProduct(
     // ---------- Validation ----------
     if (!name?.trim()) return { success: false, error: 'Name is required.' };
 
-    if (imageFile && imageFile.size > 15 * 1024 * 1024)
-      return { success: false, error: 'Cover image exceeds 15 MB limit. Please choose a smaller file.' };
+    if (imageFile && imageFile.size > 4 * 1024 * 1024)
+      return { success: false, error: 'Cover image exceeds 4 MB limit.' };
 
     if (imageFile && imageFile.size > 0 && !isAllowedImageFile(imageFile))
       return { success: false, error: 'Cover image must be a JPG, PNG, WebP, AVIF, or GIF.' };
@@ -55,9 +55,9 @@ export async function addProduct(
     if (validSecondary.length > 4)
       return { success: false, error: 'You can upload a maximum of 4 gallery images.' };
 
-    const oversized = validSecondary.find(f => f.size > 15 * 1024 * 1024);
+    const oversized = validSecondary.find(f => f.size > 4 * 1024 * 1024);
     if (oversized)
-      return { success: false, error: `Gallery image "${oversized.name}" exceeds 15 MB limit.` };
+      return { success: false, error: `Gallery image "${oversized.name}" exceeds 4 MB limit.` };
 
     const invalidType = validSecondary.find(f => !isAllowedImageFile(f));
     if (invalidType)

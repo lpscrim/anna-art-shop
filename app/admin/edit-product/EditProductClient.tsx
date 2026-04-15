@@ -10,11 +10,12 @@ import {
   type DeleteProductState,
   type UpdateProductState,
 } from "./actions";
+import { compressImage } from "../compressImage";
 
 const initialUpdateState: UpdateProductState = { success: false };
 const initialDeleteState: DeleteProductState = { success: false };
-const MAX_FILE_SIZE = 15 * 1024 * 1024;
-const MAX_TOTAL_SIZE = 95 * 1024 * 1024; // stay under server action body limit
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
+const MAX_TOTAL_SIZE = 4 * 1024 * 1024; // Vercel serverless limit
 const MAX_SECONDARY = 4;
 
 export default function EditProductClient({
@@ -26,6 +27,7 @@ export default function EditProductClient({
     () => products[0]?.id ?? null,
   );
   const [fileError, setFileError] = useState<string | null>(null);
+  const [compressing, setCompressing] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
   const [updateState, updateAction, isUpdating] = useActionState(
@@ -67,10 +69,8 @@ export default function EditProductClient({
     const file = e.target.files?.[0];
     setFileError(null);
     if (!file) return;
-    if (file.size > MAX_FILE_SIZE) {
-      setFileError(
-        `Cover image exceeds 15 MB limit (${(file.size / 1024 / 1024).toFixed(1)} MB).`,
-      );
+    if (!file.type.startsWith('image/')) {
+      setFileError('Please select an image file.');
       e.target.value = "";
     }
   }
@@ -85,26 +85,51 @@ export default function EditProductClient({
       e.target.value = "";
       return;
     }
-    const oversized = files.find((f) => f.size > MAX_FILE_SIZE);
-    if (oversized) {
-      setFileError(`Gallery image "${oversized.name}" exceeds 15 MB limit.`);
-      e.target.value = "";
-    }
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setFileError(null);
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    let totalSize = 0;
-    for (const value of formData.values()) {
-      if (value instanceof File) totalSize += value.size;
-    }
-    if (totalSize > MAX_TOTAL_SIZE) {
-      e.preventDefault();
-      setFileError(
-        `Total upload size (${(totalSize / 1024 / 1024).toFixed(1)} MB) exceeds the ${(MAX_TOTAL_SIZE / 1024 / 1024).toFixed(0)} MB limit. Use smaller or fewer images.`,
-      );
+    setCompressing(true);
+
+    try {
+      const form = e.currentTarget;
+      const formData = new FormData(form);
+
+      // Compress cover image
+      const coverFile = formData.get('image') as File | null;
+      if (coverFile && coverFile.size > 0) {
+        const compressed = await compressImage(coverFile);
+        formData.set('image', compressed);
+      }
+
+      // Compress secondary images
+      const secondaryFiles = formData.getAll('secondary') as File[];
+      formData.delete('secondary');
+      for (const file of secondaryFiles) {
+        if (file.size > 0) {
+          const compressed = await compressImage(file);
+          formData.append('secondary', compressed);
+        } else {
+          formData.append('secondary', file);
+        }
+      }
+
+      // Check total size after compression
+      let totalSize = 0;
+      for (const value of formData.values()) {
+        if (value instanceof File) totalSize += value.size;
+      }
+      if (totalSize > MAX_TOTAL_SIZE) {
+        setFileError(`Total upload size (${(totalSize / 1024 / 1024).toFixed(1)} MB) is still too large after compression. Use fewer or smaller images.`);
+        return;
+      }
+
+      updateAction(formData);
+    } catch (err) {
+      setFileError(`Image compression failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setCompressing(false);
     }
   }
 
@@ -308,10 +333,10 @@ export default function EditProductClient({
           </div>
           <button
             type="submit"
-            disabled={isUpdating}
+            disabled={isUpdating || compressing}
             className="w-full rounded-md bg-foreground px-4 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {isUpdating ? "Updating…" : "Update Product"}
+            {compressing ? "Compressing images…" : isUpdating ? "Updating…" : "Update Product"}
           </button>
         </form>
 

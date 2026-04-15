@@ -2,10 +2,11 @@
 
 import { useActionState, useRef, useState, useEffect } from 'react';
 import { addProduct, type AddProductState } from './actions';
+import { compressImage } from '../compressImage';
 
 const initialState: AddProductState = { success: false };
-const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15 MB
-const MAX_TOTAL_SIZE = 95 * 1024 * 1024; // stay under server action body limit
+const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4 MB (post-compression safety net)
+const MAX_TOTAL_SIZE = 4 * 1024 * 1024; // 4 MB total — Vercel serverless limit
 const MAX_SECONDARY = 4;
 
 export default function AddProductPage() {
@@ -14,14 +15,15 @@ export default function AddProductPage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [secondaryPreviews, setSecondaryPreviews] = useState<(string | null)[]>([]);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [compressing, setCompressing] = useState(false);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     setFileError(null);
 
     if (file) {
-      if (file.size > MAX_FILE_SIZE) {
-        setFileError(`Cover image exceeds 15 MB limit (${(file.size / 1024 / 1024).toFixed(1)} MB). Please choose a smaller file.`);
+      if (!file.type.startsWith('image/')) {
+        setFileError('Please select an image file.');
         e.target.value = '';
         setPreview((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
         return;
@@ -44,31 +46,55 @@ export default function AddProductPage() {
       return;
     }
 
-    const oversized = files.find(f => f.size > MAX_FILE_SIZE);
-    if (oversized) {
-      setFileError(`Secondary image "${oversized.name}" exceeds 15 MB limit (${(oversized.size / 1024 / 1024).toFixed(1)} MB).`);
-      e.target.value = '';
-      setSecondaryPreviews([]);
-      return;
-    }
-
     setSecondaryPreviews((prev) => {
       prev.forEach((url) => { if (url) URL.revokeObjectURL(url); });
       return files.map(f => URL.createObjectURL(f));
     });
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setFileError(null);
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    let totalSize = 0;
-    for (const value of formData.values()) {
-      if (value instanceof File) totalSize += value.size;
-    }
-    if (totalSize > MAX_TOTAL_SIZE) {
-      e.preventDefault();
-      setFileError(`Total upload size (${(totalSize / 1024 / 1024).toFixed(1)} MB) exceeds the ${(MAX_TOTAL_SIZE / 1024 / 1024).toFixed(0)} MB limit. Use smaller or fewer images.`);
+    setCompressing(true);
+
+    try {
+      const form = e.currentTarget;
+      const formData = new FormData(form);
+
+      // Compress cover image
+      const coverFile = formData.get('image') as File | null;
+      if (coverFile && coverFile.size > 0) {
+        const compressed = await compressImage(coverFile);
+        formData.set('image', compressed);
+      }
+
+      // Compress secondary images
+      const secondaryFiles = formData.getAll('secondary') as File[];
+      formData.delete('secondary');
+      for (const file of secondaryFiles) {
+        if (file.size > 0) {
+          const compressed = await compressImage(file);
+          formData.append('secondary', compressed);
+        } else {
+          formData.append('secondary', file);
+        }
+      }
+
+      // Check total size after compression
+      let totalSize = 0;
+      for (const value of formData.values()) {
+        if (value instanceof File) totalSize += value.size;
+      }
+      if (totalSize > MAX_TOTAL_SIZE) {
+        setFileError(`Total upload size (${(totalSize / 1024 / 1024).toFixed(1)} MB) is still too large after compression. Use fewer or smaller images.`);
+        return;
+      }
+
+      formAction(formData);
+    } catch (err) {
+      setFileError(`Image compression failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setCompressing(false);
     }
   }
 
@@ -232,10 +258,10 @@ export default function AddProductPage() {
           {/* Submit */}
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || compressing}
             className="w-full rounded-md bg-foreground px-4 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {isPending ? 'Creating…' : 'Create Product'}
+            {compressing ? 'Compressing images…' : isPending ? 'Creating…' : 'Create Product'}
           </button>
         </form>
       </div>
