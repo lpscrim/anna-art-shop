@@ -41,7 +41,7 @@ export function Hero() {
           transition={{ duration: 2, ease: 'easeInOut', delay: 1.5 }}
         />
         <motion.h2 
-          className="absolute inset-0 flex items-center justify-center text-[12.5vw] tracking-wide font-bold text-background z-10"
+          className="absolute inset-0 flex items-center justify-center text-[15vw] tracking-wide font-bold text-background z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.8 }}
           transition={{ duration: 7, delay: 0.15 }}
@@ -73,9 +73,9 @@ export function Hero() {
           transition={{ duration: 2, ease: 'easeInOut', delay: 1.5 }}
         />
         <motion.h2 
-          className="absolute inset-0 flex items-center justify-center text-[12vw] font-mono tracking-wide font-bold text-background z-10"
+          className="absolute inset-0 flex items-center justify-center text-[15vw] font-mono tracking-wide font-bold text-background z-10"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          animate={{ opacity: 0.9 }}
           transition={{ duration: 7, delay: 0.25 }}
         >
           ANNAMAIAART
