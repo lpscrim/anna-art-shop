@@ -4,11 +4,10 @@ import { motion } from 'framer-motion';
 import { useRef, useCallback } from 'react';
 
 export function Hero() {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const desktopVideoRef = useRef<HTMLVideoElement>(null);
+  const mobileVideoRef = useRef<HTMLVideoElement>(null);
 
-  const handleEnded = useCallback(() => {
-    // Pause on first frame for 3 seconds before looping
-    const video = videoRef.current;
+  const handleEnded = useCallback((video: HTMLVideoElement | null) => {
     if (!video) return;
     video.currentTime = 0;
     video.pause();
@@ -22,12 +21,12 @@ export function Hero() {
       <div className="hidden md:flex w-full h-svh relative overflow-hidden justify-center items-center">
         {/* Static image positioned in background */}
         <video 
-          ref={videoRef}
+          ref={desktopVideoRef}
           src="/Banner Landscape.mp4" 
           autoPlay 
           muted
           playsInline
-          onEnded={handleEnded}
+          onEnded={() => handleEnded(desktopVideoRef.current)}
           className="object-cover object-center h-auto min-h-full w-full"
         />
         {/* Animated mask overlays that shrink to reveal image */}
@@ -55,12 +54,12 @@ export function Hero() {
       {/* Mobile */}
       <div className="flex md:hidden w-full h-svh relative overflow-hidden justify-center items-center">
         <video 
-          ref={videoRef}
+          ref={mobileVideoRef}
           src="/Banner Portrait.mp4" 
           autoPlay 
           muted
           playsInline
-          onEnded={handleEnded}
+          onEnded={() => handleEnded(mobileVideoRef.current)}
           className="object-cover object-center h-auto min-h-full w-full"
         />
         <motion.div
