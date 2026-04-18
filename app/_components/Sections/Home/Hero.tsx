@@ -19,14 +19,17 @@ export function Hero() {
   return (
     <section id="home" className="min-h-svh flex flex-col justify-center items-center">
       {/* Top image strip - Desktop */}
-      <div className='absolute bg-black/15 w-full h-full z-9'></div>
+      <div className='absolute bg-black/5 backdrop-blur-none w-full h-full z-9'></div>
       <div className="hidden md:flex w-full h-svh relative overflow-hidden justify-center items-center">
         {/* Static image positioned in background */}
-        <Image 
-          src="/tree1.JPG" 
-          alt="Hero background" 
-          fill 
-          className="object-cover object-center"
+        <video 
+          ref={videoRef}
+          src="/Banner Landscape.mp4" 
+          autoPlay 
+          muted
+          playsInline
+          onEnded={handleEnded}
+          className="object-cover object-center h-auto min-h-full w-full"
         />
         {/* Animated mask overlays that shrink to reveal image */}
         <motion.div
@@ -42,7 +45,7 @@ export function Hero() {
           transition={{ duration: 2, ease: 'easeInOut', delay: 1.5 }}
         />
         <motion.h2 
-          className="absolute inset-0 flex items-center font-medium justify-center text-[8vw] tracking-wide text-background z-10"
+          className="absolute inset-0 flex items-center font-medium justify-center text-[6vw] tracking-wide text-background z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.8 }}
           transition={{ duration: 7, delay: 0.15 }}
@@ -54,7 +57,7 @@ export function Hero() {
       <div className="flex md:hidden w-full h-svh relative overflow-hidden justify-center items-center">
         <video 
           ref={videoRef}
-          src="/vid.mp4" 
+          src="/Banner Portrait.mp4" 
           autoPlay 
           muted
           playsInline
