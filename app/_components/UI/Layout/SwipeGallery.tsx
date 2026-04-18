@@ -54,13 +54,13 @@ export function SwipeGallery({ images, alt, className = "" }: SwipeGalleryProps)
       />
 
       {/* Dots */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2.5">
         {images.map((_, i) => (
           <button
             key={i}
             onClick={() => setIndex(i)}
             aria-label={`Go to image ${i + 1}`}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
               i === index ? "bg-white/90 scale-110" : "bg-white/40"
             }`}
           />
