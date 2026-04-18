@@ -45,12 +45,14 @@ export function Hero() {
           transition={{ duration: 2, ease: 'easeInOut', delay: 1.5 }}
         />
         <motion.h2 
-          className="absolute inset-0 flex items-center font-medium justify-center text-[6vw] tracking-wide text-background z-10"
+          className="absolute inset-0 flex items-center text-center font-medium justify-center text-[3vw]/[3vw] tracking-wide text-background z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.95 }}
           transition={{ duration: 7, delay: 0.15 }}
         >
-          Annamaiaart
+          Anna Maia<br/>
+          -<br/>
+          Art
         </motion.h2>
       </div>
       {/* Mobile */}
@@ -77,12 +79,14 @@ export function Hero() {
           transition={{ duration: 2, ease: 'easeInOut', delay: 1.5 }}
         />
         <motion.h2 
-          className="absolute inset-0 flex items-center justify-center text-[8vw] font-mono tracking-wide font-bold text-background z-10"
+          className="absolute inset-0 flex items-center text-center font-medium justify-center text-[5vw]/[6vw] tracking-wide text-background z-10"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.9 }}
-          transition={{ duration: 7, delay: 1 }}
+          animate={{ opacity: 0.95 }}
+          transition={{ duration: 7, delay: 0.15 }}
         >
-          Annamaiaart
+          Anna Maia<br/>
+          -<br/>
+          Art
         </motion.h2>
       </div>
 

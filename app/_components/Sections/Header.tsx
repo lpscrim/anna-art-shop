@@ -51,7 +51,7 @@ export function Header() {
   return (
     <header className={`fixed text-2xl top-0 left-0 right-0 z-999 px-6 `}>
       {!isLight && (
-        <div className="absolute inset-0 w-full h-full  bg-background/90 z-0 pointer-events-none transition-all duration-500" />
+        <div className="absolute inset-0 w-full h-full  bg-background z-0 pointer-events-none transition-all duration-500" />
       )}
       <div className="relative mx-auto py-4 z-10">
         <div className="flex items-center justify-between">
@@ -62,14 +62,14 @@ export function Header() {
                 isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
               }`}
             >
-              Annamaiaart
+              Anna Maia Art
             </span>
             <span
-              className={`tracking-wide title font-light text-background invisible sm:visible absolute left-0 top-0 transition-all duration-500 ${
+              className={`tracking-wide title font-light text-background invisible  absolute left-0 top-0 transition-all duration-500 ${
                 isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
               }`}
             >
-              Annamaiaart
+              Anna Maia Art
             </span>
           </button>
 
@@ -158,7 +158,7 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <nav className={`md:hidden flex flex-col gap-4 text-lg pt-4 `}>
+          <nav className={`md:hidden flex flex-col gap-4 text-xl pt-4 `}>
             <button
               onClick={() => setIsMenuOpen(false)}
               className={`title pop-up opacity-0 text-left transition-colors ${
