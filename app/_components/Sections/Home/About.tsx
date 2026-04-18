@@ -1,6 +1,10 @@
-import Image from "next/image";
+"use client";
+
+import { SwipeGallery } from "../../UI/Layout/SwipeGallery";
 {/*import Button from "../../UI/Layout/Button";
 import Link from "next/link";*/}
+
+const aboutImages = ["/ANNA.webp", "/art123.webp", "/About1_sm.webp", "/About2_sm.webp", "/About3_sm.webp"];
 
 export function About() {
   return (
@@ -22,13 +26,11 @@ export function About() {
           </div>
 
           <div className="flex justify-end items-center">
-            <Image 
-              src="/ANNA.png"  
+            <SwipeGallery
+              images={aboutImages}
               alt="Anna Maia"
-              width={1600}
-              height={900}
-              className=" h-full w-full lg:w-4/5 rounded-sm aspect-4/3 object-cover "
-              />
+              className="h-full w-full lg:w-4/5 rounded-sm aspect-4/3 object-cover"
+            />
 
           </div>
         </div>
