@@ -58,7 +58,7 @@ export function Hero() {
           muted
           playsInline
           onEnded={handleEnded}
-          className="object-cover object-center h-auto w-full"
+          className="object-cover object-center h-auto min-h-full w-full"
         />
         <motion.div
           className="absolute left-0 right-0 top-0 bg-background"
