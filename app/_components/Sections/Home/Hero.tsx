@@ -9,9 +9,11 @@ export function Hero() {
 
   const handleEnded = useCallback((video: HTMLVideoElement | null) => {
     if (!video) return;
-    video.currentTime = 0;
     video.pause();
-    setTimeout(() => video.play(), 3000);
+    setTimeout(() => {
+      video.currentTime = 0;
+      video.play();
+    }, 5000);
   }, []);
 
   return (
