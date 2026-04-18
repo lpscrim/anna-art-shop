@@ -51,7 +51,7 @@ export function Header() {
   return (
     <header className={`fixed text-2xl top-0 left-0 right-0 z-999 px-6 `}>
       {!isLight && (
-        <div className="absolute inset-0 w-full h-full backdrop-blur-sm bg-background z-0 pointer-events-none transition-all duration-500" />
+        <div className="absolute inset-0 w-full h-full  bg-background/0 z-0 pointer-events-none transition-all duration-500" />
       )}
       <div className="relative mx-auto py-4 z-10">
         <div className="flex items-center justify-between">
@@ -65,7 +65,7 @@ export function Header() {
               Annamaiaart
             </span>
             <span
-              className={`tracking-wide title font-light text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
+              className={`tracking-wide title font-light text-background invisible sm:visible hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
                 isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
               }`}
             >
@@ -169,7 +169,7 @@ export function Header() {
               
             >
               <Link href="/work" className="cursor-crosshair">
-                WORK
+                Work
               </Link>
             </button>
             <button
@@ -181,7 +181,7 @@ export function Header() {
               }`}
               onClick={() => { conditionalScrollTo('#about'); setIsMenuOpen(false); }}
             >
-                ABOUT
+                About
             </button>
             <button
               className={`title pop-up-3 opacity-0 text-left transition-colors cursor-crosshair ${
@@ -191,7 +191,7 @@ export function Header() {
               }`}
               onClick={() => { conditionalScrollTo('#contact'); setIsMenuOpen(false); }}
             >
-                CONTACT
+                Contact
             </button>
             <button
               className={`title pop-up-4 opacity-0 text-left transition-colors cursor-crosshair ${
@@ -201,7 +201,7 @@ export function Header() {
               }`}
               onClick={() => { toggleCart(); setIsMenuOpen(false); }}
             >
-                CART{count > 0 && <span className="text-black"> [{count}]</span>}
+                Cart{count > 0 && <span className="text-black"> [{count}]</span>}
             </button>
           </nav>
         )}

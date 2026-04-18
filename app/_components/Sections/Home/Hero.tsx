@@ -73,12 +73,12 @@ export function Hero() {
           transition={{ duration: 2, ease: 'easeInOut', delay: 1.5 }}
         />
         <motion.h2 
-          className="absolute inset-0 flex items-center justify-center text-[15vw] font-mono tracking-wide font-bold text-background z-10"
+          className="absolute inset-0 flex items-center justify-center text-[8vw] font-mono tracking-wide font-bold text-background z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.9 }}
-          transition={{ duration: 7, delay: 0.25 }}
+          transition={{ duration: 7, delay: 1 }}
         >
-          ANNAMAIAART
+          Annamaiaart
         </motion.h2>
       </div>
 

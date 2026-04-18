@@ -83,7 +83,7 @@
 
 
 :root {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'EB Garamond', monospace;
   --font-size: 16px;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
@@ -239,6 +239,10 @@ h1, h2, h3, h4, button, .title {
   font-family: 'EB Garamond', sans-serif;
   text-transform: none;
   font-weight: 200;
+}
+
+body {
+  font-family: 'EB Garamond', sans-serif;
 }
 
 @layer utilities {

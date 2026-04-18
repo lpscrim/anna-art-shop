@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Button from "../../UI/Layout/Button";
-import Link from "next/link";
+{/*import Button from "../../UI/Layout/Button";
+import Link from "next/link";*/}
 
 export function About() {
   return (
@@ -12,7 +12,7 @@ export function About() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-16 max-w-7xl mx-auto">
-          <div className="space-y-6 text-lg">
+          <div className="space-y-6 text-xl xl:text-2xl">
             <p>
               Anna is a Scottish artist drawn to the mountains — their weight, their stillness, the way light moves across them. Working primarily in oil on canvas and mixed media, she translates landscape into something more abstract, stripping back detail to capture what a place feels like rather than how it looks.
             </p>
@@ -27,7 +27,7 @@ export function About() {
               alt="Anna Maia"
               width={1600}
               height={900}
-              className=" h-full w-full lg:w-4/5 rounded-xs aspect-4/3 object-cover grayscale"
+              className=" h-full w-full lg:w-4/5 rounded-sm aspect-4/3 object-cover "
               />
 
           </div>
