@@ -214,7 +214,7 @@ export function WorkGallery({
   };
 
   return (
-    <section id="work" className="min-h-[75svh] px-6 w-full">
+    <section id="work" className="min-h-[75svh] px-6 pt-2 w-full">
       {!modalOpen && <MainGallery
         getStockLevel={getStock}
         selectedCategories={selectedCategories}

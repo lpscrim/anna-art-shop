@@ -25,8 +25,8 @@ export function Card(project: {
         height={!useFill ? project.imageHeight : undefined}
         quality={project.imageQuality}
         className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${
-          project.categories.includes("COLOUR")
-            ? "md:grayscale group-hover:grayscale-0"
+          project.categories.includes("B+W")
+            ? "grayscale"
             : ""
         }`}
       />

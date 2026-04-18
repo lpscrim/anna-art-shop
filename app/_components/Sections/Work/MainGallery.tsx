@@ -45,7 +45,7 @@ export function MainGallery({
   return (
     <>
       <div className="pt-12 pb-4 px-0 rounded-xs flex flex-wrap gap-4 w-full">
-        <div className="xl:w-1/2 text-sm sm:text-base py-2">
+        <div className="xl:w-1/2 text-base sm:text-lg py-2">
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => {
@@ -54,7 +54,7 @@ export function MainGallery({
               }}
               className={`cursor-crosshair transition-opacity ${selectedCategories.length === 0 && !inStockOnly ? "text-foreground" : "text-foreground/50"}`}
             >
-              ALL [{totalCount}]
+              All [{totalCount}]
             </button>
             <button
               onClick={() => {
@@ -62,7 +62,7 @@ export function MainGallery({
               }}
               className={`cursor-crosshair transition-opacity ${inStockOnly ? "text-foreground underline font-semibold" : "text-foreground/50"}`}
             >
-              AVAILABLE [{inStockCount}]
+              Available [{inStockCount}]
             </button>
           </div>
           <div className="flex flex-wrap gap-0 mt-2">
@@ -73,7 +73,7 @@ export function MainGallery({
               return (
                 <span
                   key={categoryStr}
-                  className="inline-flex items-center text-sm sm:text:base"
+                  className="inline-flex items-center text-base sm:text-lg transition-opacity"
                 >
                   <button
                     onClick={() =>
@@ -118,7 +118,7 @@ export function MainGallery({
                 <span>{project.year}</span>
               </div>
               {getStockLevel(project) === 0 && (
-                <h3 className="text-background line-through">SOLD OUT</h3>
+                <h3 className="text-background line-through">SOLD</h3>
               )}
             </div>
           </div>
