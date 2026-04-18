@@ -51,21 +51,21 @@ export function Header() {
   return (
     <header className={`fixed text-2xl top-0 left-0 right-0 z-999 px-6 `}>
       {!isLight && (
-        <div className="absolute inset-0 w-full h-full  bg-background/0 z-0 pointer-events-none transition-all duration-500" />
+        <div className="absolute inset-0 w-full h-full  bg-background/90 z-0 pointer-events-none transition-all duration-500" />
       )}
       <div className="relative mx-auto py-4 z-10">
         <div className="flex items-center justify-between">
           {/* Logo with crossfade */}
-          <button className="relative cursor-crosshair nav-underline" onClick={() => { conditionalScrollTo(''); setIsMenuOpen(false); }}>
+          <button className={`relative cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? 'text-background/0 sm:text-background' : 'text-foreground'}`} onClick={() => { conditionalScrollTo(''); setIsMenuOpen(false); }}>
             <span
-              className={`tracking-wide title font-light text-foreground hover:text-black left-0 top-0 transition-all duration-500 ${
+              className={`tracking-wide title font-light text-foreground left-0 top-0 transition-all duration-500 ${
                 isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
               }`}
             >
               Annamaiaart
             </span>
             <span
-              className={`tracking-wide title font-light text-background invisible sm:visible hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
+              className={`tracking-wide title font-light text-background invisible sm:visible absolute left-0 top-0 transition-all duration-500 ${
                 isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
               }`}
             >
@@ -75,17 +75,17 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex gap-8 ">
-            <button className="relative title text-2xl nav-underline">
+            <button className={`relative title text-2xl nav-underline transition-colors duration-500 ${isLight ? 'text-background' : 'text-foreground'}`}>
               <Link href="/work" className="cursor-crosshair">
                 <span
-                  className={`text-foreground hover:text-black transition-all duration-500 ${
+                  className={`text-foreground  transition-all duration-500 ${
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
                   Work
                 </span>
                 <span
-                  className={`text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
+                  className={`text-background  absolute left-0 top-0 transition-all duration-500 ${
                     isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                   }`}
                 >
@@ -93,48 +93,48 @@ export function Header() {
                 </span>
               </Link>
             </button>
-            <button className="relative title text-2xl cursor-crosshair nav-underline" onClick={() => conditionalScrollTo('#about')}>
+            <button className={`relative title text-2xl cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? 'text-background' : 'text-foreground'}`} onClick={() => conditionalScrollTo('#about')}>
                 <span
-                  className={`text-foreground hover:text-black transition-all duration-500 ${
+                  className={`text-foreground  transition-all duration-500 ${
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
                   About
                 </span>
                 <span
-                  className={`text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
+                  className={`text-background  absolute left-0 top-0 transition-all duration-500 ${
                     isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                   }`}
                 >
                   About
                 </span>
             </button>
-            <button className="relative title text-2xl cursor-crosshair nav-underline" onClick={() => conditionalScrollTo('#contact')}>
+            <button className={`relative title text-2xl cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? 'text-background' : 'text-foreground'}`} onClick={() => conditionalScrollTo('#contact')}>
                 <span
-                  className={`text-foreground hover:text-black transition-all duration-500 ${
+                  className={`text-foreground  transition-all duration-500 ${
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
                   Contact
                 </span>
                 <span
-                  className={`text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
+                  className={`text-background  absolute left-0 top-0 transition-all duration-500 ${
                     isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                   }`}
                 >
                   Contact
                 </span>
             </button>
-            <button className="relative title text-2xl cursor-crosshair nav-underline" onClick={toggleCart}>
+            <button className={`relative title text-2xl cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? 'text-background' : 'text-foreground'}`} onClick={toggleCart}>
                 <span
-                  className={`text-foreground hover:text-black transition-all duration-500 ${
+                  className={`text-foreground  transition-all duration-500 ${
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
                   Cart{count > 0 && <span className="text-foreground/60"> [{count}]</span>}
                 </span>
                 <span
-                  className={`text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
+                  className={`text-background  absolute left-0 top-0 transition-all duration-500 ${
                     isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                   }`}
                 >
@@ -163,8 +163,8 @@ export function Header() {
               onClick={() => setIsMenuOpen(false)}
               className={`title pop-up opacity-0 text-left transition-colors ${
                 isLight
-                  ? "text-background hover:text-foreground"
-                  : "text-foreground hover:text-black"
+                  ? "text-background "
+                  : "text-foreground "
               }`}
               
             >
@@ -176,8 +176,8 @@ export function Header() {
             
               className={`title pop-up-2 opacity-0 text-left transition-colors cursor-crosshair ${
                 isLight
-                  ? "text-background hover:text-foreground"
-                  : "text-foreground hover:text-black"
+                  ? "text-background "
+                  : "text-foreground "
               }`}
               onClick={() => { conditionalScrollTo('#about'); setIsMenuOpen(false); }}
             >
@@ -186,8 +186,8 @@ export function Header() {
             <button
               className={`title pop-up-3 opacity-0 text-left transition-colors cursor-crosshair ${
                 isLight
-                  ? "text-background hover:text-foreground"
-                  : "text-foreground hover:text-black"
+                  ? "text-background "
+                  : "text-foreground "
               }`}
               onClick={() => { conditionalScrollTo('#contact'); setIsMenuOpen(false); }}
             >
@@ -196,8 +196,8 @@ export function Header() {
             <button
               className={`title pop-up-4 opacity-0 text-left transition-colors cursor-crosshair ${
                 isLight
-                  ? "text-background hover:text-foreground"
-                  : "text-foreground hover:text-black"
+                  ? "text-background "
+                  : "text-foreground "
               }`}
               onClick={() => { toggleCart(); setIsMenuOpen(false); }}
             >
