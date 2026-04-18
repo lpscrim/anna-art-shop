@@ -12,7 +12,7 @@ export async function Projects() {
         <div className="mb-16 xl:mb-24">
           <p className="text-muted-foreground mb-2">02</p>
           <h2 className="text-3xl md:text-5xl tracking-tight">
-            SELECTED WORKS
+            Recent work
           </h2>
         </div>
 
@@ -38,16 +38,10 @@ export async function Projects() {
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 flex flex-row gap-4">
                   <h3 className="tracking-tight">{project.title}</h3>
                   <div className="flex gap-4 text-muted-foreground">
-                    <span>
-                      [
-                      {project.categories
-                        .map((category) => category)
-                        .join(", ")}
-                      ]
-                    </span>
+                    
                     <span>{project.year}</span>
                   </div>
                 </div>
@@ -56,7 +50,7 @@ export async function Projects() {
         </div>
         <div className="mt-24 text-center  ">
           <Button size="xl">
-            <Link href="/work">MORE</Link>
+            <Link href="/work">More</Link>
           </Button>
         </div>
       </div>

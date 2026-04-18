@@ -33,6 +33,22 @@
 }
 
 @font-face {
+  font-family: 'EB Garamond';
+  src: url('/font/EBGaramond-VariableFont_wght.ttf') format('truetype');
+  font-weight: 200 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('/font/EBGaramond-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 400 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'TAY BigBird';
   src: url('/font/TAYBigBirdRegular.woff2') format('woff2');
   font-weight: 400;
@@ -64,11 +80,7 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'Akshar';
-  src: 'Akshar-VariableFont_wght.ttf' format('truetype');
-  font-display: swap;
-}
+
 
 :root {
   font-family: 'IBM Plex Mono', monospace;
@@ -224,7 +236,9 @@ html {
 }
 
 h1, h2, h3, h4, button, .title {
-  font-family: 'TAY BigBird', sans-serif;
+  font-family: 'EB Garamond', sans-serif;
+  text-transform: none;
+  font-weight: 200;
 }
 
 @layer utilities {

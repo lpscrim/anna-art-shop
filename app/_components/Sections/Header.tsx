@@ -49,7 +49,7 @@ export function Header() {
   const isLight = !isWorkPage && !isAdminPage && onHero;
 
   return (
-    <header className={`fixed text-xl top-0 left-0 right-0 z-999 px-6`}>
+    <header className={`fixed text-2xl top-0 left-0 right-0 z-999 px-6 `}>
       {!isLight && (
         <div className="absolute inset-0 w-full h-full backdrop-blur-sm bg-background z-0 pointer-events-none transition-all duration-500" />
       )}
@@ -58,87 +58,87 @@ export function Header() {
           {/* Logo with crossfade */}
           <button className="relative cursor-crosshair nav-underline" onClick={() => { conditionalScrollTo(''); setIsMenuOpen(false); }}>
             <span
-              className={`tracking-wide title font-semibold text-foreground hover:text-black left-0 top-0 transition-all duration-500 ${
+              className={`tracking-wide title font-light text-foreground hover:text-black left-0 top-0 transition-all duration-500 ${
                 isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
               }`}
             >
-              ANNAMAIAART
+              Annamaiaart
             </span>
             <span
-              className={`tracking-wide title font-semibold text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
+              className={`tracking-wide title font-light text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
                 isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
               }`}
             >
-              ANNAMAIAART
+              Annamaiaart
             </span>
           </button>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex gap-8 ">
-            <button className="relative title text-xl nav-underline">
+            <button className="relative title text-2xl nav-underline">
               <Link href="/work" className="cursor-crosshair">
                 <span
                   className={`text-foreground hover:text-black transition-all duration-500 ${
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
-                  WORK
+                  Work
                 </span>
                 <span
                   className={`text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
                     isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                   }`}
                 >
-                  WORK
+                  Work
                 </span>
               </Link>
             </button>
-            <button className="relative title text-xl cursor-crosshair nav-underline" onClick={() => conditionalScrollTo('#about')}>
+            <button className="relative title text-2xl cursor-crosshair nav-underline" onClick={() => conditionalScrollTo('#about')}>
                 <span
                   className={`text-foreground hover:text-black transition-all duration-500 ${
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
-                  ABOUT
+                  About
                 </span>
                 <span
                   className={`text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
                     isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                   }`}
                 >
-                  ABOUT
+                  About
                 </span>
             </button>
-            <button className="relative title text-xl cursor-crosshair nav-underline" onClick={() => conditionalScrollTo('#contact')}>
+            <button className="relative title text-2xl cursor-crosshair nav-underline" onClick={() => conditionalScrollTo('#contact')}>
                 <span
                   className={`text-foreground hover:text-black transition-all duration-500 ${
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
-                  CONTACT
+                  Contact
                 </span>
                 <span
                   className={`text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
                     isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                   }`}
                 >
-                  CONTACT
+                  Contact
                 </span>
             </button>
-            <button className="relative title text-xl cursor-crosshair nav-underline" onClick={toggleCart}>
+            <button className="relative title text-2xl cursor-crosshair nav-underline" onClick={toggleCart}>
                 <span
                   className={`text-foreground hover:text-black transition-all duration-500 ${
                     isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
                   }`}
                 >
-                  CART{count > 0 && <span className="text-foreground/60"> [{count}]</span>}
+                  Cart{count > 0 && <span className="text-foreground/60"> [{count}]</span>}
                 </span>
                 <span
                   className={`text-background hover:text-foreground absolute left-0 top-0 transition-all duration-500 ${
                     isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                   }`}
                 >
-                  CART{count > 0 && <span className="text-background/60"> [{count}]</span>}
+                  Cart{count > 0 && <span className="text-background/60"> [{count}]</span>}
                 </span>
             </button>
           </nav>

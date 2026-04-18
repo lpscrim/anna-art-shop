@@ -6,7 +6,7 @@ export function Contact() {
       <div className=" mx-auto w-full">
         <div className="mb-16 lg:mb-32">
           <p className="text-muted-foreground mb-2">04</p>
-          <h2 className="text-3xl md:text-5xl tracking-tight">GET IN TOUCH</h2>
+          <h2 className="text-3xl md:text-5xl tracking-tight">Get in touch</h2>
         </div>
 
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-32 lg:gap-48 lg:mb-32 xl:gap-80">
