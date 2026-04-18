@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRef, useCallback } from 'react';
 
@@ -47,7 +46,7 @@ export function Hero() {
         <motion.h2 
           className="absolute inset-0 flex items-center font-medium justify-center text-[6vw] tracking-wide text-background z-10"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.8 }}
+          animate={{ opacity: 0.95 }}
           transition={{ duration: 7, delay: 0.15 }}
         >
           Annamaiaart
