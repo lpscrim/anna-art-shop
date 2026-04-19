@@ -241,6 +241,12 @@ h1, h2, h3, h4, button, .title {
   font-weight: 200;
 }
 
+button {
+   font-family: 'EB Garamond', sans-serif;
+  text-transform: none;
+  font-weight: 400;
+}
+
 body {
   font-family: 'EB Garamond', sans-serif;
 }

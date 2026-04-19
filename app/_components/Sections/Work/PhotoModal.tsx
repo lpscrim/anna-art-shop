@@ -269,25 +269,17 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
       className="fixed inset-0 top-14 z-50 flex flex-col bg-background"
       {...swipeHandlers}
     >
-        {showLoadProgress && (
-            <div className="absolute left-6 right-6 top-[8vh] sm:top-[4.5vh] z-999 h-0.5 bg-foreground/20 overflow-hidden ">
-              <div
-                className="h-full bg-foreground transition-[width] duration-150 ease-out"
-                style={{ width: `${loadProgress}%` }}
-              />
-            </div>
-          )}
       <div className="relative py-0 flex flex-row w-full justify-between z-100 bg-background ">
         <div className="flex py-2 px-6 w-full items-center z-100">
           {isProject && (
             <span className="text-foreground">
-              {name} {year}
+              {name} 
             </span>
           )}
           {!isProject && <span className="opacity-0">{"0"}</span>}
         </div>
-        <div className="flex flex-row  w-70 mr-1">
-            <div className="flex justify-center w-30 -mr-8 text-foreground z-100">
+        <div className="flex flex-row mr-3 w-60">
+            <div className="flex justify-center w-20 text-foreground z-100">
               <BuyButton
                 stripePriceId={stripePriceId}
                 stockLevel={stockLevel}
@@ -296,20 +288,28 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
                 imageUrl={images[0] || image}
               />
             </div>
-            <div className="flex justify-center w-21 -mr-4 text-foreground z-100">
+            <div className="flex justify-center w-20  text-foreground z-100">
               {isProject && text && (
-              <Button onClick={() => setTextOpen(!textOpen)} size="md">
+              <Button onClick={() => setTextOpen(!textOpen)} size="lg">
                 Info
               </Button>
                         )}
             </div>
-          <div className="flex justify-center w-23 md:w-23 text-foreground z-100">
-            <Button onClick={onClose} size="md">
+          <div className="flex justify-center w-20 text-foreground z-100">
+            <Button onClick={onClose} size="lg">
               Back
             </Button>
           </div>
         </div>
       </div>
+      {showLoadProgress && (
+        <div className="relative mx-6 z-100 h-0.5 bg-foreground/20 overflow-hidden">
+          <div
+            className="h-full bg-foreground transition-[width] duration-150 ease-out"
+            style={{ width: `${loadProgress}%` }}
+          />
+        </div>
+      )}
       {isProject && text && (
         <div
           className={` flex w-full border-b border-muted z-90 py-8 bg-background items-center -translate-y-100 opacity-0 ${
@@ -325,7 +325,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
       )}
       <div
         ref={viewerRef}
-        className="fixed items-center justify-center inset-0 top-10 z-60 flex  "
+        className="fixed items-center justify-center inset-0 top-10 z-60 pt-1 flex  "
       >
         {hasPrev && (
           <button
