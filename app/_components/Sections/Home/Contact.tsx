@@ -19,20 +19,20 @@ export function Contact() {
             <div className="flex flex-row gap-8 items-center justify-between">
               <a 
                 href="mailto:studioannamaia@gmail.com"
-                className="flex items-center gap-3 hover:opacity-70 transition-opacity cursor-crosshair group"
+                className="flex items-center gap-3 hover:opacity-70 transition-opacity cursor-crosshair group text-lg"
               >
                 <Mail size={20} className="text-muted-foreground " />
                 <span>Studioannamaia@gmail.com</span>
               </a>
               
-              <div className="flex items-center gap-3 text-muted-foreground justify-end">
+              <div className="flex items-center gap-3 text-lg text-muted-foreground justify-end">
                 <span className="w-5" />
                 <span>Scotland</span>
               </div>
             </div>
           </div>
 
-          <div className="space-y-8 lg:col-start-3 lg:col-span-2">
+          <div className="space-y-8 lg:col-start-3 lg:col-span-2 text-lg">
             <div className=''>
               <p className="text-muted-foreground mb-4">Social</p>
               <div className="space-y-3 lg:flex lg:flex-row lg:gap-8 lg:space-y-0">

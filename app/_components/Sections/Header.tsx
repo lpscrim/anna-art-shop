@@ -62,14 +62,14 @@ export function Header() {
                 isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
               }`}
             >
-              Anna Maia Art
+              Anna Maia Zaitseva
             </span>
             <span
               className={`tracking-wide title font-light text-card invisible  absolute left-0 top-0 transition-all duration-500 ${
                 isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
               }`}
             >
-              Anna Maia Art
+              Anna Maia Zaitseva
             </span>
           </button>
 

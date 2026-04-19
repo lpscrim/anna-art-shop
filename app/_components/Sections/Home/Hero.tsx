@@ -45,14 +45,14 @@ export function Hero() {
           transition={{ duration: 2, ease: 'easeInOut', delay: 1.5 }}
         />
         <motion.h2 
-          className="absolute inset-0 flex items-center text-center font-medium justify-center text-[3vw]/[3vw] tracking-wide text-card z-20"
+          className="absolute inset-0 flex items-center text-center font-medium justify-center text-[3vw]/[3vw] tracking-wide text-card z-20 flex-col"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.95 }}
           transition={{ duration: 7, delay: 0.15 }}
         >
-          Anna Maia<br/>
+          ANNA MAIA<br/>
           -<br/>
-          Art
+          <span className='text-[1.5vw]/[1.5vw]'>ARTIST</span>
         </motion.h2>
       </div>
       {/* Mobile */}
@@ -79,14 +79,14 @@ export function Hero() {
           transition={{ duration: 2, ease: 'easeInOut', delay: 1.5 }}
         />
         <motion.h2 
-          className="absolute inset-0 flex items-center text-center font-medium justify-center text-[5vw]/[6vw] tracking-wide text-card z-20"
+          className="absolute inset-0 flex items-center text-center font-medium justify-center text-[6vw]/[6vw] tracking-widest text-card z-20 flex-col"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.95 }}
           transition={{ duration: 7, delay: 0.15 }}
         >
-          Anna Maia<br/>
+          ANNA MAIA<br/>
           -<br/>
-          Art
+          <span className='text-[3vw]/[3vw]'>ARTIST</span>
         </motion.h2>
       </div>
 
