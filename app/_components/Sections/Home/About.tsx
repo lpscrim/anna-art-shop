@@ -29,7 +29,7 @@ export function About() {
             <SwipeGallery
               images={aboutImages}
               alt="Anna Maia"
-              className="h-full w-full lg:w-4/5 rounded-sm aspect-4/3 object-cover"
+              className="w-full lg:w-4/5 rounded-sm aspect-4/3 overflow-hidden"
             />
 
           </div>

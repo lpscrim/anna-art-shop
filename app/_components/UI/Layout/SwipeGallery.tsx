@@ -30,27 +30,27 @@ export function SwipeGallery({ images, alt, className = "" }: SwipeGalleryProps)
   if (images.length === 0) return null;
   if (images.length === 1) {
     return (
-      <ImageWithFallback
-        src={images[0]}
-        alt={alt}
-        width={1600}
-        height={900}
-        fill={false}
-        className={className}
-      />
+      <div className={`relative ${className}`}>
+        <ImageWithFallback
+          src={images[0]}
+          alt={alt}
+          fill={true}
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="object-cover"
+        />
+      </div>
     );
   }
 
   return (
-    <div {...handlers} className="relative select-none">
+    <div {...handlers} className={`relative select-none ${className}`}>
       <ImageWithFallback
         key={images[index]}
         src={images[index]}
         alt={`${alt} ${index + 1}`}
-        width={1600}
-        height={900}
-        fill={false}
-        className={className}
+        fill={true}
+        sizes="(min-width: 768px) 50vw, 100vw"
+        className="object-cover"
       />
 
       {/* Dots */}
