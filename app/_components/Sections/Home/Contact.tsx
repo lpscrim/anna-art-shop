@@ -5,7 +5,6 @@ export function Contact() {
     <section id="contact" className="min-h-[80svh] px-6 py-24 flex items-center">
       <div className=" mx-auto w-full">
         <div className="mb-16 lg:mb-32">
-          <p className="text-muted-foreground mb-2">04</p>
           <h2 className="text-3xl md:text-5xl tracking-tight">Get in touch</h2>
         </div>
 
