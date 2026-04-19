@@ -239,6 +239,28 @@ export default function EditProductClient({
           </label>
 
           <label className="block">
+            <span className="text-sm font-medium">Medium</span>
+            <input
+              name="medium"
+              type="text"
+              defaultValue={selected.medium}
+              placeholder="Oil on canvas"
+              className="mt-1 block w-full rounded-md border border-muted bg-background px-3 py-2 text-sm"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium">Dimensions</span>
+            <input
+              name="dimensions"
+              type="text"
+              defaultValue={selected.dimensions}
+              placeholder="60 x 80 cm"
+              className="mt-1 block w-full rounded-md border border-muted bg-background px-3 py-2 text-sm"
+            />
+          </label>
+
+          <label className="block">
             <span className="text-sm font-medium">Year</span>
             <input
               name="year"

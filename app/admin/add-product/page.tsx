@@ -180,6 +180,28 @@ export default function AddProductPage() {
             />
           </label>
 
+          {/* Medium */}
+          <label className="block">
+            <span className="text-sm font-medium">Medium</span>
+            <input
+              name="medium"
+              type="text"
+              placeholder="Oil on canvas"
+              className="mt-1 block w-full rounded-md border border-muted bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
+            />
+          </label>
+
+          {/* Dimensions */}
+          <label className="block">
+            <span className="text-sm font-medium">Dimensions</span>
+            <input
+              name="dimensions"
+              type="text"
+              placeholder="60 x 80 cm"
+              className="mt-1 block w-full rounded-md border border-muted bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
+            />
+          </label>
+
           {/* Year */}
           <label className="block">
             <span className="text-sm font-medium">Year</span>

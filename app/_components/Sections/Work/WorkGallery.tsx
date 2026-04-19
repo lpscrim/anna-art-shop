@@ -10,6 +10,8 @@ interface Project {
   id: number;
   title: string;
   categories: string[];
+  medium: string;
+  dimensions: string;
   year: string;
   imageUrl: string;
   galleryImages?: string[];
@@ -43,6 +45,8 @@ export function WorkGallery({
   const [name, setName] = useState<string>("");
   const [year, setYear] = useState<string>("");
   const [text, setText] = useState<string>("");
+  const [medium, setMedium] = useState<string>("");
+  const [dimensions, setDimensions] = useState<string>("");
   const [stripePriceId, setStripePriceId] = useState<string | null>(null);
   const [stockLevel, setStockLevel] = useState<number>(0);
   const [priceHw, setPriceHw] = useState<number>(0);
@@ -146,6 +150,8 @@ export function WorkGallery({
     setModalImages(imgs);
     setModalIndex(0);
     setText(project.text || "");
+    setMedium(project.medium || "");
+    setDimensions(project.dimensions || "");
     setStripePriceId(project.stripe_price_id ?? null);
     setStockLevel(getStock(project));
     setPriceHw(project.price_hw);
@@ -178,6 +184,8 @@ export function WorkGallery({
       setName(project.title);
       setYear(project.year);
       setText(project.text || "");
+      setMedium(project.medium || "");
+      setDimensions(project.dimensions || "");
       setStripePriceId(project.stripe_price_id ?? null);
       setStockLevel(getStock(project));
       setPriceHw(project.price_hw);
@@ -242,6 +250,8 @@ export function WorkGallery({
         name={name}
         year={year}
         text={text}
+        medium={medium}
+        dimensions={dimensions}
         changePhotoId={handleThumbClick}
         stripePriceId={stripePriceId}
         stockLevel={displayedStockLevel}

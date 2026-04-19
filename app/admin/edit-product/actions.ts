@@ -48,6 +48,8 @@ export async function updateProduct(
     const priceStr = formData.get('price') as string | null;
     const stockStr = formData.get('stock') as string | null;
     const categoriesRaw = formData.get('categories') as string | null;
+    const medium = formData.get('medium') as string | null;
+    const dimensions = formData.get('dimensions') as string | null;
     const year = formData.get('year') as string | null;
     const removeCover = formData.get('removeCover') === 'on';
     const removeGallery = formData.getAll('removeGallery') as string[];
@@ -162,6 +164,8 @@ export async function updateProduct(
         price_hw: priceHw,
         stock_level: stockLevel,
         categories,
+        medium: (medium ?? '').trim(),
+        dimensions: (dimensions ?? '').trim(),
         year: year?.trim() || new Date().getFullYear().toString(),
         image_url: imageUrl,
       })

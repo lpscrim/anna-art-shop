@@ -17,6 +17,8 @@ interface PhotoModalProps {
   name: string;
   year: string;
   text?: string;
+  medium?: string;
+  dimensions?: string;
   images?: string[];
   index?: number;
   changePhotoId?: (idx: number) => void;
@@ -37,6 +39,8 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
   name,
   year,
   text,
+  medium,
+  dimensions,
   images = [],
   index = 0,
   changePhotoId = () => {},

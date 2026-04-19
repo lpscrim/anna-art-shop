@@ -6,6 +6,8 @@ interface Project {
   id: number;
   title: string;
   categories: string[];
+  medium: string;
+  dimensions: string;
   year: string;
   imageUrl: string;
   galleryImages?: string[];

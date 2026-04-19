@@ -38,6 +38,8 @@ export async function addProduct(
     const priceStr = formData.get('price') as string | null;
     const stockStr = formData.get('stock') as string | null;
     const categoriesRaw = formData.get('categories') as string | null;
+    const medium = formData.get('medium') as string | null;
+    const dimensions = formData.get('dimensions') as string | null;
     const year = formData.get('year') as string | null;
     const imageFile = formData.get('image') as File | null;
     const secondaryFiles = formData.getAll('secondary') as File[];
@@ -112,6 +114,8 @@ export async function addProduct(
         image_url: imageUrl,
         stock_level: stockLevel,
         categories,
+        medium: (medium ?? '').trim(),
+        dimensions: (dimensions ?? '').trim(),
         year: year?.trim() || new Date().getFullYear().toString(),
       })
       .select()

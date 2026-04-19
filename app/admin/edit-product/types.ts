@@ -10,6 +10,8 @@ export interface AdminProduct {
   price_hw: number;
   stock_level: number;
   categories: string[];
+  medium: string;
+  dimensions: string;
   year: string;
   image_url: string;
   stripe_product_id: string | null;
