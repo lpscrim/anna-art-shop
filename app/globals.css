@@ -85,7 +85,7 @@
 :root {
   font-family: 'EB Garamond', monospace;
   --font-size: 16px;
-  --background: rgb(240, 233, 225);
+  --background: rgb(242, 248, 239);
   --foreground: oklch(0.145 0 0);
   --card: #ffffff;
   --card-foreground: oklch(0.145 0 0);
