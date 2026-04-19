@@ -92,7 +92,7 @@ export async function updateProduct(
     }
 
     const categories = categoriesRaw
-      ? categoriesRaw.split(',').map((c) => c.trim().toUpperCase()).filter(Boolean)
+      ? categoriesRaw.split(',').map((c) => c.trim()).filter(Boolean)
       : [];
 
     const supabase = createServerSupabase();

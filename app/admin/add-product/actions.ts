@@ -73,7 +73,7 @@ export async function addProduct(
       return { success: false, error: 'Stock must be a non-negative integer.' };
 
     const categories = categoriesRaw
-      ? categoriesRaw.split(',').map((c) => c.trim().toUpperCase()).filter(Boolean)
+      ? categoriesRaw.split(',').map((c) => c.trim()).filter(Boolean)
       : [];
 
     // ---------- Supabase setup ----------
