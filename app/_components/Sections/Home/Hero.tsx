@@ -50,8 +50,8 @@ export function Hero() {
           animate={{ opacity: 0.95 }}
           transition={{ duration: 7, delay: 0.15 }}
         >
-          ANNA MAIA<br/>
-          -<br/>
+          <span className='mb-4'>ANNA MAIA <div className="w-1/2 mx-auto border-b-2 border-card pb-4 " /></span>
+          
           <span className='text-[1.5vw]/[1.5vw]'>ARTIST</span>
         </motion.h2>
       </div>
@@ -85,7 +85,7 @@ export function Hero() {
           transition={{ duration: 7, delay: 0.15 }}
         >
           ANNA MAIA<br/>
-          -<br/>
+          
           <span className='text-[3vw]/[3vw]'>ARTIST</span>
         </motion.h2>
       </div>
