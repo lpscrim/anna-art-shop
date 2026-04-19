@@ -56,7 +56,7 @@ export function Header() {
       <div className="relative mx-auto py-4 z-10">
         <div className="flex items-center justify-between">
           {/* Logo with crossfade */}
-          <button className={`relative cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? 'text-card/0 sm:text-card' : 'text-foreground'}`} onClick={() => { conditionalScrollTo(''); setIsMenuOpen(false); }}>
+          <button className={`relative cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? 'invisible' : 'text-foreground'}`} onClick={() => { conditionalScrollTo(''); setIsMenuOpen(false); }}>
             <span
               className={`tracking-wide title font-light text-foreground left-0 top-0 transition-all duration-500 ${
                 isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
@@ -65,7 +65,7 @@ export function Header() {
               Anna Maia Zaitseva
             </span>
             <span
-              className={`tracking-wide title font-light text-card invisible  absolute left-0 top-0 transition-all duration-500 ${
+              className={`tracking-wide title font-light text-card invisible absolute left-0 top-0 transition-all duration-500 ${
                 isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
               }`}
             >
