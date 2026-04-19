@@ -51,7 +51,7 @@ export function WorkGallery({
   const [stockLevel, setStockLevel] = useState<number>(0);
   const [priceHw, setPriceHw] = useState<number>(0);
 
-  const lastOpenedProjectIdRef = useRef<number | null>(null);
+  const lastOpenedProjectIdRef = useRef<string | null>(null);
 
   // ── Live stock map (single batched poll) ─────────────────────────
   const [liveStock, setLiveStock] = useState<Record<string, number>>({});
@@ -93,10 +93,6 @@ export function WorkGallery({
         : project.stock_level,
     [liveStock]
   );
-
-  const projectsById = useMemo(() => {
-    return new Map(projects.map((p) => [p.id, p] as const));
-  }, [projects]);
 
 
   // Filtered projects by selected categories and stock filter
@@ -163,14 +159,11 @@ export function WorkGallery({
     const projectParam = searchParams.get("project");
     if (!projectParam) return;
 
-    const projectId = Number(projectParam);
-    if (!Number.isFinite(projectId)) return;
-
-    const project = projectsById.get(projectId);
+    const project = projects.find((p) => String(p.id) === projectParam);
     if (!project) return;
 
-    if (lastOpenedProjectIdRef.current === projectId && modalOpen) return;
-    lastOpenedProjectIdRef.current = projectId;
+    if (lastOpenedProjectIdRef.current === projectParam && modalOpen) return;
+    lastOpenedProjectIdRef.current = projectParam;
 
     let cancelled = false;
     queueMicrotask(() => {
@@ -197,7 +190,7 @@ export function WorkGallery({
     return () => {
       cancelled = true;
     };
-  }, [searchParams, projectsById, modalOpen, getStock]);
+  }, [searchParams, projects, modalOpen, getStock]);
 
   // Keep modal stock in sync with live polling
   const displayedStockLevel = modalOpen && stripePriceId && stripePriceId in liveStock
