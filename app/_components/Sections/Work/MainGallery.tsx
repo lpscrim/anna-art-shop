@@ -45,7 +45,7 @@ export function MainGallery({
   return (
     <>
       <div className="pt-12 pb-4 px-0 rounded-xs flex flex-wrap gap-4 w-full">
-        <div className="xl:w-1/2 text-base sm:text-lg py-2">
+        <div className="xl:w-1/2 text-base sm:text-lg py-4">
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => {
