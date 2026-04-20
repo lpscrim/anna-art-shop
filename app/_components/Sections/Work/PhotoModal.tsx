@@ -325,7 +325,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
       )}
       <div
         ref={viewerRef}
-        className="fixed items-center justify-center inset-0 top-10 z-60 pt-4 flex  "
+        className="fixed items-center justify-center inset-0 top-10 z-60 pt-12 flex"
       >
         {hasPrev && (
           <button
@@ -360,6 +360,11 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
               positionThumbStrip();
             }}
           />
+          {isProject && (
+          <span className="flex w-full justify-center text-foreground text-sm pt-4 pointer-events-none z-999">
+            {name}, &nbsp;{medium}, &nbsp;{dimensions}, &nbsp;{year}
+          </span>
+        )}
         </div>
         {hasNext && (
           <button
@@ -372,16 +377,12 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
           ></button>
         )}
       </div>
-      <div className="flex justify-center mt-4 z-99">
-        <span className="text-foreground text-sm">
-          {isProject && `${medium}, ${dimensions}, ${year}`}
-        </span>
-      </div>
+      
       {/* Tiny scrollable thumbnail strip */}
       {images.length > 1 && (
         <div
           ref={stripRef}
-          className="fixed left-0 right-0 px-4 flex items-center overflow-x-auto w-full space-x-0 py-0.5 hide-scrollbar bg-background z-999"
+          className="fixed left-0 right-0 px-4 flex items-center overflow-x-auto w-full space-x-0 mt-1 hide-scrollbar z-80"
           style={thumbStripTop === null ? undefined : { top: thumbStripTop }}
         >
           {images.map((img, idx) => (
