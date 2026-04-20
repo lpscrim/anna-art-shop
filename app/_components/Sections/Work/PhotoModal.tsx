@@ -362,7 +362,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
           />
           {isProject && (
           <span className="flex w-full justify-center text-foreground text-sm pt-4 pointer-events-none z-999">
-            {name}, &nbsp;{medium}, &nbsp;{dimensions}, &nbsp;{year}
+            <span className="italic">{name}</span>, &nbsp;{medium}, &nbsp;{dimensions}, &nbsp;{year}
           </span>
         )}
         </div>
