@@ -77,26 +77,28 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
           return (
             <div
               key={item.id}
-              className="flex justify-between py-4 border-b border-foreground/10"
+              className="py-4 border-b border-foreground/10"
             >
-              <div className="relative w-12 h-12 shrink-0 rounded-sm overflow-hidden bg-muted">
+              <div className="relative w-full aspect-square rounded-sm overflow-hidden bg-muted mb-3">
                 <ImageWithFallback
                   src={imageUrl}
                   alt={name}
                   fill
                   className="object-cover"
-                  sizes="64px"
+                  sizes="(max-width: 768px) 100vw, 672px"
                 />
               </div>
-              <div>
-                <p className="tracking-tight">{name}</p>
-                <p className="text-muted-foreground text-sm">
-                  Qty: {item.quantity}
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="tracking-tight">{name}</p>
+                  <p className="text-muted-foreground text-sm">
+                    Qty: {item.quantity}
+                  </p>
+                </div>
+                <p className="tracking-tight">
+                  £{((item.amount_total ?? 0) / 100).toFixed(2)}
                 </p>
               </div>
-              <p className="tracking-tight">
-                £{((item.amount_total ?? 0) / 100).toFixed(2)}
-              </p>
             </div>
           );
         })}

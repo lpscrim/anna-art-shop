@@ -58,6 +58,7 @@ async function notifyClient(session: Stripe.Checkout.Session) {
   if (!apiKey || !notifyEmail) return;
 
   const resend = new Resend(apiKey);
+  const recipients = notifyEmail.split(',').map((e) => e.trim()).filter(Boolean);
 
   const customer = session.customer_details;
   const shipping = (session as any).collected_information?.shipping_details;
@@ -111,7 +112,7 @@ async function notifyClient(session: Stripe.Checkout.Session) {
     const fromAddress = process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev';
     const result = await resend.emails.send({
       from: fromAddress,
-      to: notifyEmail,
+      to: recipients,
       subject: `New order — ${fmt(amountTotal)}`,
       html,
     });
