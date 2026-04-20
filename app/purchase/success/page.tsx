@@ -27,19 +27,37 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   if (session.payment_status !== "paid") redirect("/work");
 
   const lineItems = session.line_items?.data ?? [];
+  const customer = session.customer_details;
+  const shipping = session.collected_information?.shipping_details;
+
+  const shippingAddress = shipping?.address
+    ? [
+        shipping.address.line1,
+        shipping.address.line2,
+        shipping.address.city,
+        shipping.address.postal_code,
+        shipping.address.country,
+      ]
+        .filter(Boolean)
+        .join(", ")
+    : null;
 
   return (
     <section className="min-h-[75svh] px-6 py-24 xl:py-32 max-w-2xl mx-auto">
       <ClearCart />
 
       <h1 className="text-3xl md:text-5xl tracking-tight mb-4">THANK YOU</h1>
-      <p className="text-muted-foreground mb-12">
+      <p className="text-muted-foreground mb-8">
         Your order has been confirmed. A receipt has been sent to{" "}
-        <span className="text-foreground">
-          {session.customer_details?.email}
-        </span>
-        .
+        <span className="text-foreground">{customer?.email}</span>.
       </p>
+
+      {/* Customer details */}
+      <div className="mb-10 space-y-1 text-sm">
+        {customer?.name && <p className="text-foreground">{customer.name}</p>}
+        {customer?.phone && <p className="text-muted-foreground">{customer.phone}</p>}
+        {shippingAddress && <p className="text-muted-foreground">{shippingAddress}</p>}
+      </div>
 
       <div className="border-t border-foreground/10">
         {lineItems.map((item) => {
