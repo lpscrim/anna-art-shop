@@ -62,7 +62,7 @@ export function MainGallery({
               onClick={() => {
                 setInStockOnly(!inStockOnly);
               }}
-              className={`cursor-crosshair transition-opacity ${inStockOnly ? "text-foreground underline font-semibold" : "text-foreground/50"}`}
+              className={`cursor-crosshair transition-opacity ${inStockOnly ? "text-foreground font-semibold" : "text-foreground/50"}`}
             >
               Available [{inStockCount}]
             </button>
