@@ -88,12 +88,33 @@ export async function POST(req: NextRequest) {
 
     const cancelToken = crypto.randomUUID();
 
+    // Calculate 1% application fee from the line item prices
+    const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID;
+    let applicationFeeAmount: number | undefined;
+    if (clientAccountId) {
+      const prices = await Promise.all(
+        lineItems.map((item) => stripe.prices.retrieve(item.priceId))
+      );
+      const totalAmount = prices.reduce((sum, price, i) => {
+        return sum + (price.unit_amount ?? 0) * lineItems[i].quantity;
+      }, 0);
+      applicationFeeAmount = Math.round(totalAmount * 0.01);
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: lineItems.map((item) => ({
         price: item.priceId,
         quantity: item.quantity,
       })),
+      ...(clientAccountId && applicationFeeAmount !== undefined
+        ? {
+            payment_intent_data: {
+              application_fee_amount: applicationFeeAmount,
+              transfer_data: { destination: clientAccountId },
+            },
+          }
+        : {}),
       // Store reserved items so we can restore stock on expiry
       metadata: {
         reserved_items: JSON.stringify(reservations),
