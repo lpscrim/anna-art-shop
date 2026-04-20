@@ -110,7 +110,7 @@ async function getOrders(): Promise<Order[]> {
     const stripeFee = balanceTx?.fee ?? null;
     const myFee = Math.round(amountTotal * 0.01);
 
-    const shipping = session.shipping_details?.address;
+    const shipping = session.collected_information?.shipping_details?.address;
     const shippingAddress: ShippingAddress | null = shipping
       ? {
           line1: shipping.line1 ?? null,

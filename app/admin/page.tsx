@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function AdminHomePage() {
   return (
-    <div className="bg-background text-foreground px-6 pt-32">
+    <div className="bg-background text-foreground px-6 pt-16">
       <div className="max-w-xl mx-auto space-y-6">
         <h1 className="text-3xl tracking-tight">ADMIN</h1>
         <p className="text-lg text-muted-foreground">
