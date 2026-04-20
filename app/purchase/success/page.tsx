@@ -102,9 +102,25 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
         })}
       </div>
 
-      <div className="flex justify-between py-6 text-lg tracking-tight">
-        <span>Total</span>
-        <span>£{((session.amount_total ?? 0) / 100).toFixed(2)}</span>
+      <div className="border-t border-foreground/10 mt-4 space-y-2 py-4 text-sm">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Subtotal</span>
+          <span>£{((session.amount_subtotal ?? 0) / 100).toFixed(2)}</span>
+        </div>
+        {session.shipping_cost && (
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Shipping</span>
+            <span>
+              {session.shipping_cost.amount_total === 0
+                ? 'Free'
+                : `£${(session.shipping_cost.amount_total / 100).toFixed(2)}`}
+            </span>
+          </div>
+        )}
+        <div className="flex justify-between text-base font-medium border-t border-foreground/10 pt-3 mt-1">
+          <span>Total</span>
+          <span>£{((session.amount_total ?? 0) / 100).toFixed(2)}</span>
+        </div>
       </div>
 
       <Link

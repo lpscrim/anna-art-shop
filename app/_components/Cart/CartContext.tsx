@@ -21,6 +21,7 @@ export interface CartItem {
 interface CartContextValue {
   items: CartItem[];
   count: number;
+  shippingRate: number;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (priceId: string) => void;
   updateQuantity: (priceId: string, quantity: number) => void;
@@ -58,7 +59,7 @@ export function useCart() {
 }
 
 // ─── Provider ────────────────────────────────────────────────────
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({ children, shippingRate = 0 }: { children: React.ReactNode; shippingRate?: number }) {
   // Use an external store so we always stay in sync with localStorage
   const listeners = useRef(new Set<() => void>());
   const subscribe = useCallback((cb: () => void) => {
@@ -206,7 +207,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider value={{
-      items, count, addItem, removeItem, updateQuantity, clearCart,
+      items, count, shippingRate, addItem, removeItem, updateQuantity, clearCart,
       isOpen, openCart, closeCart, toggleCart,
     }}>
       {children}

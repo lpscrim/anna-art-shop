@@ -5,11 +5,12 @@ import { ImageWithFallback } from '../UI/Layout/ImageWithFallback';
 import { useState } from 'react';
 
 export function CartDrawer() {
-  const { items, count, isOpen, closeCart, removeItem, updateQuantity, clearCart } = useCart();
+  const { items, count, isOpen, closeCart, removeItem, updateQuantity, clearCart, shippingRate } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const total = items.reduce((sum, i) => sum + i.priceHw * i.quantity, 0);
+  const subtotal = items.reduce((sum, i) => sum + i.priceHw * i.quantity, 0);
+  const total = subtotal + shippingRate;
 
   async function handleCheckout() {
     if (items.length === 0 || loading) return;
@@ -67,7 +68,7 @@ export function CartDrawer() {
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-muted">
+        <div className="flex items-center justify-between px-6 py-4 ">
           <h2 className="text-lg font-semibold tracking-tight">CART [{count}]</h2>
           <button
             onClick={closeCart}
@@ -79,7 +80,7 @@ export function CartDrawer() {
         </div>
 
         {/* Items */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-4">
           {items.length === 0 && (
             <p className="text-muted-foreground text-sm">Your cart is empty.</p>
           )}
@@ -148,8 +149,16 @@ export function CartDrawer() {
               <p className="text-sm text-red-500">{error}</p>
             )}
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">TOTAL</span>
-              <span className="font-semibold">£{(total / 100).toFixed(2)}</span>
+              <span className="text-muted-foreground">SUBTOTAL</span>
+              <span>£{(subtotal / 100).toFixed(2)}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">SHIPPING</span>
+              <span>{shippingRate === 0 ? 'Free' : `£${(shippingRate / 100).toFixed(2)}`}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm font-semibold border-t border-muted pt-2">
+              <span>TOTAL</span>
+              <span>£{(total / 100).toFixed(2)}</span>
             </div>
 
             <button

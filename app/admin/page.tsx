@@ -27,6 +27,12 @@ export default function AdminHomePage() {
           >
             Orders
           </Link>
+          <Link
+            href="/admin/shipping"
+            className="block rounded-md border border-muted bg-background px-4 py-3  transition-colors hover:border-foreground"
+          >
+            Shipping
+          </Link>
         </div>
       </div>
     </div>

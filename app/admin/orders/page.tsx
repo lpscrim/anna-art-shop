@@ -33,6 +33,7 @@ interface Order {
   currency: string;
   stripeFee: number | null;
   myFee: number;
+  shippingCost: number | null;
   items: OrderItem[];
   paymentStatus: string;
   dispatched: boolean;
@@ -109,6 +110,7 @@ async function getOrders(): Promise<Order[]> {
     const amountTotal = session.amount_total ?? 0;
     const stripeFee = balanceTx?.fee ?? null;
     const myFee = Math.round(amountTotal * 0.01);
+    const shippingCost = session.shipping_cost?.amount_total ?? null;
 
     const shipping = session.collected_information?.shipping_details?.address;
     const shippingAddress: ShippingAddress | null = shipping
@@ -134,6 +136,7 @@ async function getOrders(): Promise<Order[]> {
       currency: session.currency ?? 'gbp',
       stripeFee,
       myFee,
+      shippingCost,
       paymentStatus: session.payment_status,
       items: lineItems.map((item) => {
         const priceId = typeof item.price === 'string' ? item.price : item.price?.id ?? null;
@@ -300,7 +303,17 @@ export default async function OrdersPage() {
                 {/* Financial breakdown */}
                 <div className="border-t border-muted pt-3 space-y-1 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total</span>
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span>{formatMoney(order.amountTotal - (order.shippingCost ?? 0), order.currency)}</span>
+                  </div>
+                  {order.shippingCost !== null && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Shipping</span>
+                      <span>{order.shippingCost === 0 ? 'Free' : formatMoney(order.shippingCost, order.currency)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-medium">
+                    <span>Total</span>
                     <span>{formatMoney(order.amountTotal, order.currency)}</span>
                   </div>
                   {order.stripeFee !== null && (

@@ -1,11 +1,11 @@
-'use client';
-
 import { CartProvider } from './CartContext';
 import { CartDrawer } from './CartDrawer';
+import { getShippingRatePence } from '@/app/_lib/shippingSettings';
 
-export function CartShell({ children }: { children: React.ReactNode }) {
+export async function CartShell({ children }: { children: React.ReactNode }) {
+  const shippingRate = await getShippingRatePence();
   return (
-    <CartProvider>
+    <CartProvider shippingRate={shippingRate}>
       {children}
       <CartDrawer />
     </CartProvider>

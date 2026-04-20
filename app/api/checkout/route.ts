@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/app/_lib/stripe';
 import { createServerSupabase } from '@/app/_lib/supabase';
+import { getShippingRatePence } from '@/app/_lib/shippingSettings';
 
 interface CartLineItem {
   priceId: string;
@@ -82,6 +83,7 @@ export async function POST(req: NextRequest) {
 
     // ── Create Stripe checkout session ─────────────────────────────
     const stripe = getStripe();
+    const shippingRatePence = await getShippingRatePence();
 
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
@@ -111,6 +113,15 @@ export async function POST(req: NextRequest) {
       shipping_address_collection: {
         allowed_countries: ['GB', 'US', 'CA', 'AU', 'NZ', 'IE', 'DE', 'FR', 'ES', 'IT', 'NL', 'BE', 'SE', 'NO', 'DK', 'FI', 'PT', 'AT', 'CH'],
       },
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: { amount: shippingRatePence, currency: 'gbp' },
+            display_name: shippingRatePence === 0 ? 'Free shipping' : 'Standard shipping',
+          },
+        },
+      ],
       ...(clientAccountId && applicationFeeAmount !== undefined
         ? {
             payment_intent_data: {
