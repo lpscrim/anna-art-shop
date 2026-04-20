@@ -109,7 +109,7 @@ export function MainGallery({
               imageQuality="auto:eco"
               handleOnClick={() => onCardClick(idx, project)}
             />
-            <div className="absolute inset-x-0 top-8 px-4 group-hover:opacity-100 opacity-0 flex flex-col group-hover:mt-2 z-60 transition-all duration-500 pointer-events-none max-w-full">
+            <div className="absolute inset-x-0 text-lg top-8 px-4 group-hover:opacity-100 opacity-0 flex flex-col group-hover:mt-2 z-60 transition-all duration-500 pointer-events-none max-w-full">
               <h3 className="tracking-tight text-background wrap-break-word">
                 {project.title}
               </h3>
