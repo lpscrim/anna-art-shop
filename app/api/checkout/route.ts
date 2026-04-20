@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/app/_lib/stripe';
 import { createServerSupabase } from '@/app/_lib/supabase';
 import { getShippingRatePence } from '@/app/_lib/shippingSettings';
+import type Stripe from 'stripe';
 
 interface CartLineItem {
   priceId: string;
@@ -97,9 +98,9 @@ export async function POST(req: NextRequest) {
 
     const enrichedReservations = reservations.map((r, i) => ({
       ...r,
-      title: (prices[i].product as any)?.name ?? 'Unknown',
+      title: (prices[i].product as Stripe.Product)?.name ?? 'Unknown',
       price: (prices[i].unit_amount ?? 0) * lineItems[i].quantity,
-      image: ((prices[i].product as any)?.images?.[0] ?? '') as string,
+      image: ((prices[i].product as Stripe.Product)?.images?.[0] ?? '') as string,
     }));
 
     // Calculate 1% application fee from the line item prices

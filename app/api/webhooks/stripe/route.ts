@@ -13,8 +13,9 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(rawBody, sig!, endpointSecret);
-  } catch (err: any) {
-    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ error: `Webhook Error: ${message}` }, { status: 400 });
   }
 
   // Stock is already reserved (decremented) when the checkout session is
@@ -61,7 +62,8 @@ async function notifyClient(session: Stripe.Checkout.Session) {
   const recipients = notifyEmail.split(',').map((e) => e.trim()).filter(Boolean);
 
   const customer = session.customer_details;
-  const shipping = (session as any).collected_information?.shipping_details;
+  type CollectedInfo = { shipping_details?: { address?: { line1?: string; line2?: string; city?: string; postal_code?: string; country?: string } } };
+  const shipping = (session.collected_information as CollectedInfo | null)?.shipping_details;
   const amountTotal = session.amount_total ?? 0;
   const shippingCost = session.shipping_cost?.amount_total ?? 0;
   const subtotal = amountTotal - shippingCost;
