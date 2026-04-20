@@ -56,7 +56,7 @@ export async function getProjects(): Promise<Project[]> {
 
       return {
         id: product.id,
-        title: (product.name ?? '').toUpperCase(),
+        title: (product.name ?? ''),
         categories: product.categories ?? [],
         medium: product.medium ?? '',
         dimensions: product.dimensions ?? '',
