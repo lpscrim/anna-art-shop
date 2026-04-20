@@ -5,7 +5,7 @@ export default function WorkLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="w-full">
+        <div className="w-full min-h-[80svh]">
             {children}
         </div>
     );
