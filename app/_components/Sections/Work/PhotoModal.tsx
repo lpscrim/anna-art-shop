@@ -325,7 +325,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
       )}
       <div
         ref={viewerRef}
-        className="fixed items-center justify-center inset-0 top-10 z-60 pt-12 flex"
+        className="fixed items-center justify-center inset-0 top-10 z-60 pt-10 flex"
       >
         {hasPrev && (
           <button
