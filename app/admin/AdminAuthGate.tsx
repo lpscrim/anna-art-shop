@@ -40,6 +40,7 @@ export default function AdminAuthGate({ children }: AdminAuthGateProps) {
 
   useEffect(() => {
     let active = true;
+    let initialized = false;
 
     async function init() {
       // getSession can return a stale/expired token from localStorage.
@@ -54,6 +55,7 @@ export default function AdminAuthGate({ children }: AdminAuthGateProps) {
         await syncAdminCookie(null);
         setSession(null);
         setLoading(false);
+        initialized = true;
         return;
       }
 
@@ -67,12 +69,14 @@ export default function AdminAuthGate({ children }: AdminAuthGateProps) {
         setSession(null);
       }
       setLoading(false);
+      initialized = true;
     }
 
     init();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (_event, nextSession) => {
+        if (!initialized) return;
         setSession(nextSession);
         const result = await syncAdminCookie(nextSession?.access_token ?? null);
         if (!result.ok) {
