@@ -272,7 +272,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
       <div className="relative py-0 flex flex-row w-full justify-between z-100 bg-background ">
         <div className="flex py-2 px-6 w-full items-center z-100">
           {isProject && (
-            <span className="text-foreground">
+            <span className="text-foreground text-xl">
               {name} 
             </span>
           )}
@@ -312,20 +312,20 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
       )}
       {isProject && text && (
         <div
-          className={` flex w-full border-b border-muted z-90 py-8 bg-background items-center -translate-y-100 opacity-0 ${
+          className={` flex w-full border-b border-muted z-90 py-16 bg-background items-center -translate-y-100 opacity-0 ${
             textOpen ? "translate-y-0 opacity-100" : ""
           }  transition-all duration-300 ease-in-out overflow-y-auto z-40`}
         >
           <div
             className={`max-w-3xl mx-auto px-6 text-center text-foreground `}
           >
-            <p className="whitespace-pre-line">{text}</p>
+            <p className="whitespace-pre-line text-lg">{text}</p>
           </div>
         </div>
       )}
       <div
         ref={viewerRef}
-        className="fixed items-center justify-center inset-0 top-10 z-60 pt-1 flex  "
+        className="fixed items-center justify-center inset-0 top-10 z-60 pt-4 flex  "
       >
         {hasPrev && (
           <button
@@ -372,11 +372,16 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
           ></button>
         )}
       </div>
+      <div className="flex justify-center mt-4 z-99">
+        <span className="text-foreground text-sm">
+          {isProject && `${medium}, ${dimensions}, ${year}`}
+        </span>
+      </div>
       {/* Tiny scrollable thumbnail strip */}
       {images.length > 1 && (
         <div
           ref={stripRef}
-          className="fixed left-0 right-0 px-4 flex items-center overflow-x-auto w-full space-x-0 py-2.5 hide-scrollbar bg-background z-999"
+          className="fixed left-0 right-0 px-4 flex items-center overflow-x-auto w-full space-x-0 py-0.5 hide-scrollbar bg-background z-999"
           style={thumbStripTop === null ? undefined : { top: thumbStripTop }}
         >
           {images.map((img, idx) => (

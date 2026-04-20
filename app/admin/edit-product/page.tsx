@@ -1,5 +1,4 @@
 import { createServerSupabase } from '@/app/_lib/supabase';
-import { getAdminUser } from '@/app/_lib/adminAuth';
 import EditProductClient from './EditProductClient';
 import type { AdminProduct } from './types';
 
@@ -54,17 +53,6 @@ async function getAdminProducts(): Promise<AdminProduct[]> {
 }
 
 export default async function EditProductPage() {
-  const user = await getAdminUser();
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background text-foreground px-6 py-16">
-        <div className="max-w-xl mx-auto">
-          <h1 className="text-3xl tracking-tight mb-4">EDIT PRODUCT</h1>
-          <p className="text-sm text-muted-foreground">Sign in to access admin tools.</p>
-        </div>
-      </div>
-    );
-  }
   const products = await getAdminProducts();
   return <EditProductClient products={products} />;
 }
