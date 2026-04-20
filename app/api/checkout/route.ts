@@ -107,6 +107,10 @@ export async function POST(req: NextRequest) {
         price: item.priceId,
         quantity: item.quantity,
       })),
+      phone_number_collection: { enabled: true },
+      shipping_address_collection: {
+        allowed_countries: ['GB', 'US', 'CA', 'AU', 'NZ', 'IE', 'DE', 'FR', 'ES', 'IT', 'NL', 'BE', 'SE', 'NO', 'DK', 'FI', 'PT', 'AT', 'CH'],
+      },
       ...(clientAccountId && applicationFeeAmount !== undefined
         ? {
             payment_intent_data: {
