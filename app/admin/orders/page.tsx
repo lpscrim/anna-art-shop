@@ -194,7 +194,7 @@ export default async function OrdersPage() {
   }));
 
   return (
-    <div className="bg-background text-foreground px-6 pt-32 pb-16">
+    <div className="bg-background text-foreground px-6 py-16">
       <div className="max-w-3xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
