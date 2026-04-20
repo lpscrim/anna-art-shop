@@ -11,7 +11,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-  <div className="min-h-[80svh]">
+  <div className="min-h-[82svh]">
     <AdminAuthGate>{children}</AdminAuthGate>
   </div>
   )

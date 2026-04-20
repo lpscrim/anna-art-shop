@@ -5,19 +5,19 @@ export default function AdminHomePage() {
     <div className="bg-background text-foreground px-6 pt-32">
       <div className="max-w-xl mx-auto space-y-6">
         <h1 className="text-3xl tracking-tight">ADMIN</h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-lg text-muted-foreground">
           Choose a task to continue.
         </p>
-        <div className="grid gap-4">
+        <div className="grid gap-4 text-base">
           <Link
             href="/admin/add-product"
-            className="block rounded-md border border-muted bg-background px-4 py-3 text-sm transition-colors hover:border-foreground"
+            className="block rounded-md border border-muted bg-background px-4 py-3  transition-colors hover:border-foreground"
           >
             Add product
           </Link>
           <Link
             href="/admin/edit-product"
-            className="block rounded-md border border-muted bg-background px-4 py-3 text-sm transition-colors hover:border-foreground"
+            className="block rounded-md border border-muted bg-background px-4 py-3  transition-colors hover:border-foreground"
           >
             Edit products
           </Link>

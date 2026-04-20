@@ -175,7 +175,7 @@ export default function AdminAuthGate({ children }: AdminAuthGateProps) {
 
   return (
     <div className="bg-background text-foreground flex py-4 pt-16 flex-col">
-      <div className="flex items-center justify-between px-6 text-sm text-muted-foreground">
+      <div className="flex items-center justify-between px-6 text-base text-muted-foreground">
         <span>Signed in as {session.user.email}</span>
         <button
           type="button"
