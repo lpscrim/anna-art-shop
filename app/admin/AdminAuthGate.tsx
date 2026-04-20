@@ -80,6 +80,7 @@ export default function AdminAuthGate({ children }: AdminAuthGateProps) {
           await supabase.auth.signOut();
           setSession(null);
         }
+        setLoading(false);
       },
     );
 
