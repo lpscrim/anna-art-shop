@@ -388,7 +388,7 @@ export default function EditProductClient({
                   ? "Product updated successfully."
                   : "Product removed successfully."}
               </div>
-            )}
+            ) : null}
           </div>
           <button
             type="submit"
