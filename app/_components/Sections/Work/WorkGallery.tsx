@@ -169,6 +169,10 @@ export function WorkGallery({
     setPriceHw(project.price_hw);
     setProductType(project.type ?? 'artwork');
     setModalOpen(true);
+    lastOpenedProjectIdRef.current = String(project.id);
+    const next = new URLSearchParams(searchParams.toString());
+    next.set("project", String(project.id));
+    router.push(`${pathname}?${next.toString()}`, { scroll: false });
   };
 
   // Deep link: /work?project={project.id}
@@ -210,22 +214,22 @@ export function WorkGallery({
     };
   }, [searchParams, projects, modalOpen, getStock]);
 
+  // Close modal when back button removes the project param
+  useEffect(() => {
+    const projectParam = searchParams.get("project");
+    if (!projectParam && modalOpen) {
+      setModalOpen(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   // Keep modal stock in sync with live polling
   const displayedStockLevel = modalOpen && stripePriceId && stripePriceId in liveStock
     ? liveStock[stripePriceId]
     : stockLevel;
 
   const handleCloseModal = () => {
-    setModalOpen(false);
-
-    // If this modal was opened via a deep link, clear the param so it doesn't reopen.
-    const projectParam = searchParams.get("project");
-    if (!projectParam) return;
-
-    const next = new URLSearchParams(searchParams.toString());
-    next.delete("project");
-    const qs = next.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    router.back();
   };
 
   const handleThumbClick = (idx: number) => {
