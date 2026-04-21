@@ -97,7 +97,7 @@ async function notifyClient(session: Stripe.Checkout.Session) {
   }
 
   const customerName = customer?.name ?? 'Unknown';
-  const platformFee = Math.round(amountTotal * 0.035) + 20;
+  const platformFee = Math.round(amountTotal * 0.0565) + 20;
   const netToClient = amountTotal - platformFee;
 
   const html = `
@@ -115,7 +115,7 @@ async function notifyClient(session: Stripe.Checkout.Session) {
       <tr><td style="color:#555;padding:3px 0;border-top:1px solid #eee">Fees (Stripe + platform)</td><td style="text-align:right;border-top:1px solid #eee">−${fmt(platformFee)}</td></tr>
       <tr><td style="padding:3px 0;font-weight:600">Net to you</td><td style="text-align:right;font-weight:600">${fmt(netToClient)}</td></tr>
     </table>
-    <p style="color:#aaa;font-size:11px;margin-top:6px">Fees include Stripe processing (up to 3.25% + 20p for international cards) and platform fee (1%).</p>
+    <p style="color:#aaa;font-size:11px;margin-top:6px">Fees include Stripe processing and platform fee (5.65% + 20p).</p>
     <p style="color:#888;font-size:12px">Stripe session: ${session.id}</p>
   `;
 

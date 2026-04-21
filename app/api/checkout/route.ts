@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
       image: ((prices[i].product as Stripe.Product)?.images?.[0] ?? '') as string,
     }));
 
-    // Application fee covers Stripe's fee (up to 3.25% + 20p for international cards) plus our 1% cut (3.5% + 20p total)
+    // Application fee: 5.65% + 20p matches worst-case Stripe fees (currency conversion on international cards)
     const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID?.trim() || undefined;
     console.log('[CONNECT] clientAccountId:', JSON.stringify(clientAccountId));
     let applicationFeeAmount: number | undefined;
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
       const totalAmount = prices.reduce((sum, price, i) => {
         return sum + (price.unit_amount ?? 0) * lineItems[i].quantity;
       }, 0);
-      applicationFeeAmount = Math.round(totalAmount * 0.035) + 20;
+      applicationFeeAmount = Math.round(totalAmount * 0.0565) + 20;
     }
 
     const session = await stripe.checkout.sessions.create({
