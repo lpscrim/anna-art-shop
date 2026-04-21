@@ -2,7 +2,7 @@ import { getCategoriesVisible, getShippingRatePence } from '@/app/_lib/shippingS
 import { ShippingForm } from './ShippingForm';
 import { CategoriesToggle } from './CategoriesToggle';
 
-export default async function ShippingPage() {
+export default async function SettingsPage() {
   const [currentRate, categoriesVisible] = await Promise.all([
     getShippingRatePence(),
     getCategoriesVisible(),

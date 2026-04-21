@@ -180,7 +180,6 @@ export default async function OrdersPage() {
   const totalRevenue = orders.reduce((s, o) => s + o.amountTotal, 0);
   const totalFees = orders.reduce((s, o) => s + o.myFee, 0);
   const totalNet = totalRevenue - totalFees;
-  const hasStripeFees = orders.some((o) => o.stripeFee !== null);
 
   const exportOrders: ExportOrder[] = orders.map((o) => ({
     id: o.id,

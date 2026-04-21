@@ -1,8 +1,10 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { createServerSupabase } from '@/app/_lib/supabase';
+import { requireAdminUser } from '@/app/_lib/adminAuth';
 
 export async function updateShippingRate(pence: number) {
+  await requireAdminUser();
   if (!Number.isInteger(pence) || pence < 0) {
     throw new Error('Invalid shipping rate');
   }
@@ -15,6 +17,7 @@ export async function updateShippingRate(pence: number) {
 }
 
 export async function updateCategoriesVisible(visible: boolean) {
+  await requireAdminUser();
   const supabase = createServerSupabase();
   const { error } = await supabase
     .from('settings')

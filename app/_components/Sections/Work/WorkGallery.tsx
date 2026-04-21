@@ -183,7 +183,7 @@ export function WorkGallery({
     const project = projects.find((p) => String(p.id) === projectParam);
     if (!project) return;
 
-    if (lastOpenedProjectIdRef.current === projectParam && modalOpen) return;
+    if (lastOpenedProjectIdRef.current === projectParam) return;
     lastOpenedProjectIdRef.current = projectParam;
 
     let cancelled = false;
@@ -212,7 +212,7 @@ export function WorkGallery({
     return () => {
       cancelled = true;
     };
-  }, [searchParams, projects, modalOpen, getStock]);
+  }, [searchParams, projects, getStock]);
 
   // Close modal when back button removes the project param
   useEffect(() => {
