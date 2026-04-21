@@ -123,7 +123,10 @@ export async function POST(req: NextRequest) {
       const totalAmount = prices.reduce((sum, price, i) => {
         return sum + (price.unit_amount ?? 0) * lineItems[i].quantity;
       }, 0);
-      applicationFeeAmount = Math.round(totalAmount * 0.05) + 20;
+      const percentFee = Math.round(totalAmount * 0.05);
+      // Stripe charges ~1.5% + 20p; only add flat 20p when 5% alone doesn't cover it
+      const estimatedStripeFee = Math.round(totalAmount * 0.015) + 20;
+      applicationFeeAmount = percentFee >= estimatedStripeFee ? percentFee : percentFee + 20;
     }
 
     const session = await stripe.checkout.sessions.create({
