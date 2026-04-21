@@ -19,6 +19,7 @@ interface Project {
   price_hw: number;
   stock_level: number;
   stripe_price_id: string | null;
+  type: 'artwork' | 'print';
 }
 
 interface WorkGalleryProps {
@@ -37,6 +38,7 @@ export function WorkGallery({
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [inStockOnly, setInStockOnly] = useState(false);
+  const [selectedType, setSelectedType] = useState<'artwork' | 'print' | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState<string[]>([]);
@@ -98,6 +100,9 @@ export function WorkGallery({
   // Filtered projects by selected categories and stock filter
   const filteredProjects = useMemo(() => {
     let result = projects;
+    if (selectedType) {
+      result = result.filter((p) => p.type === selectedType);
+    }
     if (selectedCategories.length > 0) {
       result = result.filter((p) => selectedCategories.every(cat => p.categories.includes(cat)));
     }
@@ -105,12 +110,15 @@ export function WorkGallery({
       result = result.filter((p) => getStock(p) > 0);
     }
     return result;
-  }, [projects, selectedCategories, inStockOnly, getStock]);
+  }, [projects, selectedType, selectedCategories, inStockOnly, getStock]);
 
   const inStockCount = useMemo(
     () => projects.filter((p) => getStock(p) > 0).length,
     [projects, getStock]
   );
+
+  const artworkCount = useMemo(() => projects.filter((p) => p.type === 'artwork').length, [projects]);
+  const printCount = useMemo(() => projects.filter((p) => p.type === 'print').length, [projects]);
 
   // Category counts
   const visibleCategoryCounts: Record<string, number> = filteredProjects.reduce((acc, project) => {
@@ -135,6 +143,11 @@ export function WorkGallery({
     } else if (visibleCategoryCounts[cat] > 0) {
       setSelectedCategories([...selectedCategories, cat]);
     }
+  };
+
+  const handleTypeToggle = (type: 'artwork' | 'print') => {
+    setSelectedType((prev) => prev === type ? null : type);
+    setSelectedCategories([]);
   };
 
   // Handler to open gallery
@@ -228,6 +241,10 @@ export function WorkGallery({
         sortedVisibleCategories={sortedVisibleCategories}
         toggleCategory={toggleCategory}
         onCardClick={handleCardClick}
+        selectedType={selectedType}
+        onTypeToggle={handleTypeToggle}
+        artworkCount={artworkCount}
+        printCount={printCount}
       /> }
       <PhotoModal
         isOpen={modalOpen}

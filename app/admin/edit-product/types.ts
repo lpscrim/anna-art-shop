@@ -17,4 +17,5 @@ export interface AdminProduct {
   stripe_product_id: string | null;
   stripe_price_id: string | null;
   gallery: AdminGalleryImage[];
+  type: 'artwork' | 'print';
 }
