@@ -96,17 +96,26 @@ async function notifyClient(session: Stripe.Checkout.Session) {
     itemsHtml = '<p>See Stripe dashboard for items</p>';
   }
 
+  const customerName = customer?.name ?? 'Unknown';
+  const platformFee = Math.round(amountTotal * 0.01);
+  const netToClient = amountTotal - platformFee;
+
   const html = `
-    <h2>New order received</h2>
-    <p><strong>Customer:</strong> ${customer?.name ?? 'Unknown'}<br>
+    <h2>New Order — ${customerName}</h2>
+    <p><strong>Customer:</strong> ${customerName}<br>
     <strong>Email:</strong> ${customer?.email ?? 'Unknown'}<br>
     <strong>Phone:</strong> ${customer?.phone ?? 'Not provided'}</p>
     <p><strong>Shipping address:</strong><br>${addressLines}</p>
     <h3>Items</h3>
     <div>${itemsHtml}</div>
-    <p><strong>Subtotal:</strong> ${fmt(subtotal)}<br>
-    <strong>Shipping:</strong> ${shippingCost === 0 ? 'Free' : fmt(shippingCost)}<br>
-    <strong>Total:</strong> ${fmt(amountTotal)}</p>
+    <table style="width:100%;max-width:360px;border-collapse:collapse;margin-top:12px;font-size:14px">
+      <tr><td style="color:#555;padding:3px 0">Subtotal</td><td style="text-align:right">${fmt(subtotal)}</td></tr>
+      <tr><td style="color:#555;padding:3px 0">Shipping</td><td style="text-align:right">${shippingCost === 0 ? 'Free' : fmt(shippingCost)}</td></tr>
+      <tr><td style="padding:3px 0;font-weight:600">Total</td><td style="text-align:right;font-weight:600">${fmt(amountTotal)}</td></tr>
+      <tr><td style="color:#555;padding:3px 0;border-top:1px solid #eee">Platform fee (1%)</td><td style="text-align:right;border-top:1px solid #eee">−${fmt(platformFee)}</td></tr>
+      <tr><td style="padding:3px 0;font-weight:600">Net to you</td><td style="text-align:right;font-weight:600">${fmt(netToClient)}</td></tr>
+    </table>
+    <p style="color:#aaa;font-size:11px;margin-top:6px">Note: Stripe's processing fee will also be deducted from your balance.</p>
     <p style="color:#888;font-size:12px">Stripe session: ${session.id}</p>
   `;
 
@@ -115,7 +124,7 @@ async function notifyClient(session: Stripe.Checkout.Session) {
     const result = await resend.emails.send({
       from: fromAddress,
       to: recipients,
-      subject: `New order — ${fmt(amountTotal)}`,
+      subject: `New Order — ${customerName}`,
       html,
     });
     console.log('[NOTIFY EMAIL RESULT]', JSON.stringify(result));
