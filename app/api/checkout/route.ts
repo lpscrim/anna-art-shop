@@ -104,7 +104,8 @@ export async function POST(req: NextRequest) {
     }));
 
     // Calculate 1% application fee from the line item prices
-    const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID;
+    const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID?.trim() || undefined;
+    console.log('[CONNECT] clientAccountId:', JSON.stringify(clientAccountId));
     let applicationFeeAmount: number | undefined;
     if (clientAccountId) {
       const totalAmount = prices.reduce((sum, price, i) => {
