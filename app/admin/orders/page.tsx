@@ -109,7 +109,9 @@ async function getOrders(): Promise<Order[]> {
 
     const amountTotal = session.amount_total ?? 0;
     const stripeFee = balanceTx?.fee ?? null;
-    const myFee = Math.round(amountTotal * 0.01);
+    const percentFee = Math.round(amountTotal * 0.05);
+    const estimatedStripeFee = Math.round(amountTotal * 0.015) + 20;
+    const myFee = percentFee >= estimatedStripeFee ? percentFee : percentFee + 20;
     const shippingCost = session.shipping_cost?.amount_total ?? null;
 
     const shipping = session.collected_information?.shipping_details?.address;
@@ -176,9 +178,8 @@ export default async function OrdersPage() {
 
   const currency = orders[0]?.currency ?? 'gbp';
   const totalRevenue = orders.reduce((s, o) => s + o.amountTotal, 0);
-  const totalStripeFees = orders.reduce((s, o) => s + (o.stripeFee ?? 0), 0);
-  const totalMyFees = orders.reduce((s, o) => s + o.myFee, 0);
-  const totalNetToClient = totalRevenue - totalStripeFees - totalMyFees;
+  const totalFees = orders.reduce((s, o) => s + o.myFee, 0);
+  const totalNet = totalRevenue - totalFees;
   const hasStripeFees = orders.some((o) => o.stripeFee !== null);
 
   const exportOrders: ExportOrder[] = orders.map((o) => ({
@@ -218,20 +219,12 @@ export default async function OrdersPage() {
               <p className="text-sm font-medium mt-0.5">{formatMoney(totalRevenue, currency)}</p>
             </div>
             <div className="rounded-md border border-muted px-4 py-3">
-              <p className="text-xs text-muted-foreground">Stripe fees</p>
-              <p className="text-sm font-medium mt-0.5">
-                {hasStripeFees ? formatMoney(totalStripeFees, currency) : '—'}
-              </p>
+              <p className="text-xs text-muted-foreground">Fees</p>
+              <p className="text-sm font-medium mt-0.5">{formatMoney(totalFees, currency)}</p>
             </div>
             <div className="rounded-md border border-muted px-4 py-3">
-              <p className="text-xs text-muted-foreground">Platform fee</p>
-              <p className="text-sm font-medium mt-0.5">{formatMoney(totalMyFees, currency)}</p>
-            </div>
-            <div className="rounded-md border border-muted px-4 py-3">
-              <p className="text-xs text-muted-foreground">Net</p>
-              <p className="text-sm font-medium mt-0.5">
-                {hasStripeFees ? formatMoney(totalNetToClient, currency) : '—'}
-              </p>
+              <p className="text-xs text-muted-foreground">Net to Anna</p>
+              <p className="text-sm font-medium mt-0.5">{formatMoney(totalNet, currency)}</p>
             </div>
           </div>
         )}
@@ -316,27 +309,14 @@ export default async function OrdersPage() {
                     <span>Total</span>
                     <span>{formatMoney(order.amountTotal, order.currency)}</span>
                   </div>
-                  {order.stripeFee !== null && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Stripe fee</span>
-                      <span>−{formatMoney(order.stripeFee, order.currency)}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Platform fee</span>
+                    <span className="text-muted-foreground">Fee</span>
                     <span>−{formatMoney(order.myFee, order.currency)}</span>
                   </div>
-                  {order.stripeFee !== null && (
-                    <div className="flex justify-between font-medium pt-1 border-t border-muted">
-                      <span>Net</span>
-                      <span>
-                        {formatMoney(
-                          order.amountTotal - order.stripeFee - order.myFee,
-                          order.currency
-                        )}
-                      </span>
-                    </div>
-                  )}
+                  <div className="flex justify-between font-medium pt-1 border-t border-muted">
+                    <span>Net to Anna</span>
+                    <span>{formatMoney(order.amountTotal - order.myFee, order.currency)}</span>
+                  </div>
                 </div>
 
                 <p className="text-xs text-muted-foreground font-mono">{order.id}</p>
