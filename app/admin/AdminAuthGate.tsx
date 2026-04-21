@@ -115,8 +115,8 @@ export default function AdminAuthGate({ children }: AdminAuthGateProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-foreground px-6 py-16">
-        <div className="max-w-md mx-auto text-sm text-muted-foreground">
+      <div className="min-h-screen bg-background text-foreground px-6 py-32">
+        <div className="max-w-md mx-auto text-lg text-muted-foreground">
           Loading…
         </div>
       </div>
