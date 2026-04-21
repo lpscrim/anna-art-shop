@@ -135,7 +135,6 @@ export async function POST(req: NextRequest) {
       ],
       ...(clientAccountId && applicationFeeAmount !== undefined
         ? {
-            on_behalf_of: clientAccountId,
             payment_intent_data: {
               application_fee_amount: applicationFeeAmount,
               transfer_data: { destination: clientAccountId },
