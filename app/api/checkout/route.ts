@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
       image: ((prices[i].product as Stripe.Product)?.images?.[0] ?? '') as string,
     }));
 
-    // Calculate 1% application fee from the line item prices
+    // Application fee covers Stripe's UK fee (~1.5% + 20p) plus our 1% cut (~2.5% + 20p total)
     const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID?.trim() || undefined;
     console.log('[CONNECT] clientAccountId:', JSON.stringify(clientAccountId));
     let applicationFeeAmount: number | undefined;
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
       const totalAmount = prices.reduce((sum, price, i) => {
         return sum + (price.unit_amount ?? 0) * lineItems[i].quantity;
       }, 0);
-      applicationFeeAmount = Math.round(totalAmount * 0.01);
+      applicationFeeAmount = Math.round(totalAmount * 0.025) + 20;
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -138,7 +138,6 @@ export async function POST(req: NextRequest) {
             payment_intent_data: {
               application_fee_amount: applicationFeeAmount,
               transfer_data: { destination: clientAccountId },
-              on_behalf_of: clientAccountId,
             },
           }
         : {}),

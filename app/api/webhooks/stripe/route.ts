@@ -97,7 +97,7 @@ async function notifyClient(session: Stripe.Checkout.Session) {
   }
 
   const customerName = customer?.name ?? 'Unknown';
-  const platformFee = Math.round(amountTotal * 0.01);
+  const platformFee = Math.round(amountTotal * 0.025) + 20;
   const netToClient = amountTotal - platformFee;
 
   const html = `
@@ -112,10 +112,10 @@ async function notifyClient(session: Stripe.Checkout.Session) {
       <tr><td style="color:#555;padding:3px 0">Subtotal</td><td style="text-align:right">${fmt(subtotal)}</td></tr>
       <tr><td style="color:#555;padding:3px 0">Shipping</td><td style="text-align:right">${shippingCost === 0 ? 'Free' : fmt(shippingCost)}</td></tr>
       <tr><td style="padding:3px 0;font-weight:600">Total</td><td style="text-align:right;font-weight:600">${fmt(amountTotal)}</td></tr>
-      <tr><td style="color:#555;padding:3px 0;border-top:1px solid #eee">Platform fee (1%)</td><td style="text-align:right;border-top:1px solid #eee">−${fmt(platformFee)}</td></tr>
+      <tr><td style="color:#555;padding:3px 0;border-top:1px solid #eee">Fees (Stripe + platform)</td><td style="text-align:right;border-top:1px solid #eee">−${fmt(platformFee)}</td></tr>
       <tr><td style="padding:3px 0;font-weight:600">Net to you</td><td style="text-align:right;font-weight:600">${fmt(netToClient)}</td></tr>
     </table>
-    <p style="color:#aaa;font-size:11px;margin-top:6px">Note: Stripe's processing fee will also be deducted from your balance.</p>
+    <p style="color:#aaa;font-size:11px;margin-top:6px">Fees include Stripe processing (~1.5% + 20p) and platform fee (1%).</p>
     <p style="color:#888;font-size:12px">Stripe session: ${session.id}</p>
   `;
 
