@@ -38,7 +38,7 @@ export function WorkGallery({
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [inStockOnly, setInStockOnly] = useState(false);
-  const [selectedType, setSelectedType] = useState<'artwork' | 'print' | null>(null);
+  const [selectedType, setSelectedType] = useState<'artwork' | 'print' | null>('artwork');
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState<string[]>([]);

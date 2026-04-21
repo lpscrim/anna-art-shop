@@ -29,6 +29,7 @@ export default function EditProductClient({
   const [fileError, setFileError] = useState<string | null>(null);
   const [compressing, setCompressing] = useState(false);
   const [productType, setProductType] = useState<'artwork' | 'print'>('artwork');
+  const [savedAt, setSavedAt] = useState<number | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
   const [updateState, updateAction, isUpdating] = useActionState(
@@ -42,6 +43,7 @@ export default function EditProductClient({
 
   useEffect(() => {
     if (updateState.success) {
+      setSavedAt(Date.now());
       formRef.current?.reset();
       const timer = setTimeout(() => setFileError(null), 0);
       return () => clearTimeout(timer);
@@ -65,6 +67,13 @@ export default function EditProductClient({
     () => products.find((p) => p.id === resolvedSelectedId) ?? null,
     [products, resolvedSelectedId],
   );
+
+  // Auto-dismiss success banner after 3s
+  useEffect(() => {
+    if (!savedAt) return;
+    const timer = setTimeout(() => setSavedAt(null), 3000);
+    return () => clearTimeout(timer);
+  }, [savedAt]);
 
   // Sync productType with selected product
   useEffect(() => {
@@ -96,6 +105,7 @@ export default function EditProductClient({
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setFileError(null);
+    setSavedAt(null);
     setCompressing(true);
 
     try {
@@ -372,7 +382,7 @@ export default function EditProductClient({
               </div>
             )}
 
-            {(updateState.success || deleteState.success) && (
+            {(updateState.success && savedAt) || deleteState.success ? (
               <div className="rounded-md border border-green-400 bg-green-50 px-4 py-3 text-green-700 text-sm">
                 {updateState.success
                   ? "Product updated successfully."
