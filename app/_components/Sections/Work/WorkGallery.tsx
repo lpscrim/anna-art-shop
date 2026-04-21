@@ -52,6 +52,7 @@ export function WorkGallery({
   const [stripePriceId, setStripePriceId] = useState<string | null>(null);
   const [stockLevel, setStockLevel] = useState<number>(0);
   const [priceHw, setPriceHw] = useState<number>(0);
+  const [productType, setProductType] = useState<'artwork' | 'print'>('artwork');
 
   const lastOpenedProjectIdRef = useRef<string | null>(null);
 
@@ -164,6 +165,7 @@ export function WorkGallery({
     setStripePriceId(project.stripe_price_id ?? null);
     setStockLevel(getStock(project));
     setPriceHw(project.price_hw);
+    setProductType(project.type ?? 'artwork');
     setModalOpen(true);
   };
 
@@ -195,6 +197,7 @@ export function WorkGallery({
       setStripePriceId(project.stripe_price_id ?? null);
       setStockLevel(getStock(project));
       setPriceHw(project.price_hw);
+      setProductType(project.type ?? 'artwork');
       setModalImages(imgs);
       setModalIndex(0);
       setModalOpen(true);
@@ -266,6 +269,7 @@ export function WorkGallery({
         stripePriceId={stripePriceId}
         stockLevel={displayedStockLevel}
         priceHw={priceHw}
+        productType={productType}
       />
     </section>
   );

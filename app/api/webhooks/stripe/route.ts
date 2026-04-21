@@ -84,11 +84,12 @@ async function notifyClient(session: Stripe.Checkout.Session) {
 
   let itemsHtml = '';
   try {
-    const reserved = JSON.parse(session.metadata?.reserved_items ?? '[]') as { title: string; qty: number; price: number; image?: string }[];
+    const reserved = JSON.parse(session.metadata?.reserved_items ?? '[]') as { title: string; qty: number; price: number; image?: string; type?: string }[];
     itemsHtml = reserved
       .map((i) => `<div style="display:inline-block;margin:8px;vertical-align:top;text-align:center;width:160px">
         ${i.image ? `<img src="${i.image}" alt="${i.title}" width="160" height="160" style="object-fit:cover;border-radius:6px;display:block">` : ''}
         <p style="margin:6px 0 2px;font-weight:600">${i.title}</p>
+        ${i.type ? `<p style="margin:0 0 2px;color:#888;font-size:12px;text-transform:capitalize">${i.type}</p>` : ''}
         <p style="margin:0;color:#555">x${i.qty} &mdash; ${fmt(i.price)}</p>
       </div>`)
       .join('');

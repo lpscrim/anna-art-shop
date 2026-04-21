@@ -25,6 +25,7 @@ interface PhotoModalProps {
   stripePriceId: string | null;
   stockLevel: number;
   priceHw: number;
+  productType?: 'artwork' | 'print';
 }
 
 export const PhotoModal: React.FC<PhotoModalProps> = ({
@@ -47,6 +48,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
   stripePriceId,
   stockLevel,
   priceHw,
+  productType,
 }) => {
   // Refs for thumbnails
   const stripRef = useRef<HTMLDivElement | null>(null);
@@ -362,7 +364,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
           />
           {isProject && (
           <span className="flex w-full justify-center text-foreground text-sm pt-4 pointer-events-none z-999">
-            <span className="italic">{name}</span>, &nbsp;{medium}, &nbsp;{dimensions}, &nbsp;{year}
+            <span className="italic">{name}</span>, &nbsp;{medium}, &nbsp;{dimensions}, &nbsp;{year}{productType ? `,  ${productType.charAt(0).toUpperCase() + productType.slice(1)}` : ''}
           </span>
         )}
         </div>
