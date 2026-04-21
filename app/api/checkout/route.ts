@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
       type: typeByPriceId.get(r.stripe_price_id) ?? 'artwork',
     }));
 
-    // Application fee: 5% + 20p
+    // Application fee: 5% +? 20p
     const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID?.trim() || undefined;
     console.log('[CONNECT] clientAccountId:', JSON.stringify(clientAccountId));
     let applicationFeeAmount: number | undefined;
