@@ -11,5 +11,15 @@ export async function updateShippingRate(pence: number) {
     .from('settings')
     .upsert({ key: 'shipping_rate_pence', value: String(pence) }, { onConflict: 'key' });
   if (error) throw new Error(error.message);
-  revalidatePath('/admin/shipping');
+  revalidatePath('/admin/settings');
+}
+
+export async function updateCategoriesVisible(visible: boolean) {
+  const supabase = createServerSupabase();
+  const { error } = await supabase
+    .from('settings')
+    .upsert({ key: 'categories_visible', value: String(visible) }, { onConflict: 'key' });
+  if (error) throw new Error(error.message);
+  revalidatePath('/admin/settings');
+  revalidatePath('/work');
 }

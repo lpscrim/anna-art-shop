@@ -25,11 +25,13 @@ interface Project {
 interface WorkGalleryProps {
   projects: Project[];
   categoryCounts: [string, number][];
+  showCategories: boolean;
 }
 
 export function WorkGallery({
   projects,
   categoryCounts,
+  showCategories,
 }: WorkGalleryProps) {
 
   const searchParams = useSearchParams();
@@ -248,6 +250,7 @@ export function WorkGallery({
         onTypeToggle={handleTypeToggle}
         artworkCount={artworkCount}
         printCount={printCount}
+        showCategories={showCategories}
       /> }
       <PhotoModal
         isOpen={modalOpen}

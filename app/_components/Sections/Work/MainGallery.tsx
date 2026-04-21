@@ -34,6 +34,7 @@ export interface MainGalleryProps {
   onTypeToggle: (type: 'artwork' | 'print') => void;
   artworkCount: number;
   printCount: number;
+  showCategories: boolean;
 }
 
 export function MainGallery({
@@ -52,6 +53,7 @@ export function MainGallery({
   onTypeToggle,
   artworkCount,
   printCount,
+  showCategories,
 }: MainGalleryProps) {
   return (
     <>
@@ -90,6 +92,7 @@ export function MainGallery({
               Print [{printCount}]
             </button>
           </div>
+          {showCategories && (
           <div className="flex flex-wrap gap-0 mt-2">
             {sortedVisibleCategories.map(([category, count]) => {
               const categoryStr = String(category);
@@ -114,6 +117,7 @@ export function MainGallery({
               );
             })}
           </div>
+          )}
         </div>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 px-0">

@@ -9,3 +9,14 @@ export async function getShippingRatePence(): Promise<number> {
     .single();
   return data ? parseInt(data.value, 10) : 0;
 }
+
+export async function getCategoriesVisible(): Promise<boolean> {
+  const supabase = createServerSupabase();
+  const { data } = await supabase
+    .from('settings')
+    .select('value')
+    .eq('key', 'categories_visible')
+    .single();
+  // default to true if not set
+  return data ? data.value !== 'false' : true;
+}

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getProjects } from "../_data/projects";
 import { WorkGallery } from "../_components/Sections/Work/WorkGallery";
+import { getCategoriesVisible } from "../_lib/shippingSettings";
 
 export const metadata: Metadata = {
   title: "Work",
@@ -12,7 +13,10 @@ export const metadata: Metadata = {
 
 
 export default async function WorkPage() {
-  const projects = await getProjects();
+  const [projects, showCategories] = await Promise.all([
+    getProjects(),
+    getCategoriesVisible(),
+  ]);
 
   // Count categories
   const categoryCounts = projects.reduce((acc, project) => {
@@ -32,7 +36,8 @@ export default async function WorkPage() {
       <Suspense fallback={null}>
         <WorkGallery 
           projects={projects} 
-          categoryCounts={sortedCategories} 
+          categoryCounts={sortedCategories}
+          showCategories={showCategories}
         />
       </Suspense>
     </main>
