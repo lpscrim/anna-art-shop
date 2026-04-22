@@ -45,11 +45,11 @@ export default async function AboutPage() {
                 {about.statement}
               </p>
             )}
-            {about.bio && (
-              <p className="text-base xl:text-lg text-muted-foreground leading-relaxed">
-                {about.bio}
+            {about.bio && about.bio.split(/\n\n+/).filter(Boolean).map((para, i) => (
+              <p key={i} className="text-base xl:text-lg text-muted-foreground leading-relaxed">
+                {para}
               </p>
-            )}
+            ))}
           </div>
         </div>
       </section>
