@@ -45,7 +45,7 @@ export default async function AboutPage() {
                 {about.statement}
               </p>
             )}
-            {about.bio && about.bio.split(/\n\n+/).filter(Boolean).map((para, i) => (
+            {about.bio && about.bio.split(/\r?\n\r?\n+/).filter(Boolean).map((para, i) => (
               <p key={i} className="text-base xl:text-lg text-muted-foreground leading-relaxed">
                 {para}
               </p>
