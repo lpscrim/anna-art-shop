@@ -1,8 +1,8 @@
 "use client";
 
 import { SwipeGallery } from "../../UI/Layout/SwipeGallery";
-{/*import Button from "../../UI/Layout/Button";
-import Link from "next/link";*/}
+import Button from "../../UI/Layout/Button";
+import Link from "next/link";
 
 const aboutImages = ["/ANNA.webp", "/art123.webp", "/About1_sm.webp", "/About2_sm.webp", "/About3_sm.webp"];
 
@@ -33,11 +33,11 @@ export function About() {
 
           </div>
         </div>
-        {/* <div className="mt-24 text-center">
+         <div className="mt-24 invisible text-center">
           <Button size="xl">
-            <Link href="/">MORE??</Link>
+            <Link href="/">MORE</Link>
           </Button>
-        </div> */}
+        </div>
       </div>
     </section>
   );
