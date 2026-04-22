@@ -60,26 +60,16 @@ export function SwipeGallery({ images, alt, className = "" }: SwipeGalleryProps)
 
   return (
     <div {...handlers} className={`relative select-none ${className}`}>
-      <ImageWithFallback
-        key={images[index]}
-        src={images[index]}
-        alt={`${alt} ${index + 1}`}
-        fill={true}
-        sizes="(min-width: 768px) 50vw, 100vw"
-        className="object-cover"
-      />
-
-      {/* Preload next image */}
-      {images[(index + 1) % images.length] !== images[index] && (
+      {images.map((src, i) => (
         <ImageWithFallback
-          src={images[(index + 1) % images.length]}
-          alt=""
-          aria-hidden
+          key={src}
+          src={src}
+          alt={i === index ? `${alt} ${i + 1}` : ""}
           fill={true}
           sizes="(min-width: 768px) 50vw, 100vw"
-          className="object-cover opacity-0 pointer-events-none"
+          className={`object-cover transition-opacity duration-700 ${i === index ? "opacity-100" : "opacity-0"}`}
         />
-      )}
+      ))}
 
       {/* Dots */}
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2.5">
