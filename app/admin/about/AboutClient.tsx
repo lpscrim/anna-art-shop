@@ -3,7 +3,7 @@
 import { useState, useTransition, useRef } from 'react';
 import Image from 'next/image';
 import type { AboutContent, Exhibition, EducationItem, Award, PressItem } from '@/app/_lib/aboutContent';
-import { saveAboutContent, uploadAboutPortrait, uploadGalleryImage, removeGalleryImage } from './actions';
+import { saveAboutText, saveAboutCV, uploadAboutPortrait, uploadGalleryImage, removeGalleryImage } from './actions';
 import { compressImage } from '../compressImage';
 
 // ── Small helpers ──────────────────────────────────────────────────────────
@@ -208,7 +208,7 @@ export default function AboutClient({ initial }: { initial: AboutContent }) {
     fd.set('statement', statement);
     fd.set('bio', bio);
     startTransition(async () => {
-      const res = await saveAboutContent(fd);
+      const res = await saveAboutText(fd);
       setTextStatus({ ok: res.success, msg: res.success ? 'Saved.' : (res.error ?? 'Error') });
     });
   }
@@ -217,14 +217,12 @@ export default function AboutClient({ initial }: { initial: AboutContent }) {
     e.preventDefault();
     setCvStatus({ msg: '' });
     const fd = new FormData();
-    fd.set('statement', statement);
-    fd.set('bio', bio);
     fd.set('exhibitions', JSON.stringify(exhibitions));
     fd.set('education', JSON.stringify(education));
     fd.set('awards', JSON.stringify(awards));
     fd.set('press', JSON.stringify(press));
     startTransition(async () => {
-      const res = await saveAboutContent(fd);
+      const res = await saveAboutCV(fd);
       setCvStatus({ ok: res.success, msg: res.success ? 'Saved.' : (res.error ?? 'Error') });
     });
   }

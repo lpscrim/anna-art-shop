@@ -11,15 +11,31 @@ function isAllowed(file: File) {
   return ALLOWED.includes(file.name.split('.').pop()?.toLowerCase() ?? '');
 }
 
-export async function saveAboutContent(
+export async function saveAboutText(
   formData: FormData
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireAdminUser();
-
     const statement = (formData.get('statement') as string | null) ?? '';
     const bio = (formData.get('bio') as string | null) ?? '';
+    const supabase = createServerSupabase();
+    const { error } = await supabase
+      .from('about_content')
+      .upsert({ id: 1, statement, bio, updated_at: new Date().toISOString() });
+    if (error) return { success: false, error: error.message };
+    revalidatePath('/about');
+    revalidatePath('/admin/about');
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
+  }
+}
 
+export async function saveAboutCV(
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAdminUser();
     let exhibitions, education, awards, press;
     try {
       exhibitions = JSON.parse((formData.get('exhibitions') as string | null) ?? '[]');
@@ -29,27 +45,24 @@ export async function saveAboutContent(
     } catch {
       return { success: false, error: 'Invalid CV data format.' };
     }
-
     const supabase = createServerSupabase();
-    const { error } = await supabase.from('about_content').upsert({
-      id: 1,
-      statement,
-      bio,
-      exhibitions,
-      education,
-      awards,
-      press,
-      updated_at: new Date().toISOString(),
-    });
-
+    const { error } = await supabase
+      .from('about_content')
+      .upsert({ id: 1, exhibitions, education, awards, press, updated_at: new Date().toISOString() });
     if (error) return { success: false, error: error.message };
-
     revalidatePath('/about');
     revalidatePath('/admin/about');
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
   }
+}
+
+/** @deprecated Use saveAboutText + saveAboutCV instead */
+export async function saveAboutContent(
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
+  return saveAboutCV(formData);
 }
 
 export async function uploadAboutPortrait(
