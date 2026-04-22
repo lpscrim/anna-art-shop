@@ -1,3 +1,5 @@
+'use client';
+
 import { Mail, Instagram, Globe, Newspaper } from 'lucide-react';
 
 export function Contact() {
@@ -44,15 +46,13 @@ export function Contact() {
                   <Instagram size={20} className="text-muted-foreground" />
                   <span>Instagram</span>
                 </a>
-                <a 
-                  href="https://989ae4b7.sibforms.com/serve/MUIFAHRX-TcLtJ4rFsOZZdq839lByDNSXwdvr3gXiy7kvS3Ym9dd9pKpBw6sBvMFWVWtGO_GgD_HOqfnD99P4CZbLXhmYP-3lTpJ8qwXkAimUjgdE7iWxc6BavdxRJ8Wtvip_e_oxpzYuO-kbUMNVLPWmnIFMegLgZg2LmLekKbv0HlJqeqDJee2vKcUHMg9JrJTlxobFazjIMofQw=="
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-mailing-list'))}
                   className="flex items-center gap-3 cursor-crosshair hover:opacity-70 transition-opacity whitespace-nowrap"
                 >
                   <Newspaper size={20} className="text-muted-foreground" />
                   <span>Newsletter</span>
-                </a>
+                </button>
                 <a 
                   href="https://st.storedpay.co/l/anna-maia-art/mini-original-artworks"
                   target="_blank"

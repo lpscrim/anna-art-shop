@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "./_components/Sections/Header";
 import { Footer } from "./_components/Sections/Footer";
 import { CartShell } from "./_components/Cart/CartShell";
+import MailingListPopup from "./_components/MailingListPopup";
 
 
 function getSiteUrl(): string {
@@ -88,6 +89,7 @@ export default function RootLayout({
           <Header />
           {children}
           <Footer />
+          <MailingListPopup />
         </CartShell>
       </body>
     </html>
