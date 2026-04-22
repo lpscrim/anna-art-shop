@@ -33,9 +33,9 @@ export function About() {
 
           </div>
         </div>
-         <div className="mt-24 invisible text-center">
+         <div className="mt-24 text-center">
           <Button size="xl">
-            <Link href="/">MORE</Link>
+            <Link href="/about">More</Link>
           </Button>
         </div>
       </div>
