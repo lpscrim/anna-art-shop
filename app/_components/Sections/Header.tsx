@@ -17,14 +17,13 @@ export function Header() {
   const isAdminPage = pathname.startsWith("/admin");
   const { count, toggleCart } = useCart();
 
-
   useEffect(() => {
     const hero = document.getElementById("home");
     if (!hero) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => setOnHero(entry.isIntersecting),
-      { threshold: 0.065 }
+      { threshold: 0.065 },
     );
     observer.observe(hero);
     return () => observer.disconnect();
@@ -32,15 +31,14 @@ export function Header() {
 
   const conditionalScrollTo = (hash: string) => {
     if (pathname === "/") {
-      if (hash === '') {
+      if (hash === "") {
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
-        const el = document.querySelector(hash);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth" });
-        }
-
+      const el = document.querySelector(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
     } else {
       router.push("/" + hash);
     }
@@ -56,17 +54,27 @@ export function Header() {
       <div className="relative mx-auto py-4 z-10">
         <div className="flex items-center justify-between">
           {/* Logo with crossfade */}
-          <button className={`relative cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? 'invisible' : 'text-foreground'}`} onClick={() => { conditionalScrollTo(''); setIsMenuOpen(false); }}>
+          <button
+            className={`relative cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? "invisible" : "text-foreground"}`}
+            onClick={() => {
+              conditionalScrollTo("");
+              setIsMenuOpen(false);
+            }}
+          >
             <span
               className={`tracking-wide title font-light text-foreground left-0 top-0 transition-all duration-500 ${
-                isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
+                isLight
+                  ? "opacity-0 pointer-events-none"
+                  : "opacity-100 pointer-events-auto"
               }`}
             >
               Anna Maia Zaitseva
             </span>
             <span
               className={`tracking-wide title font-light text-card invisible absolute left-0 top-0 transition-all duration-500 ${
-                isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                isLight
+                  ? "opacity-100 pointer-events-auto"
+                  : "opacity-0 pointer-events-none"
               }`}
             >
               Anna Maia Zaitseva
@@ -75,71 +83,103 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex gap-8 ">
-            <button className={`relative title text-2xl nav-underline transition-colors duration-500 ${isLight ? 'text-card' : 'text-foreground'}`}>
+            <button
+              className={`relative title text-2xl nav-underline transition-colors duration-500 ${isLight ? "text-card" : "text-foreground"}`}
+            >
               <Link href="/work" className="cursor-crosshair">
                 <span
                   className={`text-foreground  transition-all duration-500 ${
-                    isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
+                    isLight
+                      ? "opacity-0 pointer-events-none"
+                      : "opacity-100 pointer-events-auto"
                   }`}
                 >
                   Work
                 </span>
                 <span
                   className={`text-card  absolute left-0 top-0 transition-all duration-500 ${
-                    isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                    isLight
+                      ? "opacity-100 pointer-events-auto"
+                      : "opacity-0 pointer-events-none"
                   }`}
                 >
                   Work
                 </span>
               </Link>
             </button>
-            <button className={`relative title text-2xl cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? 'text-card' : 'text-foreground'}`} onClick={() => conditionalScrollTo('#about')}>
+            <button
+              className={`relative title text-2xl cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? "text-card" : "text-foreground"}`}
+            >
+              <Link href="/about">
                 <span
                   className={`text-foreground  transition-all duration-500 ${
-                    isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
+                    isLight
+                      ? "opacity-0 pointer-events-none"
+                      : "opacity-100 pointer-events-auto"
                   }`}
                 >
                   About
                 </span>
                 <span
                   className={`text-card  absolute left-0 top-0 transition-all duration-500 ${
-                    isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                    isLight
+                      ? "opacity-100 pointer-events-auto"
+                      : "opacity-0 pointer-events-none"
                   }`}
                 >
                   About
                 </span>
+              </Link>
             </button>
-            <button className={`relative title text-2xl cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? 'text-card' : 'text-foreground'}`} onClick={() => conditionalScrollTo('#contact')}>
-                <span
-                  className={`text-foreground  transition-all duration-500 ${
-                    isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
-                  }`}
-                >
-                  Contact
-                </span>
-                <span
-                  className={`text-card  absolute left-0 top-0 transition-all duration-500 ${
-                    isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-                  }`}
-                >
-                  Contact
-                </span>
+            <button
+              className={`relative title text-2xl cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? "text-card" : "text-foreground"}`}
+              onClick={() => conditionalScrollTo("#contact")}
+            >
+              <span
+                className={`text-foreground  transition-all duration-500 ${
+                  isLight
+                    ? "opacity-0 pointer-events-none"
+                    : "opacity-100 pointer-events-auto"
+                }`}
+              >
+                Contact
+              </span>
+              <span
+                className={`text-card  absolute left-0 top-0 transition-all duration-500 ${
+                  isLight
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0 pointer-events-none"
+                }`}
+              >
+                Contact
+              </span>
             </button>
-            <button className={`relative title text-2xl cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? 'text-card' : 'text-foreground'}`} onClick={toggleCart}>
-                <span
-                  className={`text-foreground  transition-all duration-500 ${
-                    isLight ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
-                  }`}
-                >
-                  Cart{count > 0 && <span className="text-foreground/60"> [{count}]</span>}
-                </span>
-                <span
-                  className={`text-card  absolute left-0 top-0 transition-all duration-500 ${
-                    isLight ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-                  }`}
-                >
-                  Cart{count > 0 && <span className="text-card/60"> [{count}]</span>}
-                </span>
+            <button
+              className={`relative title text-2xl cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? "text-card" : "text-foreground"}`}
+              onClick={toggleCart}
+            >
+              <span
+                className={`text-foreground  transition-all duration-500 ${
+                  isLight
+                    ? "opacity-0 pointer-events-none"
+                    : "opacity-100 pointer-events-auto"
+                }`}
+              >
+                Cart
+                {count > 0 && (
+                  <span className="text-foreground/60"> [{count}]</span>
+                )}
+              </span>
+              <span
+                className={`text-card  absolute left-0 top-0 transition-all duration-500 ${
+                  isLight
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0 pointer-events-none"
+                }`}
+              >
+                Cart
+                {count > 0 && <span className="text-card/60"> [{count}]</span>}
+              </span>
             </button>
           </nav>
 
@@ -162,50 +202,52 @@ export function Header() {
             <button
               onClick={() => setIsMenuOpen(false)}
               className={`title pop-up opacity-0 text-left transition-colors ${
-                isLight
-                  ? "text-card "
-                  : "text-foreground "
+                isLight ? "text-card " : "text-foreground "
               }`}
-              
             >
               <Link href="/work" className="cursor-crosshair">
                 Work
               </Link>
             </button>
             <button
-            
+              onClick={() => setIsMenuOpen(false)}
               className={`title pop-up-2 opacity-0 text-left transition-colors cursor-crosshair ${
-                isLight
-                  ? "text-card "
-                  : "text-foreground "
+                isLight ? "text-card " : "text-foreground "
               }`}
-              onClick={() => { conditionalScrollTo('#about'); setIsMenuOpen(false); }}
             >
+              <Link href="/about" className="cursor-crosshair">
                 About
+              </Link>
             </button>
             <button
               className={`title pop-up-3 opacity-0 text-left transition-colors cursor-crosshair ${
-                isLight
-                  ? "text-card "
-                  : "text-foreground "
+                isLight ? "text-card " : "text-foreground "
               }`}
-              onClick={() => { conditionalScrollTo('#contact'); setIsMenuOpen(false); }}
+              onClick={() => {
+                conditionalScrollTo("#contact");
+                setIsMenuOpen(false);
+              }}
             >
-                Contact
+              Contact
             </button>
             <button
               className={`title pop-up-4 opacity-0 text-left transition-colors cursor-crosshair ${
-                isLight
-                  ? "text-card "
-                  : "text-foreground "
+                isLight ? "text-card " : "text-foreground "
               }`}
-              onClick={() => { toggleCart(); setIsMenuOpen(false); }}
+              onClick={() => {
+                toggleCart();
+                setIsMenuOpen(false);
+              }}
             >
-                Cart{count > 0 && <span className={`${
-                isLight
-                  ? "text-card "
-                  : "text-foreground "
-              }`}> [{count}]</span>}
+              Cart
+              {count > 0 && (
+                <span
+                  className={`${isLight ? "text-card " : "text-foreground "}`}
+                >
+                  {" "}
+                  [{count}]
+                </span>
+              )}
             </button>
           </nav>
         )}
