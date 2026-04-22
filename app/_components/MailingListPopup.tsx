@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Button from '@/app/_components/UI/Layout/Button';
 
 const STORAGE_KEY = 'mailing_list_dismissed';
 const DELAY_MS = 5000;
@@ -21,7 +22,6 @@ export default function MailingListPopup() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (sessionStorage.getItem(STORAGE_KEY)) return;
-
     const timer = setTimeout(() => setVisible(true), DELAY_MS);
     return () => clearTimeout(timer);
   }, []);
@@ -42,7 +42,6 @@ export default function MailingListPopup() {
     if (!email) return;
     setStatus('loading');
     setErrorMsg('');
-
     try {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
@@ -68,72 +67,79 @@ export default function MailingListPopup() {
       onClick={(e) => { if (e.target === e.currentTarget) dismiss(); }}
     >
       <div
-        className="relative w-full max-w-sm bg-background text-foreground p-8"
+        className="relative w-full max-w-lg bg-background text-foreground p-8 md:p-12 overflow-y-auto max-h-[90svh]"
         style={{ border: '1px solid var(--border)' }}
       >
-        {/* Close button */}
         <button
           onClick={dismiss}
           aria-label="Close"
-          className="absolute top-3 right-4 text-muted-foreground hover:text-foreground transition-colors text-lg leading-none cursor-crosshair"
+          className="absolute top-4 right-5 text-muted-foreground hover:text-foreground transition-colors text-2xl leading-none cursor-crosshair"
         >
           ×
         </button>
 
         {status === 'success' ? (
-          <div className="text-center py-4">
-            <p className="text-lg mb-1">Thank you</p>
-            <p className="text-sm text-muted-foreground">You&apos;re on the list.</p>
-            <button
-              onClick={dismiss}
-              className="mt-6 text-xs text-muted-foreground underline underline-offset-2 cursor-crosshair"
-            >
-              Close
-            </button>
+          <div className="py-8 text-center space-y-3">
+            <p className="text-2xl" style={{ fontFamily: 'EB Garamond, serif' }}>Thank you for signing up</p>
+            <p className="text-muted-foreground text-sm">You&apos;ll hear from Anna when inspiration strikes.</p>
+            <div className="pt-4">
+              <Button size="sm" onClick={dismiss}>Close</Button>
+            </div>
           </div>
         ) : (
-          <>
-            <h2 className="text-xl mb-1" style={{ fontFamily: 'EB Garamond, serif' }}>
-              Stay in the loop
-            </h2>
-            <p className="text-sm text-muted-foreground mb-6">
-              New work, upcoming exhibitions, and occasional updates from the studio.
-            </p>
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl md:text-3xl mb-4" style={{ fontFamily: 'EB Garamond, serif' }}>
+                Anna Maia Newsletter
+              </h2>
+              <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+                <p>
+                  For as long as I can remember, I&apos;ve wanted to be an artist — and this year, I finally took the
+                  leap and started a full-time painting course at Leith School of Art in Edinburgh.
+                </p>
+                <p>
+                  I thought it might be nice to share some of what I&apos;m learning: tips and tricks, bits of art
+                  history, recommendations that have inspired me, and the occasional glimpse of what&apos;s happening
+                  on the easel.
+                </p>
+                <p>Roughly once a month. I hope these notes spark something for you too.</p>
+              </div>
+            </div>
 
-            <form onSubmit={handleSubmit} noValidate>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-                className="w-full bg-transparent border-b border-foreground/30 focus:border-foreground outline-none py-1.5 text-sm placeholder:text-muted-foreground mb-4 transition-colors"
-              />
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
+              <div>
+                <label htmlFor="popup-email" className="block text-xs text-muted-foreground mb-2 tracking-wide uppercase">
+                  Email address
+                </label>
+                <input
+                  id="popup-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  required
+                  className="w-full bg-transparent border-b border-foreground/30 focus:border-foreground outline-none py-1.5 text-base placeholder:text-muted-foreground transition-colors"
+                />
+              </div>
 
               {status === 'error' && (
-                <p className="text-xs text-destructive mb-3">{errorMsg}</p>
+                <p className="text-xs text-destructive">{errorMsg}</p>
               )}
 
-              <div className="flex items-center justify-between">
-                <button
-                  type="submit"
-                  disabled={status === 'loading'}
-                  className="cursor-crosshair text-sm transition-all duration-250 group disabled:opacity-50"
-                >
-                  <span className="group-hover:px-0.5 transition-all duration-250">[</span>{' '}
-                  {status === 'loading' ? 'Subscribing…' : 'Subscribe'}{' '}
-                  <span className="group-hover:px-0.5 transition-all duration-250">]</span>
-                </button>
+              <div className="flex items-center justify-between pt-2">
+                <Button size="sm" disabled={status === 'loading'}>
+                  {status === 'loading' ? 'Subscribing…' : 'Subscribe'}
+                </Button>
                 <button
                   type="button"
                   onClick={dismiss}
-                  className="text-sm text-muted-foreground underline underline-offset-2 cursor-crosshair"
+                  className="text-sm text-muted-foreground underline underline-offset-2 cursor-crosshair hover:text-foreground transition-colors"
                 >
                   No thanks
                 </button>
               </div>
             </form>
-          </>
+          </div>
         )}
       </div>
     </div>

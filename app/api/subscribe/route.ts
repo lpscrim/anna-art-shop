@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { BrevoClient } from '@getbrevo/brevo';
+
+const BREVO_FORM_URL =
+  'https://989ae4b7.sibforms.com/serve/MUIFALP-q10Zm5q95kRlNTp8I88j9mW0YnWtbqZiok8jK9AlhJh4IlhSqh6Ku4C8y_8ewPC07_ZnrJsFq-PEedOtC8eC4dxilCqEV98MgTx4qR020Jwtd1QSW_Jsde58QFaAiwdZ5r-7X3fsR-rIQkTZ6JwLR4F_GLSSAht3mIM3hV-iRifwHP0F6hth-rK1bkl4BMvlUQBNTG6SbA==';
 
 export async function POST(req: NextRequest) {
-  const apiKey = process.env.BREVO_API_KEY;
-  const listId = process.env.BREVO_LIST_ID;
-
-  if (!apiKey || !listId) {
-    console.error('[SUBSCRIBE] Missing BREVO_API_KEY or BREVO_LIST_ID');
-    return NextResponse.json({ error: 'Service unavailable' }, { status: 503 });
-  }
-
   let email: string;
   try {
     const body = await req.json();
@@ -22,20 +16,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
   }
 
-  const brevo = new BrevoClient({ apiKey });
+  const form = new URLSearchParams();
+  form.set('EMAIL', email);
+  form.set('email_address_check', '');
+  form.set('locale', 'en');
 
   try {
-    await brevo.contacts.createContact({
-      email,
-      listIds: [parseInt(listId, 10)],
-      updateEnabled: true,
+    const res = await fetch(BREVO_FORM_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
     });
-    return NextResponse.json({ success: true });
-  } catch (err: unknown) {
-    const status = (err as { status?: number })?.status;
-    // 204 = already exists / no content — treat as success
-    if (status === 204) return NextResponse.json({ success: true });
-    console.error('[SUBSCRIBE] Brevo error:', err);
+
+    if (res.ok || res.status === 302) {
+      return NextResponse.json({ success: true });
+    }
+
+    console.error('[SUBSCRIBE] Brevo form error:', res.status);
+    return NextResponse.json({ error: 'Failed to subscribe' }, { status: 500 });
+  } catch (err) {
+    console.error('[SUBSCRIBE] Fetch error:', err);
     return NextResponse.json({ error: 'Failed to subscribe' }, { status: 500 });
   }
 }
