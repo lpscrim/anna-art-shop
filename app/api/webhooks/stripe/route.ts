@@ -92,7 +92,8 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
     }
   }
 
-  // Fetch PaymentIntent for metadata (reserved_items, shipping_amount)
+  // Fetch PaymentIntent for metadata (reserved_items, shipping_amount).
+  // If this fails we still send the email — just without item breakdown / shipping split.
   let pi: Stripe.PaymentIntent | null = null;
   if (charge.payment_intent && typeof charge.payment_intent === 'string') {
     try {
@@ -106,11 +107,13 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
   const billingName = charge.billing_details?.name ?? null;
   const shipping = charge.shipping;
 
-  console.log('[WEBHOOK] billingEmail:', billingEmail, '| billingName:', billingName, '| stripeFee:', balanceTx?.fee);
-
   const amountTotal = charge.amount;
-  const shippingCost = parseInt(pi?.metadata?.shipping_amount ?? '0', 10);
-  const subtotal = amountTotal - shippingCost;
+  // shippingCost is null (not 0) when metadata is unavailable, so the email
+  // can show "Total" only rather than misreporting "Subtotal" + "Free shipping".
+  const shippingCost = pi?.metadata?.shipping_amount
+    ? parseInt(pi.metadata.shipping_amount, 10)
+    : null;
+  const subtotal = shippingCost !== null ? amountTotal - shippingCost : null;
   const stripeFee = balanceTx?.fee ?? null;
   const platformFee = Math.round(amountTotal * 0.01);
   const netToClient = stripeFee !== null ? amountTotal - platformFee - stripeFee : null;
@@ -157,8 +160,8 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
     <h3>Items</h3>
     <div>${itemsHtml}</div>
     <table style="width:100%;max-width:360px;border-collapse:collapse;margin-top:12px;font-size:14px">
-      <tr><td style="color:#555;padding:3px 0">Subtotal</td><td style="text-align:right">${fmt(subtotal)}</td></tr>
-      <tr><td style="color:#555;padding:3px 0">Shipping</td><td style="text-align:right">${shippingCost === 0 ? 'Free' : fmt(shippingCost)}</td></tr>
+      ${subtotal !== null ? `<tr><td style="color:#555;padding:3px 0">Subtotal</td><td style="text-align:right">${fmt(subtotal)}</td></tr>` : ''}
+      ${shippingCost !== null ? `<tr><td style="color:#555;padding:3px 0">Shipping</td><td style="text-align:right">${shippingCost === 0 ? 'Free' : fmt(shippingCost)}</td></tr>` : ''}
       <tr><td style="padding:3px 0;font-weight:600">Total</td><td style="text-align:right;font-weight:600">${fmt(amountTotal)}</td></tr>
       <tr><td style="color:#555;padding:3px 0;border-top:1px solid #eee">Platform fee (1%)</td><td style="text-align:right;border-top:1px solid #eee">−${fmt(platformFee)}</td></tr>
       <tr><td style="color:#555;padding:3px 0">Stripe processing fee</td><td style="text-align:right">${stripeFee !== null ? `−${fmt(stripeFee)}` : 'See dashboard'}</td></tr>
