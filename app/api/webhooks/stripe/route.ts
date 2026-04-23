@@ -32,18 +32,20 @@ export async function POST(req: NextRequest) {
   }
 
   // Stock is reserved when the PaymentIntent is created.
-  // On success the reservation becomes the sale — nothing to do.
-  // On cancellation/failure we restore the reserved stock.
+  // We listen to charge.succeeded (not payment_intent.succeeded) because
+  // balance_transaction is guaranteed to exist by the time charge.succeeded fires,
+  // whereas on payment_intent.succeeded it may not be populated yet.
+  // We still listen to payment_intent.canceled for stock restoration.
 
-  if (event.type === 'payment_intent.succeeded') {
-    const pi = event.data.object as Stripe.PaymentIntent;
+  if (event.type === 'charge.succeeded') {
+    const charge = event.data.object as Stripe.Charge;
     console.log('[ORDER COMPLETED]', {
-      paymentIntentId: pi.id,
-      amount: pi.amount,
-      currency: pi.currency,
-      items: pi.metadata?.reserved_items,
+      chargeId: charge.id,
+      paymentIntentId: charge.payment_intent,
+      amount: charge.amount,
+      currency: charge.currency,
     });
-    await notifyClientFromPI(pi, stripe);
+    await notifyClientFromCharge(charge, stripe);
   }
 
   if (event.type === 'payment_intent.canceled') {
@@ -63,7 +65,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ received: true });
 }
 
-async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<typeof import('@/app/_lib/stripe').getStripe>) {
+async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<typeof import('@/app/_lib/stripe').getStripe>) {
   const apiKey = process.env.RESEND_API_KEY;
   const notifyEmail = process.env.NOTIFY_EMAIL;
   if (!apiKey || !notifyEmail) return;
@@ -74,50 +76,40 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
   const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID?.trim() || undefined;
   const stripeOpts = clientAccountId ? { stripeAccount: clientAccountId } : undefined;
 
-  // Expand charge + balance_transaction for billing, shipping, and fee details
-  let charge: Stripe.Charge | null = null;
-  try {
-    const expanded = await stripe.paymentIntents.retrieve(
-      pi.id,
-      { expand: ['latest_charge.balance_transaction'] },
-      stripeOpts,
-    );
-    console.log('[WEBHOOK] PI retrieved. latest_charge type:', typeof expanded.latest_charge, '| value:', JSON.stringify(expanded.latest_charge)?.slice(0, 200));
-    const lc = expanded.latest_charge;
-    if (lc && typeof lc !== 'string') {
-      charge = lc;
-      console.log('[WEBHOOK] Charge expanded. balance_transaction type:', typeof charge.balance_transaction, '| fee:', typeof charge.balance_transaction !== 'string' ? (charge.balance_transaction as Stripe.BalanceTransaction | null)?.fee : 'string-id');
-    } else if (typeof lc === 'string') {
-      console.log('[WEBHOOK] latest_charge is string ID, retrieving separately:', lc);
-      charge = await stripe.charges.retrieve(
-        lc,
-        { expand: ['balance_transaction'] },
+  // Retrieve balance_transaction if not already expanded on the charge event
+  let balanceTx: Stripe.BalanceTransaction | null = null;
+  if (charge.balance_transaction && typeof charge.balance_transaction !== 'string') {
+    balanceTx = charge.balance_transaction as Stripe.BalanceTransaction;
+  } else if (typeof charge.balance_transaction === 'string') {
+    try {
+      balanceTx = await stripe.balanceTransactions.retrieve(
+        charge.balance_transaction,
+        undefined,
         stripeOpts,
-      ) as Stripe.Charge;
-      console.log('[WEBHOOK] Charge retrieved. balance_transaction fee:', typeof charge.balance_transaction !== 'string' ? (charge.balance_transaction as Stripe.BalanceTransaction | null)?.fee : 'string-id');
-    } else {
-      console.warn('[WEBHOOK] latest_charge is null — charge may not exist yet');
+      );
+    } catch (err) {
+      console.error('[WEBHOOK] Failed to retrieve balance_transaction:', err);
     }
-  } catch (err) {
-    console.error('[WEBHOOK] Failed to retrieve charge:', err);
   }
 
-  const balanceTx =
-    charge?.balance_transaction && typeof charge.balance_transaction !== 'string'
-      ? (charge.balance_transaction as Stripe.BalanceTransaction)
-      : null;
+  // Fetch PaymentIntent for metadata (reserved_items, shipping_amount)
+  let pi: Stripe.PaymentIntent | null = null;
+  if (charge.payment_intent && typeof charge.payment_intent === 'string') {
+    try {
+      pi = await stripe.paymentIntents.retrieve(charge.payment_intent, undefined, stripeOpts);
+    } catch (err) {
+      console.error('[WEBHOOK] Failed to retrieve PaymentIntent:', err);
+    }
+  }
 
-  console.log('[WEBHOOK] balanceTx fee:', balanceTx?.fee ?? 'null — balance_transaction not yet available');
+  const billingEmail = charge.billing_details?.email ?? null;
+  const billingName = charge.billing_details?.name ?? null;
+  const shipping = charge.shipping;
 
-  const billingEmail = charge?.billing_details?.email ?? pi.receipt_email ?? null;
-  const billingName = charge?.billing_details?.name ?? null;
-  const billing = charge?.billing_details;
-  const shipping = charge?.shipping ?? pi.shipping;
+  console.log('[WEBHOOK] billingEmail:', billingEmail, '| billingName:', billingName, '| stripeFee:', balanceTx?.fee);
 
-  console.log('[WEBHOOK] billingEmail:', billingEmail, '| billingName:', billingName, '| shipping:', JSON.stringify(shipping)?.slice(0, 150));
-
-  const amountTotal = pi.amount;
-  const shippingCost = parseInt(pi.metadata?.shipping_amount ?? '0', 10);
+  const amountTotal = charge.amount;
+  const shippingCost = parseInt(pi?.metadata?.shipping_amount ?? '0', 10);
   const subtotal = amountTotal - shippingCost;
   const stripeFee = balanceTx?.fee ?? null;
   const platformFee = Math.round(amountTotal * 0.01);
@@ -138,12 +130,12 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
     : 'Not provided';
 
   const phone = (shipping as { phone?: string } | null)?.phone
-    ?? (billing as { phone?: string } | null)?.phone
+    ?? (charge.billing_details as { phone?: string } | null)?.phone
     ?? 'Not provided';
 
   let itemsHtml = '';
   try {
-    const reserved = JSON.parse(pi.metadata?.reserved_items ?? '[]') as { title: string; qty: number; price: number; image?: string; type?: string }[];
+    const reserved = JSON.parse(pi?.metadata?.reserved_items ?? '[]') as { title: string; qty: number; price: number; image?: string; type?: string }[];
     itemsHtml = reserved
       .map((i) => `<div style="display:inline-block;margin:8px;vertical-align:top;text-align:center;width:160px">
         ${i.image ? `<img src="${i.image}" alt="${i.title}" width="160" height="160" style="object-fit:cover;border-radius:6px;display:block">` : ''}
@@ -172,7 +164,7 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
       <tr><td style="color:#555;padding:3px 0">Stripe processing fee</td><td style="text-align:right">${stripeFee !== null ? `−${fmt(stripeFee)}` : 'See dashboard'}</td></tr>
       <tr><td style="padding:3px 0;font-weight:600;border-top:1px solid #eee">Net to you</td><td style="text-align:right;font-weight:600;border-top:1px solid #eee">${netToClient !== null ? fmt(netToClient) : 'See dashboard'}</td></tr>
     </table>
-    <p style="color:#888;font-size:12px;margin-top:12px">Payment Intent: ${pi.id}</p>
+    <p style="color:#888;font-size:12px;margin-top:12px">Charge: ${charge.id} | Payment Intent: ${pi?.id ?? 'N/A'}</p>
   `;
 
   try {
@@ -180,7 +172,7 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
     const result = await resend.emails.send({
       from: fromAddress,
       to: recipients,
-      subject: `New Order — ${billingName ?? billingEmail ?? pi.id}`,
+      subject: `New Order — ${billingName ?? billingEmail ?? charge.id}`,
       html,
     });
     console.log('[NOTIFY EMAIL RESULT]', JSON.stringify(result));
