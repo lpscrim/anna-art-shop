@@ -82,17 +82,21 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
       { expand: ['latest_charge.balance_transaction'] },
       stripeOpts,
     );
+    console.log('[WEBHOOK] PI retrieved. latest_charge type:', typeof expanded.latest_charge, '| value:', JSON.stringify(expanded.latest_charge)?.slice(0, 200));
     const lc = expanded.latest_charge;
     if (lc && typeof lc !== 'string') {
-      // Fully expanded
       charge = lc;
+      console.log('[WEBHOOK] Charge expanded. balance_transaction type:', typeof charge.balance_transaction, '| fee:', typeof charge.balance_transaction !== 'string' ? (charge.balance_transaction as Stripe.BalanceTransaction | null)?.fee : 'string-id');
     } else if (typeof lc === 'string') {
-      // latest_charge wasn't expanded — retrieve the charge separately
+      console.log('[WEBHOOK] latest_charge is string ID, retrieving separately:', lc);
       charge = await stripe.charges.retrieve(
         lc,
         { expand: ['balance_transaction'] },
         stripeOpts,
       ) as Stripe.Charge;
+      console.log('[WEBHOOK] Charge retrieved. balance_transaction fee:', typeof charge.balance_transaction !== 'string' ? (charge.balance_transaction as Stripe.BalanceTransaction | null)?.fee : 'string-id');
+    } else {
+      console.warn('[WEBHOOK] latest_charge is null — charge may not exist yet');
     }
   } catch (err) {
     console.error('[WEBHOOK] Failed to retrieve charge:', err);
@@ -103,17 +107,21 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
       ? (charge.balance_transaction as Stripe.BalanceTransaction)
       : null;
 
+  console.log('[WEBHOOK] balanceTx fee:', balanceTx?.fee ?? 'null — balance_transaction not yet available');
+
   const billingEmail = charge?.billing_details?.email ?? pi.receipt_email ?? null;
-  const billingName = charge?.billing_details?.name ?? 'Unknown';
+  const billingName = charge?.billing_details?.name ?? null;
   const billing = charge?.billing_details;
   const shipping = charge?.shipping ?? pi.shipping;
+
+  console.log('[WEBHOOK] billingEmail:', billingEmail, '| billingName:', billingName, '| shipping:', JSON.stringify(shipping)?.slice(0, 150));
 
   const amountTotal = pi.amount;
   const shippingCost = parseInt(pi.metadata?.shipping_amount ?? '0', 10);
   const subtotal = amountTotal - shippingCost;
   const stripeFee = balanceTx?.fee ?? null;
   const platformFee = Math.round(amountTotal * 0.01);
-  const netToClient = amountTotal - platformFee - (stripeFee ?? 0);
+  const netToClient = stripeFee !== null ? amountTotal - platformFee - stripeFee : null;
 
   const fmt = (pence: number) => `£${(pence / 100).toFixed(2)}`;
 
@@ -149,8 +157,8 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
   }
 
   const html = `
-    <h2>New Order — ${billingName}</h2>
-    <p><strong>Customer:</strong> ${billingName}<br>
+    <h2>New Order — ${billingName ?? 'New Customer'}</h2>
+    <p><strong>Customer:</strong> ${billingName ?? 'Unknown'}<br>
     <strong>Email:</strong> ${billingEmail ?? 'Unknown'}<br>
     <strong>Phone:</strong> ${phone}</p>
     <p><strong>Shipping address:</strong><br>${addressLines}</p>
@@ -161,8 +169,8 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
       <tr><td style="color:#555;padding:3px 0">Shipping</td><td style="text-align:right">${shippingCost === 0 ? 'Free' : fmt(shippingCost)}</td></tr>
       <tr><td style="padding:3px 0;font-weight:600">Total</td><td style="text-align:right;font-weight:600">${fmt(amountTotal)}</td></tr>
       <tr><td style="color:#555;padding:3px 0;border-top:1px solid #eee">Platform fee (1%)</td><td style="text-align:right;border-top:1px solid #eee">−${fmt(platformFee)}</td></tr>
-      ${stripeFee !== null ? `<tr><td style="color:#555;padding:3px 0">Stripe processing fee</td><td style="text-align:right">−${fmt(stripeFee)}</td></tr>` : ''}
-      <tr><td style="padding:3px 0;font-weight:600;border-top:1px solid #eee">Net to you</td><td style="text-align:right;font-weight:600;border-top:1px solid #eee">${fmt(netToClient)}</td></tr>
+      <tr><td style="color:#555;padding:3px 0">Stripe processing fee</td><td style="text-align:right">${stripeFee !== null ? `−${fmt(stripeFee)}` : 'See dashboard'}</td></tr>
+      <tr><td style="padding:3px 0;font-weight:600;border-top:1px solid #eee">Net to you</td><td style="text-align:right;font-weight:600;border-top:1px solid #eee">${netToClient !== null ? fmt(netToClient) : 'See dashboard'}</td></tr>
     </table>
     <p style="color:#888;font-size:12px;margin-top:12px">Payment Intent: ${pi.id}</p>
   `;
@@ -172,7 +180,7 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
     const result = await resend.emails.send({
       from: fromAddress,
       to: recipients,
-      subject: `New Order — ${billingName}`,
+      subject: `New Order — ${billingName ?? billingEmail ?? pi.id}`,
       html,
     });
     console.log('[NOTIFY EMAIL RESULT]', JSON.stringify(result));
