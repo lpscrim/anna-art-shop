@@ -89,7 +89,7 @@ function CheckoutForm({
         <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
           Payment
         </p>
-        <PaymentElement options={{ fields: { billingDetails: { email: 'always' } } }} />
+        <PaymentElement options={{ fields: { billingDetails: { email: 'auto' } } }} />
       </div>
 
       {errorMsg && (
