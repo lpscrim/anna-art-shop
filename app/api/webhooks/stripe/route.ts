@@ -82,9 +82,20 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
       { expand: ['latest_charge.balance_transaction'] },
       stripeOpts,
     );
-    charge = expanded.latest_charge as Stripe.Charge | null;
-  } catch {
-    // Non-fatal — we'll show what we can
+    const lc = expanded.latest_charge;
+    if (lc && typeof lc !== 'string') {
+      // Fully expanded
+      charge = lc;
+    } else if (typeof lc === 'string') {
+      // latest_charge wasn't expanded — retrieve the charge separately
+      charge = await stripe.charges.retrieve(
+        lc,
+        { expand: ['balance_transaction'] },
+        stripeOpts,
+      ) as Stripe.Charge;
+    }
+  } catch (err) {
+    console.error('[WEBHOOK] Failed to retrieve charge:', err);
   }
 
   const balanceTx =
@@ -92,7 +103,7 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
       ? (charge.balance_transaction as Stripe.BalanceTransaction)
       : null;
 
-  const billingEmail = charge?.billing_details?.email ?? null;
+  const billingEmail = charge?.billing_details?.email ?? pi.receipt_email ?? null;
   const billingName = charge?.billing_details?.name ?? 'Unknown';
   const billing = charge?.billing_details;
   const shipping = charge?.shipping ?? pi.shipping;
