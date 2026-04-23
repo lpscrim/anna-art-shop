@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Elements,
@@ -154,47 +154,74 @@ function CheckoutForm({
   );
 }
 
+// ── sessionStorage external store ─────────────────────────────────
+// Reading the PI data via useSyncExternalStore lets us derive everything
+// during render — no useEffect + setState dance, so React can never warn
+// about cascading renders.
+function subscribeNoop() {
+  return () => {};
+}
+function getCheckoutSnapshot(): string | null {
+  if (typeof window === 'undefined') return null;
+  return sessionStorage.getItem(CHECKOUT_STORAGE_KEY);
+}
+function getCheckoutServerSnapshot(): string | null {
+  return null;
+}
+
 // ── Outer client component ────────────────────────────────────────
 export default function CheckoutClient() {
   const router = useRouter();
   const { items, shippingRate: cartShippingRate } = useCart();
-  const [piData, setPiData] = useState<CheckoutPiData | null>(null);
-  const [total, setTotal] = useState(0);
-  const [shippingRate, setShippingRate] = useState(cartShippingRate);
-  const [initError, setInitError] = useState<string | null>(null);
-  // Stripe promise is created after piData loads so we can pass stripeAccount
-  const [stripePromise, setStripePromise] = useState<ReturnType<typeof loadStripe> | null>(null);
   const cancellingRef = useRef(false);
 
-  // Read PI data from sessionStorage (set by CartDrawer)
+  // Snapshot of sessionStorage (null on SSR / first hydrate / missing key)
+  const raw = useSyncExternalStore(
+    subscribeNoop,
+    getCheckoutSnapshot,
+    getCheckoutServerSnapshot,
+  );
+
+  // Derive PI data from the snapshot
+  const parsed = useMemo(() => {
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as CheckoutPiData & {
+        total?: number;
+        shippingRate?: number;
+      };
+    } catch {
+      return null;
+    }
+  }, [raw]);
+
+  // Stripe instance — memoised on the connected account so it isn't
+  // recreated on every render.
+  const stripePromise = useMemo(() => {
+    if (!parsed) return null;
+    return parsed.stripeAccount
+      ? loadStripe(PUBLISHABLE_KEY, { stripeAccount: parsed.stripeAccount })
+      : loadStripe(PUBLISHABLE_KEY);
+  }, [parsed]);
+
+  const piData: CheckoutPiData | null = parsed;
+  const total = parsed?.total ?? 0;
+  const shippingRate = parsed?.shippingRate ?? cartShippingRate;
+
+  // After hydration, redirect away if there's no PI data (or it was bad).
+  // This effect only navigates — it never calls setState in this component.
   useEffect(() => {
-    const raw = sessionStorage.getItem(CHECKOUT_STORAGE_KEY);
-    if (!raw) {
+    const stored = sessionStorage.getItem(CHECKOUT_STORAGE_KEY);
+    if (!stored) {
       router.replace('/work');
       return;
     }
     try {
-      const parsed = JSON.parse(raw) as CheckoutPiData & {
-        total?: number;
-        shippingRate?: number;
-      };
-      setPiData(parsed);
-      if (parsed.total) setTotal(parsed.total);
-      if (parsed.shippingRate !== undefined) setShippingRate(parsed.shippingRate);
+      JSON.parse(stored);
     } catch {
       router.replace('/work');
     }
   }, [router]);
-
-  // Create Stripe instance once piData is available.
-  // For direct charges the instance must be scoped to the connected account.
-  useEffect(() => {
-    if (!piData) return;
-    const promise = piData.stripeAccount
-      ? loadStripe(PUBLISHABLE_KEY, { stripeAccount: piData.stripeAccount })
-      : loadStripe(PUBLISHABLE_KEY);
-    setStripePromise(promise);
-  }, [piData]);
 
   async function handleBack() {
     if (cancellingRef.current || !piData) {
@@ -218,20 +245,6 @@ export default function CheckoutClient() {
       // Non-critical — webhook will catch it
     }
     router.back();
-  }
-
-  if (initError) {
-    return (
-      <section className="min-h-[75svh] px-6 py-24 max-w-2xl mx-auto">
-        <p className="text-red-600 mb-4">{initError}</p>
-        <button
-          onClick={() => router.back()}
-          className="cursor-crosshair border border-foreground py-2 px-5 text-sm uppercase tracking-widest"
-        >
-          [ Back ]
-        </button>
-      </section>
-    );
   }
 
   if (!piData || !stripePromise) {
