@@ -71,16 +71,26 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
   const resend = new Resend(apiKey);
   const recipients = notifyEmail.split(',').map((e) => e.trim()).filter(Boolean);
 
-  // Expand latest charge to get billing + shipping details
+  const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID?.trim() || undefined;
+  const stripeOpts = clientAccountId ? { stripeAccount: clientAccountId } : undefined;
+
+  // Expand charge + balance_transaction for billing, shipping, and fee details
   let charge: Stripe.Charge | null = null;
   try {
-    const expanded = await stripe.paymentIntents.retrieve(pi.id, {
-      expand: ['latest_charge'],
-    });
+    const expanded = await stripe.paymentIntents.retrieve(
+      pi.id,
+      { expand: ['latest_charge.balance_transaction'] },
+      stripeOpts,
+    );
     charge = expanded.latest_charge as Stripe.Charge | null;
   } catch {
     // Non-fatal — we'll show what we can
   }
+
+  const balanceTx =
+    charge?.balance_transaction && typeof charge.balance_transaction !== 'string'
+      ? (charge.balance_transaction as Stripe.BalanceTransaction)
+      : null;
 
   const billingEmail = charge?.billing_details?.email ?? null;
   const billingName = charge?.billing_details?.name ?? 'Unknown';
@@ -90,6 +100,9 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
   const amountTotal = pi.amount;
   const shippingCost = parseInt(pi.metadata?.shipping_amount ?? '0', 10);
   const subtotal = amountTotal - shippingCost;
+  const stripeFee = balanceTx?.fee ?? null;
+  const platformFee = Math.round(amountTotal * 0.01);
+  const netToClient = amountTotal - platformFee - (stripeFee ?? 0);
 
   const fmt = (pence: number) => `£${(pence / 100).toFixed(2)}`;
 
@@ -124,9 +137,6 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
     itemsHtml = '<p>See Stripe dashboard for items</p>';
   }
 
-  const platformFee = Math.round(amountTotal * 0.01);
-  const netToClient = amountTotal - platformFee;
-
   const html = `
     <h2>New Order — ${billingName}</h2>
     <p><strong>Customer:</strong> ${billingName}<br>
@@ -140,10 +150,10 @@ async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<t
       <tr><td style="color:#555;padding:3px 0">Shipping</td><td style="text-align:right">${shippingCost === 0 ? 'Free' : fmt(shippingCost)}</td></tr>
       <tr><td style="padding:3px 0;font-weight:600">Total</td><td style="text-align:right;font-weight:600">${fmt(amountTotal)}</td></tr>
       <tr><td style="color:#555;padding:3px 0;border-top:1px solid #eee">Platform fee (1%)</td><td style="text-align:right;border-top:1px solid #eee">−${fmt(platformFee)}</td></tr>
-      <tr><td style="padding:3px 0;font-weight:600">Net to you</td><td style="text-align:right;font-weight:600">${fmt(netToClient)}</td></tr>
+      ${stripeFee !== null ? `<tr><td style="color:#555;padding:3px 0">Stripe processing fee</td><td style="text-align:right">−${fmt(stripeFee)}</td></tr>` : ''}
+      <tr><td style="padding:3px 0;font-weight:600;border-top:1px solid #eee">Net to you</td><td style="text-align:right;font-weight:600;border-top:1px solid #eee">${fmt(netToClient)}</td></tr>
     </table>
-    <p style="color:#aaa;font-size:11px;margin-top:6px">Stripe processing fees are deducted from your connected account balance.</p>
-    <p style="color:#888;font-size:12px">Payment Intent: ${pi.id}</p>
+    <p style="color:#888;font-size:12px;margin-top:12px">Payment Intent: ${pi.id}</p>
   `;
 
   try {

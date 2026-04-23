@@ -43,46 +43,27 @@ interface Order {
 async function getOrders(): Promise<Order[]> {
   const stripe = getStripe();
   const supabase = createServerSupabase();
+  const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID?.trim() || undefined;
+  const stripeOpts = clientAccountId ? { stripeAccount: clientAccountId } : undefined;
 
-  const sessions = await stripe.checkout.sessions.list({
-    limit: 100,
-    status: 'complete',
-    expand: ['data.line_items', 'data.payment_intent.latest_charge.balance_transaction'],
-  });
+  // Fetch succeeded PaymentIntents directly from Anna's connected account
+  const paymentIntents = await stripe.paymentIntents.list(
+    {
+      limit: 100,
+      expand: ['data.latest_charge.balance_transaction'],
+    },
+    stripeOpts,
+  );
 
-  // Collect all price IDs across all orders
-  const allPriceIds = new Set<string>();
-  for (const session of sessions.data) {
-    const lineItems = (session.line_items as Stripe.ApiList<Stripe.LineItem> | undefined)?.data ?? [];
-    for (const item of lineItems) {
-      const priceId = typeof item.price === 'string' ? item.price : item.price?.id;
-      if (priceId) allPriceIds.add(priceId);
-    }
-  }
+  const succeeded = paymentIntents.data.filter((pi) => pi.status === 'succeeded');
 
-  // Fetch matching products from Supabase in one query
-  const priceIdList = Array.from(allPriceIds);
-  const { data: products } = priceIdList.length > 0
-    ? await supabase
-        .from('products')
-        .select('stripe_price_id, image_url, name')
-        .in('stripe_price_id', priceIdList)
-    : { data: [] };
-
-  const imageByPriceId = new Map<string, string>();
-  for (const p of products ?? []) {
-    if (p.stripe_price_id && p.image_url) {
-      imageByPriceId.set(p.stripe_price_id, p.image_url);
-    }
-  }
-
-  // Fetch dispatch statuses
-  const sessionIds = sessions.data.map((s) => s.id);
-  const { data: tracking } = sessionIds.length > 0
+  // Fetch dispatch statuses — we reuse the stripe_session_id column with PI IDs
+  const piIds = succeeded.map((pi) => pi.id);
+  const { data: tracking } = piIds.length > 0
     ? await supabase
         .from('order_tracking')
         .select('stripe_session_id, dispatched, dispatched_at')
-        .in('stripe_session_id', sessionIds)
+        .in('stripe_session_id', piIds)
     : { data: [] };
 
   const dispatchMap = new Map<string, { dispatched: boolean; dispatched_at: string | null }>();
@@ -90,65 +71,68 @@ async function getOrders(): Promise<Order[]> {
     dispatchMap.set(t.stripe_session_id, { dispatched: t.dispatched, dispatched_at: t.dispatched_at });
   }
 
-  return sessions.data.map((session) => {
-    const lineItems = (session.line_items as Stripe.ApiList<Stripe.LineItem> | undefined)?.data ?? [];
+  type ReservedItem = { stripe_price_id?: string; title: string; qty: number; price: number; image?: string; type?: string };
 
-    // Extract Stripe fee from expanded balance transaction
-    const paymentIntent =
-      session.payment_intent && typeof session.payment_intent !== 'string'
-        ? (session.payment_intent as Stripe.PaymentIntent)
-        : null;
+  return succeeded.map((pi) => {
     const charge =
-      paymentIntent?.latest_charge && typeof paymentIntent.latest_charge !== 'string'
-        ? (paymentIntent.latest_charge as Stripe.Charge)
+      pi.latest_charge && typeof pi.latest_charge !== 'string'
+        ? (pi.latest_charge as Stripe.Charge)
         : null;
     const balanceTx =
       charge?.balance_transaction && typeof charge.balance_transaction !== 'string'
         ? (charge.balance_transaction as Stripe.BalanceTransaction)
         : null;
 
-    const amountTotal = session.amount_total ?? 0;
+    // Items + shipping come from PI metadata (set at checkout creation time)
+    let reservedItems: ReservedItem[] = [];
+    try {
+      reservedItems = JSON.parse(pi.metadata?.reserved_items ?? '[]');
+    } catch { /* empty */ }
+
+    const shippingCost = parseInt(pi.metadata?.shipping_amount ?? '0', 10);
+    const amountTotal = pi.amount;
     const stripeFee = balanceTx?.fee ?? null;
     const myFee = Math.round(amountTotal * 0.01);
-    const shippingCost = session.shipping_cost?.amount_total ?? null;
 
-    const shipping = session.collected_information?.shipping_details?.address;
-    const shippingAddress: ShippingAddress | null = shipping
+    const shipping = charge?.shipping;
+    const shippingAddress: ShippingAddress | null = shipping?.address
       ? {
-          line1: shipping.line1 ?? null,
-          line2: shipping.line2 ?? null,
-          city: shipping.city ?? null,
-          postalCode: shipping.postal_code ?? null,
-          country: shipping.country ?? null,
+          line1: shipping.address.line1 ?? null,
+          line2: shipping.address.line2 ?? null,
+          city: shipping.address.city ?? null,
+          postalCode: shipping.address.postal_code ?? null,
+          country: shipping.address.country ?? null,
         }
       : null;
 
-    const dispatch = dispatchMap.get(session.id) ?? { dispatched: false, dispatched_at: null };
+    const phone =
+      (shipping as { phone?: string } | null)?.phone ??
+      (charge?.billing_details as { phone?: string } | null)?.phone ??
+      null;
+
+    const dispatch = dispatchMap.get(pi.id) ?? { dispatched: false, dispatched_at: null };
 
     return {
-      id: session.id,
-      created: session.created,
-      email: session.customer_details?.email ?? null,
-      name: session.customer_details?.name ?? null,
-      phone: session.customer_details?.phone ?? null,
+      id: pi.id,
+      created: pi.created,
+      email: charge?.billing_details?.email ?? null,
+      name: charge?.billing_details?.name ?? null,
+      phone,
       shippingAddress,
       amountTotal,
-      currency: session.currency ?? 'gbp',
+      currency: pi.currency,
       stripeFee,
       myFee,
       shippingCost,
-      paymentStatus: session.payment_status,
-      items: lineItems.map((item) => {
-        const priceId = typeof item.price === 'string' ? item.price : item.price?.id ?? null;
-        return {
-          name: item.description ?? 'Unknown item',
-          quantity: item.quantity ?? 1,
-          amount: item.amount_total ?? 0,
-          currency: item.currency ?? 'gbp',
-          priceId,
-          imageUrl: priceId ? (imageByPriceId.get(priceId) ?? null) : null,
-        };
-      }),
+      paymentStatus: pi.status,
+      items: reservedItems.map((item) => ({
+        name: item.title,
+        quantity: item.qty,
+        amount: item.price,
+        currency: pi.currency,
+        priceId: item.stripe_price_id ?? null,
+        imageUrl: item.image ?? null,
+      })),
       dispatched: dispatch.dispatched,
       dispatchedAt: dispatch.dispatched_at,
     };
@@ -176,8 +160,9 @@ export default async function OrdersPage() {
 
   const currency = orders[0]?.currency ?? 'gbp';
   const totalRevenue = orders.reduce((s, o) => s + o.amountTotal, 0);
-  const totalFees = orders.reduce((s, o) => s + o.myFee, 0);
-  const totalNet = totalRevenue - totalFees;
+  const totalMyFees = orders.reduce((s, o) => s + o.myFee, 0);
+  const totalStripeFees = orders.reduce((s, o) => s + (o.stripeFee ?? 0), 0);
+  const totalNet = totalRevenue - totalMyFees - totalStripeFees;
 
   const exportOrders: ExportOrder[] = orders.map((o) => ({
     id: o.id,
@@ -216,8 +201,12 @@ export default async function OrdersPage() {
               <p className="text-sm font-medium mt-0.5">{formatMoney(totalRevenue, currency)}</p>
             </div>
             <div className="rounded-md border border-muted px-4 py-3">
-              <p className="text-xs text-muted-foreground">Fees</p>
-              <p className="text-sm font-medium mt-0.5">{formatMoney(totalFees, currency)}</p>
+              <p className="text-xs text-muted-foreground">Platform fees (1%)</p>
+              <p className="text-sm font-medium mt-0.5">{formatMoney(totalMyFees, currency)}</p>
+            </div>
+            <div className="rounded-md border border-muted px-4 py-3">
+              <p className="text-xs text-muted-foreground">Stripe fees</p>
+              <p className="text-sm font-medium mt-0.5">{formatMoney(totalStripeFees, currency)}</p>
             </div>
             <div className="rounded-md border border-muted px-4 py-3">
               <p className="text-xs text-muted-foreground">Net to Anna</p>
@@ -307,16 +296,22 @@ export default async function OrdersPage() {
                     <span>{formatMoney(order.amountTotal, order.currency)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Fee</span>
+                    <span className="text-muted-foreground">Platform fee (1%)</span>
                     <span>−{formatMoney(order.myFee, order.currency)}</span>
                   </div>
+                  {order.stripeFee !== null && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Stripe fee</span>
+                      <span>−{formatMoney(order.stripeFee, order.currency)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-medium pt-1 border-t border-muted">
                     <span>Net to Anna</span>
-                    <span>{formatMoney(order.amountTotal - order.myFee, order.currency)}</span>
+                    <span>{formatMoney(order.amountTotal - order.myFee - (order.stripeFee ?? 0), order.currency)}</span>
                   </div>
                 </div>
 
-                <p className="text-xs text-muted-foreground font-mono">{order.id}</p>
+                <p className="text-xs text-muted-foreground font-mono">pi: {order.id}</p>
               </div>
             ))}
           </div>
