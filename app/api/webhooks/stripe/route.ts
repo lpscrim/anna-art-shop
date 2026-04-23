@@ -78,8 +78,10 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
 
   // Retrieve balance_transaction if not already expanded on the charge event
   let balanceTx: Stripe.BalanceTransaction | null = null;
+  console.log('[WEBHOOK] balance_transaction raw:', charge.balance_transaction, '| stripeOpts:', stripeOpts);
   if (charge.balance_transaction && typeof charge.balance_transaction !== 'string') {
     balanceTx = charge.balance_transaction as Stripe.BalanceTransaction;
+    console.log('[WEBHOOK] balance_transaction already expanded, fee:', balanceTx.fee);
   } else if (typeof charge.balance_transaction === 'string') {
     try {
       balanceTx = await stripe.balanceTransactions.retrieve(
@@ -87,9 +89,12 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
         undefined,
         stripeOpts,
       );
+      console.log('[WEBHOOK] balance_transaction retrieved, fee:', balanceTx.fee);
     } catch (err) {
       console.error('[WEBHOOK] Failed to retrieve balance_transaction:', err);
     }
+  } else {
+    console.warn('[WEBHOOK] balance_transaction is null/undefined on charge');
   }
 
   // Fetch PaymentIntent for metadata (reserved_items, shipping_amount).
