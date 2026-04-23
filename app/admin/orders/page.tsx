@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getStripe } from '@/app/_lib/stripe';
 import { createServerSupabase } from '@/app/_lib/supabase';
 import Image from 'next/image';
