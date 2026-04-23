@@ -9,7 +9,7 @@ import { useCart } from "../Cart/CartContext";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [onHero, setOnHero] = useState(true);
+  const [onHero, setOnHero] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 

@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
       type: typeByPriceId.get(r.stripe_price_id) ?? 'artwork',
     }));
 
-    // Application fee: 5% +? 20p
+    // Application fee: 2.5% + 20p
     const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID?.trim() || undefined;
     console.log('[CONNECT] clientAccountId:', JSON.stringify(clientAccountId));
     let applicationFeeAmount: number | undefined;
@@ -123,10 +123,7 @@ export async function POST(req: NextRequest) {
       const totalAmount = prices.reduce((sum, price, i) => {
         return sum + (price.unit_amount ?? 0) * lineItems[i].quantity;
       }, 0);
-      const percentFee = Math.round(totalAmount * 0.05);
-      // Stripe charges ~1.5% + 20p; only add flat 20p when 5% alone doesn't cover it
-      const estimatedStripeFee = Math.round(totalAmount * 0.015) + 20;
-      applicationFeeAmount = percentFee >= estimatedStripeFee ? percentFee : percentFee + 20;
+      applicationFeeAmount = Math.round(totalAmount * 0.025) + 20;
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -137,7 +134,7 @@ export async function POST(req: NextRequest) {
       })),
       phone_number_collection: { enabled: true },
       shipping_address_collection: {
-        allowed_countries: ['GB', 'US', 'CA', 'AU', 'NZ', 'IE', 'DE', 'FR', 'ES', 'IT', 'NL', 'BE', 'SE', 'NO', 'DK', 'FI', 'PT', 'AT', 'CH'],
+        allowed_countries: ['GB'],
       },
       shipping_options: [
         {
