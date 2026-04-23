@@ -109,7 +109,7 @@ async function getOrders(): Promise<Order[]> {
 
     const amountTotal = session.amount_total ?? 0;
     const stripeFee = balanceTx?.fee ?? null;
-    const myFee = Math.round(amountTotal * 0.025) + 20;
+    const myFee = Math.round(amountTotal * 0.01);
     const shippingCost = session.shipping_cost?.amount_total ?? null;
 
     const shipping = session.collected_information?.shipping_details?.address;

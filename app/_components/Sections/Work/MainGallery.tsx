@@ -137,14 +137,14 @@ export function MainGallery({
               handleOnClick={() => onCardClick(idx, project)}
             />
             <div className="absolute inset-x-0 text-lg top-8 px-4 group-hover:opacity-100 opacity-0 flex flex-col group-hover:mt-2 z-60 transition-all duration-500 pointer-events-none max-w-full">
-              <h3 className="tracking-tight text-background wrap-break-word">
+              <h3 className="invisible tracking-tight text-background wrap-break-word">
                 {project.title}
               </h3>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-background wrap-break-word max-w-full">
                 {/*<span className="wrap-break-word max-w-full">
                   [{project.categories.join(", ")}]
                 </span>*/}
-                <span>{project.year}</span>
+                <span className="invisible">{project.year}</span>
               </div>
               {getStockLevel(project) === 0 && (
                 <h3 className="text-background line-through">SOLD</h3>

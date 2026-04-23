@@ -364,7 +364,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
           />
           {isProject && (
           <span className="flex w-full justify-center text-foreground text-sm pt-4 pointer-events-none z-999">
-            <span className="italic">{name}</span>, &nbsp;{medium}, &nbsp;{dimensions}, &nbsp;{year}{productType ? `,  ${productType.charAt(0).toUpperCase() + productType.slice(1)}` : ''}
+            {dimensions && <span>{dimensions}, </span>} &nbsp;{medium && <span>{medium}, &nbsp;</span>}<span>{year}</span>&nbsp;{priceHw > 0 && <span>, £{(priceHw / 100).toLocaleString('en-GB', { minimumFractionDigits: 0 })}</span>}
           </span>
         )}
         </div>

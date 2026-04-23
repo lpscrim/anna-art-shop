@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
       type: typeByPriceId.get(r.stripe_price_id) ?? 'artwork',
     }));
 
-    // Application fee: 2.5% + 20p
+    // Application fee: 1% flat (direct charge — Stripe fees come out of Anna's account)
     const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID?.trim() || undefined;
     console.log('[CONNECT] clientAccountId:', JSON.stringify(clientAccountId));
     let applicationFeeAmount: number | undefined;
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       const totalAmount = prices.reduce((sum, price, i) => {
         return sum + (price.unit_amount ?? 0) * lineItems[i].quantity;
       }, 0);
-      applicationFeeAmount = Math.round(totalAmount * 0.025) + 20;
+      applicationFeeAmount = Math.round(totalAmount * 0.01);
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -147,9 +147,10 @@ export async function POST(req: NextRequest) {
       ],
       ...(clientAccountId && applicationFeeAmount !== undefined
         ? {
+            on_behalf_of: clientAccountId,
             payment_intent_data: {
               application_fee_amount: applicationFeeAmount,
-              transfer_data: { destination: clientAccountId },
+              on_behalf_of: clientAccountId,
             },
           }
         : {}),
