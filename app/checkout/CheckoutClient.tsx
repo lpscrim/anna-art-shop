@@ -41,6 +41,7 @@ function CheckoutForm({
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
 
   const subtotal = total - shippingRate;
 
@@ -55,6 +56,11 @@ function CheckoutForm({
       elements,
       confirmParams: {
         return_url: `${origin}/purchase/success`,
+        payment_method_data: {
+          billing_details: {
+            email: email.trim() || undefined,
+          },
+        },
       },
     });
 
@@ -67,6 +73,20 @@ function CheckoutForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
+          Email
+        </p>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="your@email.com"
+          required
+          className="w-full border border-foreground/20 bg-transparent px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+        />
+      </div>
+
       <div>
         <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
           Shipping address
@@ -89,7 +109,7 @@ function CheckoutForm({
         <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
           Payment
         </p>
-        <PaymentElement options={{ fields: { billingDetails: { email: 'auto' } } }} />
+        <PaymentElement options={{ fields: { billingDetails: { email: 'never' } } }} />
       </div>
 
       {errorMsg && (
