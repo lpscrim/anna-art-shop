@@ -10,7 +10,8 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@stripe/stripe-js": "^8.7.0",
+    "@stripe/react-stripe-js": "^6.2.0",
+    "@stripe/stripe-js": "^9.3.0",
     "@supabase/supabase-js": "^2.96.0",
     "framer-motion": "^12.25.0",
     "lucide-react": "^0.562.0",

@@ -6,46 +6,56 @@ import { Resend } from 'resend';
 
 export async function POST(req: NextRequest) {
   const stripe = getStripe();
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
   const sig = req.headers.get('stripe-signature');
   const rawBody = await req.text();
 
+  // Direct charges fire events on the connected account, forwarded to the
+  // platform via a Connect webhook (separate secret: STRIPE_CONNECT_WEBHOOK_SECRET).
+  // Fall back to the standard account secret if the connect secret isn't set yet.
+  const accountSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+  const connectSecret = process.env.STRIPE_CONNECT_WEBHOOK_SECRET;
+
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(rawBody, sig!, endpointSecret);
+    if (connectSecret) {
+      try {
+        event = stripe.webhooks.constructEvent(rawBody, sig!, connectSecret);
+      } catch {
+        event = stripe.webhooks.constructEvent(rawBody, sig!, accountSecret);
+      }
+    } else {
+      event = stripe.webhooks.constructEvent(rawBody, sig!, accountSecret);
+    }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     return NextResponse.json({ error: `Webhook Error: ${message}` }, { status: 400 });
   }
 
-  // Stock is already reserved (decremented) when the checkout session is
-  // created.  On success we do nothing — the reservation becomes the sale.
-  // On expiry we restore the reserved stock so it's available again.
+  // Stock is reserved when the PaymentIntent is created.
+  // On success the reservation becomes the sale — nothing to do.
+  // On cancellation/failure we restore the reserved stock.
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session;
+  if (event.type === 'payment_intent.succeeded') {
+    const pi = event.data.object as Stripe.PaymentIntent;
     console.log('[ORDER COMPLETED]', {
-      sessionId: session.id,
-      email: session.customer_details?.email,
-      amount: session.amount_total,
-      currency: session.currency,
-      items: session.metadata?.reserved_items,
-      paymentStatus: session.payment_status,
+      paymentIntentId: pi.id,
+      amount: pi.amount,
+      currency: pi.currency,
+      items: pi.metadata?.reserved_items,
     });
-
-    await notifyClient(session);
+    await notifyClientFromPI(pi, stripe);
   }
 
-  if (event.type === 'checkout.session.expired') {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const raw = session.metadata?.reserved_items;
+  if (event.type === 'payment_intent.canceled') {
+    const pi = event.data.object as Stripe.PaymentIntent;
+    const raw = pi.metadata?.reserved_items;
     if (raw) {
       try {
         const reserved = JSON.parse(raw) as { stripe_price_id: string; qty: number }[];
         const supabase = createServerSupabase();
         await supabase.rpc('restore_stock', { items: reserved });
       } catch (err) {
-        console.error('Failed to restore stock on session expiry:', err);
+        console.error('Failed to restore stock on PI cancellation:', err);
       }
     }
   }
@@ -53,7 +63,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ received: true });
 }
 
-async function notifyClient(session: Stripe.Checkout.Session) {
+async function notifyClientFromPI(pi: Stripe.PaymentIntent, stripe: ReturnType<typeof import('@/app/_lib/stripe').getStripe>) {
   const apiKey = process.env.RESEND_API_KEY;
   const notifyEmail = process.env.NOTIFY_EMAIL;
   if (!apiKey || !notifyEmail) return;
@@ -61,11 +71,24 @@ async function notifyClient(session: Stripe.Checkout.Session) {
   const resend = new Resend(apiKey);
   const recipients = notifyEmail.split(',').map((e) => e.trim()).filter(Boolean);
 
-  const customer = session.customer_details;
-  type CollectedInfo = { shipping_details?: { address?: { line1?: string; line2?: string; city?: string; postal_code?: string; country?: string } } };
-  const shipping = (session.collected_information as CollectedInfo | null)?.shipping_details;
-  const amountTotal = session.amount_total ?? 0;
-  const shippingCost = session.shipping_cost?.amount_total ?? 0;
+  // Expand latest charge to get billing + shipping details
+  let charge: Stripe.Charge | null = null;
+  try {
+    const expanded = await stripe.paymentIntents.retrieve(pi.id, {
+      expand: ['latest_charge'],
+    });
+    charge = expanded.latest_charge as Stripe.Charge | null;
+  } catch {
+    // Non-fatal — we'll show what we can
+  }
+
+  const billingEmail = charge?.billing_details?.email ?? null;
+  const billingName = charge?.billing_details?.name ?? 'Unknown';
+  const billing = charge?.billing_details;
+  const shipping = charge?.shipping ?? pi.shipping;
+
+  const amountTotal = pi.amount;
+  const shippingCost = parseInt(pi.metadata?.shipping_amount ?? '0', 10);
   const subtotal = amountTotal - shippingCost;
 
   const fmt = (pence: number) => `£${(pence / 100).toFixed(2)}`;
@@ -82,9 +105,13 @@ async function notifyClient(session: Stripe.Checkout.Session) {
         .join(', ')
     : 'Not provided';
 
+  const phone = (shipping as { phone?: string } | null)?.phone
+    ?? (billing as { phone?: string } | null)?.phone
+    ?? 'Not provided';
+
   let itemsHtml = '';
   try {
-    const reserved = JSON.parse(session.metadata?.reserved_items ?? '[]') as { title: string; qty: number; price: number; image?: string; type?: string }[];
+    const reserved = JSON.parse(pi.metadata?.reserved_items ?? '[]') as { title: string; qty: number; price: number; image?: string; type?: string }[];
     itemsHtml = reserved
       .map((i) => `<div style="display:inline-block;margin:8px;vertical-align:top;text-align:center;width:160px">
         ${i.image ? `<img src="${i.image}" alt="${i.title}" width="160" height="160" style="object-fit:cover;border-radius:6px;display:block">` : ''}
@@ -97,15 +124,14 @@ async function notifyClient(session: Stripe.Checkout.Session) {
     itemsHtml = '<p>See Stripe dashboard for items</p>';
   }
 
-  const customerName = customer?.name ?? 'Unknown';
   const platformFee = Math.round(amountTotal * 0.01);
   const netToClient = amountTotal - platformFee;
 
   const html = `
-    <h2>New Order — ${customerName}</h2>
-    <p><strong>Customer:</strong> ${customerName}<br>
-    <strong>Email:</strong> ${customer?.email ?? 'Unknown'}<br>
-    <strong>Phone:</strong> ${customer?.phone ?? 'Not provided'}</p>
+    <h2>New Order — ${billingName}</h2>
+    <p><strong>Customer:</strong> ${billingName}<br>
+    <strong>Email:</strong> ${billingEmail ?? 'Unknown'}<br>
+    <strong>Phone:</strong> ${phone}</p>
     <p><strong>Shipping address:</strong><br>${addressLines}</p>
     <h3>Items</h3>
     <div>${itemsHtml}</div>
@@ -116,8 +142,8 @@ async function notifyClient(session: Stripe.Checkout.Session) {
       <tr><td style="color:#555;padding:3px 0;border-top:1px solid #eee">Platform fee (1%)</td><td style="text-align:right;border-top:1px solid #eee">−${fmt(platformFee)}</td></tr>
       <tr><td style="padding:3px 0;font-weight:600">Net to you</td><td style="text-align:right;font-weight:600">${fmt(netToClient)}</td></tr>
     </table>
-    <p style="color:#aaa;font-size:11px;margin-top:6px">Platform fee: 1%. Stripe processing fees are deducted separately from your Stripe account.</p>
-    <p style="color:#888;font-size:12px">Stripe session: ${session.id}</p>
+    <p style="color:#aaa;font-size:11px;margin-top:6px">Stripe processing fees are deducted from your connected account balance.</p>
+    <p style="color:#888;font-size:12px">Payment Intent: ${pi.id}</p>
   `;
 
   try {
@@ -125,7 +151,7 @@ async function notifyClient(session: Stripe.Checkout.Session) {
     const result = await resend.emails.send({
       from: fromAddress,
       to: recipients,
-      subject: `New Order — ${customerName}`,
+      subject: `New Order — ${billingName}`,
       html,
     });
     console.log('[NOTIFY EMAIL RESULT]', JSON.stringify(result));

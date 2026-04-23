@@ -3,32 +3,58 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ClearCart } from "./clearCart";
 import { ImageWithFallback } from "../../_components/UI/Layout/ImageWithFallback";
+import type Stripe from "stripe";
 
 interface SuccessPageProps {
-  searchParams: Promise<{ session_id?: string }>;
+  searchParams: Promise<{ payment_intent?: string }>;
 }
 
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
-  const { session_id } = await searchParams;
+  const { payment_intent } = await searchParams;
 
-  if (!session_id) redirect("/work");
+  if (!payment_intent) redirect("/work");
 
   const stripe = getStripe();
 
-  let session;
+  // PI lives on Anna's connected account — must scope the retrieve to that account
+  const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID?.trim() || undefined;
+
+  let pi: Stripe.PaymentIntent;
+  let charge: Stripe.Charge | null = null;
   try {
-    session = await stripe.checkout.sessions.retrieve(session_id, {
-      expand: ["line_items.data.price.product"],
-    });
+    pi = await stripe.paymentIntents.retrieve(
+      payment_intent,
+      { expand: ["latest_charge"] },
+      clientAccountId ? { stripeAccount: clientAccountId } : undefined,
+    );
+    charge = pi.latest_charge as Stripe.Charge | null;
   } catch {
     redirect("/work");
   }
 
-  if (session.payment_status !== "paid") redirect("/work");
+  if (pi.status !== "succeeded") redirect("/work");
 
-  const lineItems = session.line_items?.data ?? [];
-  const customer = session.customer_details;
-  const shipping = session.collected_information?.shipping_details;
+  type ReservedItem = {
+    title: string;
+    qty: number;
+    price: number;
+    image?: string;
+    type?: string;
+  };
+  let reservedItems: ReservedItem[] = [];
+  try {
+    reservedItems = JSON.parse(pi.metadata?.reserved_items ?? "[]");
+  } catch {
+    // show empty items gracefully
+  }
+
+  const shippingCost = parseInt(pi.metadata?.shipping_amount ?? "0", 10);
+  const subtotal = pi.amount - shippingCost;
+
+  const billingName = charge?.billing_details?.name ?? null;
+  const billingEmail = charge?.billing_details?.email ?? null;
+  const shipping = charge?.shipping ?? pi.shipping;
+  const phone = (shipping as { phone?: string } | null)?.phone ?? null;
 
   const shippingAddress = shipping?.address
     ? [
@@ -49,79 +75,55 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
       <h1 className="text-3xl md:text-5xl tracking-tight mb-4">THANK YOU</h1>
       <p className="text-muted-foreground mb-8">
         Your order has been confirmed. A receipt has been sent to{" "}
-        <span className="text-foreground">{customer?.email}</span>.
+        <span className="text-foreground">{billingEmail}</span>.
       </p>
 
       {/* Customer details */}
       <div className="mb-10 space-y-1 text-sm">
-        {customer?.name && <p className="text-foreground">{customer.name}</p>}
-        {customer?.phone && <p className="text-muted-foreground">{customer.phone}</p>}
-        {shippingAddress && <p className="text-muted-foreground">{shippingAddress}</p>}
+        {billingName && <p className="text-foreground">{billingName}</p>}
+        {phone && <p className="text-muted-foreground">{phone}</p>}
+        {shippingAddress && (
+          <p className="text-muted-foreground">{shippingAddress}</p>
+        )}
       </div>
 
       <div className="border-t border-foreground/10">
-        {lineItems.map((item) => {
-          const product = item.price?.product;
-          const images =
-            typeof product === "object" &&
-            product !== null &&
-            "images" in product
-              ? (product as { images: string[] }).images
-              : [];
-          const imageUrl = images[0]; // first product image if it exists
-          const name =
-            typeof product === "object" && product !== null && "name" in product
-              ? (product as { name: string }).name
-              : "Item";
-
-          return (
-            <div
-              key={item.id}
-              className="py-4 border-b border-foreground/10"
-            >
-              <div className="relative w-full aspect-square rounded-sm overflow-hidden bg-muted mb-3">
-                <ImageWithFallback
-                  src={imageUrl}
-                  alt={name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 672px"
-                />
-              </div>
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="tracking-tight">{name}</p>
-                  <p className="text-muted-foreground text-sm">
-                    Qty: {item.quantity}
-                  </p>
-                </div>
-                <p className="tracking-tight">
-                  £{((item.amount_total ?? 0) / 100).toFixed(2)}
-                </p>
-              </div>
+        {reservedItems.map((item, idx) => (
+          <div key={idx} className="py-4 border-b border-foreground/10">
+            <div className="relative w-full aspect-square rounded-sm overflow-hidden bg-muted mb-3">
+              <ImageWithFallback
+                src={item.image ?? ""}
+                alt={item.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 672px"
+              />
             </div>
-          );
-        })}
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="tracking-tight">{item.title}</p>
+                <p className="text-muted-foreground text-sm">Qty: {item.qty}</p>
+              </div>
+              <p className="tracking-tight">£{(item.price / 100).toFixed(2)}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="border-t border-foreground/10 mt-4 space-y-2 py-4 text-sm">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Subtotal</span>
-          <span>£{((session.amount_subtotal ?? 0) / 100).toFixed(2)}</span>
+          <span>£{(subtotal / 100).toFixed(2)}</span>
         </div>
-        {session.shipping_cost && (
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Shipping</span>
-            <span>
-              {session.shipping_cost.amount_total === 0
-                ? 'Free'
-                : `£${(session.shipping_cost.amount_total / 100).toFixed(2)}`}
-            </span>
-          </div>
-        )}
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Shipping</span>
+          <span>
+            {shippingCost === 0 ? "Free" : `£${(shippingCost / 100).toFixed(2)}`}
+          </span>
+        </div>
         <div className="flex justify-between text-base font-medium border-t border-foreground/10 pt-3 mt-1">
           <span>Total</span>
-          <span>£{((session.amount_total ?? 0) / 100).toFixed(2)}</span>
+          <span>£{(pi.amount / 100).toFixed(2)}</span>
         </div>
       </div>
 

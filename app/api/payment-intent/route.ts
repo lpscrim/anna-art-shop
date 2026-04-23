@@ -13,22 +13,17 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Support both legacy single-item { priceId } and new multi-item { items }
     let lineItems: CartLineItem[];
-
     if (Array.isArray(body.items)) {
       lineItems = body.items as CartLineItem[];
-    } else if (body.priceId) {
-      lineItems = [{ priceId: body.priceId, quantity: 1 }];
     } else {
-      return NextResponse.json({ error: 'Missing items or priceId' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing items' }, { status: 400 });
     }
 
     if (lineItems.length === 0) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
     }
 
-    // Validate each line item
     for (const item of lineItems) {
       if (typeof item.priceId !== 'string' || !item.priceId) {
         return NextResponse.json({ error: 'Invalid price ID' }, { status: 400 });
@@ -38,10 +33,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── Reserve stock atomically before creating Stripe session ─────
+    // ── Reserve stock atomically ────────────────────────────────────
     const supabase = createServerSupabase();
-
-    // Build a reservation payload: [{ stripe_price_id, quantity }]
     const reservations = lineItems.map((i) => ({
       stripe_price_id: i.priceId,
       qty: i.quantity,
@@ -56,12 +49,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to verify stock' }, { status: 500 });
     }
 
-    // result is an array of { stripe_price_id, title, reserved }
     const failed = (result as { stripe_price_id: string; title: string; reserved: boolean }[])
       .filter((r) => !r.reserved);
 
     if (failed.length > 0) {
-      // Restore any that DID succeed in this batch (partial rollback)
       const succeeded = (result as { stripe_price_id: string; title: string; reserved: boolean }[])
         .filter((r) => r.reserved);
       if (succeeded.length > 0) {
@@ -72,7 +63,6 @@ export async function POST(req: NextRequest) {
           })),
         });
       }
-
       return NextResponse.json(
         {
           error: `Out of stock: ${failed.map((f) => f.title).join(', ')}`,
@@ -82,21 +72,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ── Create Stripe checkout session ─────────────────────────────
+    // ── Fetch price + product data ──────────────────────────────────
     const stripe = getStripe();
-    const shippingRatePence = await getShippingRatePence();
-
-    const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-
-    const cancelToken = crypto.randomUUID();
-
-    // Fetch price + product data for metadata and fee calculation
     const prices = await Promise.all(
       lineItems.map((item) => stripe.prices.retrieve(item.priceId, { expand: ['product'] }))
     );
 
-    // Fetch type from Supabase for each price ID
     const priceIds = lineItems.map((item) => item.priceId);
     const { data: productRows } = await supabase
       .from('products')
@@ -115,58 +96,53 @@ export async function POST(req: NextRequest) {
       type: typeByPriceId.get(r.stripe_price_id) ?? 'artwork',
     }));
 
-    // Application fee: 1% flat
+    // ── Calculate totals ────────────────────────────────────────────
+    const shippingRatePence = await getShippingRatePence();
+    const subtotal = prices.reduce((sum, price, i) => {
+      return sum + (price.unit_amount ?? 0) * lineItems[i].quantity;
+    }, 0);
+    const totalAmount = subtotal + shippingRatePence;
+
+    // ── Create PaymentIntent as a direct charge on Anna's connected account ──
+    // Creating the PI with { stripeAccount } makes Anna the merchant of record:
+    // Stripe processing fees are deducted from her balance, not the platform's.
+    // application_fee_amount flows back to the platform (Lewis's 1%).
     const clientAccountId = process.env.STRIPE_CONNECT_CLIENT_ACCOUNT_ID?.trim() || undefined;
-    console.log('[CONNECT] clientAccountId:', JSON.stringify(clientAccountId));
-    let applicationFeeAmount: number | undefined;
-    if (clientAccountId) {
-      const totalAmount = prices.reduce((sum, price, i) => {
-        return sum + (price.unit_amount ?? 0) * lineItems[i].quantity;
-      }, 0);
-      applicationFeeAmount = Math.round(totalAmount * 0.01);
-    }
+    const applicationFeeAmount = clientAccountId
+      ? Math.round(totalAmount * 0.01)
+      : undefined;
 
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      line_items: lineItems.map((item) => ({
-        price: item.priceId,
-        quantity: item.quantity,
-      })),
-      phone_number_collection: { enabled: true },
-      shipping_address_collection: {
-        allowed_countries: ['GB'],
-      },
-      shipping_options: [
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: { amount: shippingRatePence, currency: 'gbp' },
-            display_name: shippingRatePence === 0 ? 'Free shipping' : 'Standard shipping',
-          },
+    const cancelToken = crypto.randomUUID();
+
+    const paymentIntent = await stripe.paymentIntents.create(
+      {
+        amount: totalAmount,
+        currency: 'gbp',
+        automatic_payment_methods: { enabled: true },
+        ...(applicationFeeAmount !== undefined
+          ? { application_fee_amount: applicationFeeAmount }
+          : {}),
+        metadata: {
+          reserved_items: JSON.stringify(enrichedReservations),
+          shipping_amount: String(shippingRatePence),
+          cancel_token: cancelToken,
         },
-      ],
-      ...(clientAccountId && applicationFeeAmount !== undefined
-        ? {
-            payment_intent_data: {
-              application_fee_amount: applicationFeeAmount,
-              transfer_data: { destination: clientAccountId },
-            },
-          }
-        : {}),
-      // Store reserved items so we can restore stock on expiry
-      metadata: {
-        reserved_items: JSON.stringify(enrichedReservations),
-        cancel_token: cancelToken,
       },
-      // 30 min to complete payment before session expires
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-      success_url: `${siteUrl}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/purchase/cancelled?session_id={CHECKOUT_SESSION_ID}&cancel_token=${cancelToken}`,
-    });
+      // Passing stripeAccount here is what makes this a direct charge.
+      // Without this the platform (Lewis) would be charged Stripe fees.
+      clientAccountId ? { stripeAccount: clientAccountId } : undefined,
+    );
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+      cancelToken,
+      total: totalAmount,
+      shippingRate: shippingRatePence,
+      stripeAccount: clientAccountId ?? null,
+    });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Checkout failed';
+    const message = err instanceof Error ? err.message : 'Failed to create payment';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

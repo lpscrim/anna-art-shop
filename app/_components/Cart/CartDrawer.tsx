@@ -3,11 +3,14 @@
 import { useCart } from './CartContext';
 import { ImageWithFallback } from '../UI/Layout/ImageWithFallback';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { CHECKOUT_STORAGE_KEY } from '@/app/checkout/CheckoutClient';
 
 export function CartDrawer() {
   const { items, count, isOpen, closeCart, removeItem, updateQuantity, clearCart, shippingRate } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const subtotal = items.reduce((sum, i) => sum + i.priceHw * i.quantity, 0);
   const total = subtotal + shippingRate;
@@ -18,7 +21,7 @@ export function CartDrawer() {
     setError(null);
 
     try {
-      const res = await fetch('/api/checkout', {
+      const res = await fetch('/api/payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -28,10 +31,7 @@ export function CartDrawer() {
 
       const data = await res.json();
 
-      if (data.url) {
-        window.location.href = data.url;
-      } else if (res.status === 409) {
-        // Stock changed since items were added — remove out-of-stock items
+      if (res.status === 409) {
         setError(data.error ?? 'Some items are no longer available');
         if (Array.isArray(data.outOfStock)) {
           for (const name of data.outOfStock) {
@@ -39,6 +39,20 @@ export function CartDrawer() {
             if (item) removeItem(item.priceId);
           }
         }
+      } else if (data.clientSecret) {
+        sessionStorage.setItem(
+          CHECKOUT_STORAGE_KEY,
+          JSON.stringify({
+            clientSecret: data.clientSecret,
+            paymentIntentId: data.paymentIntentId,
+            cancelToken: data.cancelToken,
+            total: data.total,
+            shippingRate: data.shippingRate,
+            stripeAccount: data.stripeAccount ?? null,
+          })
+        );
+        closeCart();
+        router.push('/checkout');
       } else {
         setError(data.error ?? 'Checkout failed');
         console.error('Checkout error:', data.error);
@@ -166,7 +180,7 @@ export function CartDrawer() {
               disabled={loading}
               className="w-full cursor-crosshair rounded-md bg-foreground px-4 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
             >
-              {loading ? 'REDIRECTING…' : 'CHECKOUT'}
+              {loading ? 'PREPARING…' : 'CHECKOUT'}
             </button>
 
             <button
