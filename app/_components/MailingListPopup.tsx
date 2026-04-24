@@ -94,15 +94,8 @@ export default function MailingListPopup() {
               </h2>
               <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
                 <p>
-                  For as long as I can remember, I&apos;ve wanted to be an artist — and this year, I finally took the
-                  leap and started a full-time painting course at Leith School of Art in Edinburgh.
+                  Sign up to receive news about exhibitions, new paintings and prints
                 </p>
-                <p>
-                  I thought it might be nice to share some of what I&apos;m learning: tips and tricks, bits of art
-                  history, recommendations that have inspired me, and the occasional glimpse of what&apos;s happening
-                  on the easel.
-                </p>
-                <p>Roughly once a month. I hope these notes spark something for you too.</p>
               </div>
             </div>
 
