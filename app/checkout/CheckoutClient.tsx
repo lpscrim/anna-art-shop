@@ -116,6 +116,12 @@ function CheckoutForm({
               mode: 'shipping',
               allowedCountries: allowedCountries ?? ['GB'],
               fields: { phone: 'always' },
+              // Pre-fill country for UK-only so the form loads immediately in UK
+              // format. For EU/International leave blank so the country selector
+              // appears and the customer must choose their country explicitly.
+              ...(allowedCountries && allowedCountries.length === 1
+                ? { defaultValues: { address: { country: allowedCountries[0] } } }
+                : {}),
             }}
           />
         </div>
@@ -131,8 +137,18 @@ function CheckoutForm({
           options={{
             fields: {
               billingDetails: collect
+                // Collection: billing already collected via AddressElement above
                 ? { email: 'never', name: 'never', phone: 'never', address: 'never' }
-                : { email: 'never', name: 'auto', phone: 'never', address: 'auto' },
+                // Standard: always show billing name + address. For EU/International
+                // explicitly request country so it's never silently omitted.
+                : {
+                    email: 'never',
+                    name: 'auto',
+                    phone: 'never',
+                    address: allowedCountries && allowedCountries.length > 1
+                      ? { country: 'auto', line1: 'auto', line2: 'auto', city: 'auto', state: 'auto', postalCode: 'auto' }
+                      : 'auto',
+                  },
             },
           }}
         />

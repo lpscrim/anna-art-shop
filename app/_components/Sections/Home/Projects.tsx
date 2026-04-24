@@ -49,7 +49,7 @@ export async function Projects() {
         </div>
         <div className="mt-24 text-center  ">
           <Button size="xl">
-            <Link href="/work">More</Link>
+            <Link href="/work">See More</Link>
           </Button>
         </div>
       </div>
