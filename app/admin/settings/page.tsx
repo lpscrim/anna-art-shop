@@ -21,7 +21,6 @@ export default async function SettingsPage() {
           </div>
           <ShippingForm printRate={rates.printRate} artworkRate={rates.artworkRate} />
         </div>
-        </div>
 
         <div className="space-y-4 border-t border-muted pt-10">
           <div>
@@ -33,6 +32,6 @@ export default async function SettingsPage() {
           <CategoriesToggle current={categoriesVisible} />
         </div>
       </div>
-    </div>
+    </div> 
   );
 }
