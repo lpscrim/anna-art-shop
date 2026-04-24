@@ -29,7 +29,7 @@ export async function Projects() {
                   <ImageWithFallback
                     src={project.imageUrl}
                     alt={project.title}
-                    className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${
+                    className={`w-full h-full object-cover transition-all duration-500 scale-110 group-hover:scale-115 ${
                       project.categories.includes("COLOUR")
                         ? "grayscale group-hover:grayscale-0"
                         : ""
