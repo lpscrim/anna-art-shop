@@ -34,12 +34,16 @@ function CheckoutForm({
   shippingRate,
   allowedCountries,
   collect,
+  paymentIntentId,
+  cancelToken,
   onBack,
 }: {
   total: number;
   shippingRate: number;
   allowedCountries: string[];
   collect: boolean;
+  paymentIntentId: string;
+  cancelToken: string;
   onBack: () => void;
 }) {
   const stripe = useStripe();
@@ -47,8 +51,30 @@ function CheckoutForm({
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [email, setEmail] = useState('');
+  const [shippingOverride, setShippingOverride] = useState<number | null>(null);
+  const lastCountryRef = useRef<string | null>(null);
 
+  const displayShipping = shippingOverride ?? shippingRate;
   const subtotal = total - shippingRate;
+  const displayTotal = subtotal + displayShipping;
+
+  async function handleCountryChange(country: string) {
+    if (!country || country === lastCountryRef.current) return;
+    lastCountryRef.current = country;
+    try {
+      const res = await fetch('/api/payment-intent/update-shipping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentIntentId, cancelToken, country }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setShippingOverride(data.shippingRate);
+      }
+    } catch {
+      // non-critical — payment will still go through at UK rate
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -112,6 +138,7 @@ function CheckoutForm({
             Shipping address
           </p>
           <AddressElement
+            onChange={(e) => handleCountryChange(e.value.address?.country ?? '')}
             options={{
               mode: 'shipping',
               allowedCountries: allowedCountries ?? ['GB'],
@@ -165,11 +192,11 @@ function CheckoutForm({
         </div>
         <div className="flex justify-between text-muted-foreground">
           <span>Shipping</span>
-          <span>{shippingRate === 0 ? 'Free' : `£${(shippingRate / 100).toFixed(2)}`}</span>
+          <span>{displayShipping === 0 ? 'Free' : `£${(displayShipping / 100).toFixed(2)}`}</span>
         </div>
         <div className="flex justify-between font-semibold pt-1">
           <span>Total</span>
-          <span>£{(total / 100).toFixed(2)}</span>
+          <span>£{(displayTotal / 100).toFixed(2)}</span>
         </div>
       </div>
 
@@ -180,7 +207,7 @@ function CheckoutForm({
           className="cursor-crosshair group flex-1 border border-foreground py-3 px-6 text-sm tracking-widest uppercase transition-colors hover:bg-foreground hover:text-background disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span className="inline-block transition-transform group-hover:scale-105">
-            {submitting ? 'Processing...' : `[ Pay £${(total / 100).toFixed(2)} ]`}
+            {submitting ? 'Processing...' : `[ Pay £${(displayTotal / 100).toFixed(2)} ]`}
           </span>
         </button>
         <button
@@ -394,6 +421,8 @@ export default function CheckoutClient({ allowedCountries }: { allowedCountries?
               shippingRate={shippingRate}
               allowedCountries={allowedCountries ?? ['GB']}
               collect={collect}
+              paymentIntentId={piData.paymentIntentId}
+              cancelToken={piData.cancelToken}
               onBack={handleBack}
             />
           </Elements>

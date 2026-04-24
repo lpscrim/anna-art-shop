@@ -1,15 +1,21 @@
 'use client';
 import { useState } from 'react';
-import { updatePrintShippingRate, updateArtworkShippingRate } from './actions';
+import {
+  updatePrintShippingRate,
+  updateArtworkShippingRate,
+  updateEuPrintShippingRate,
+  updateEuArtworkShippingRate,
+  updateIntPrintShippingRate,
+  updateIntArtworkShippingRate,
+} from './actions';
+import type { ShippingRates } from '@/app/_lib/shippingSettings';
 
 function RateField({
   label,
-  description,
   initialPence,
   onSave,
 }: {
   label: string;
-  description: string;
   initialPence: number;
   onSave: (pence: number) => Promise<void>;
 }) {
@@ -24,7 +30,7 @@ function RateField({
     setSaved(false);
     const val = parseFloat(pounds);
     if (isNaN(val) || val < 0) {
-      setError('Enter a valid amount (0 for free shipping)');
+      setError('Enter a valid amount (0 for free)');
       return;
     }
     setPending(true);
@@ -39,11 +45,10 @@ function RateField({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 max-w-xs">
-      <label className="block">
-        <span className="text-base font-medium">{label}</span>
-        <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
-        <div className="relative mt-2">
+    <form onSubmit={handleSubmit} className="flex items-end gap-3">
+      <label className="flex-1 block">
+        <span className="text-sm text-muted-foreground">{label}</span>
+        <div className="relative mt-1">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-base">£</span>
           <input
             type="number"
@@ -55,34 +60,79 @@ function RateField({
           />
         </div>
       </label>
-      {error && <p className="text-base text-red-500">{error}</p>}
-      {saved && <p className="text-base text-green-600">Saved.</p>}
-      <button
-        type="submit"
-        disabled={pending}
-        className="px-4 py-2 rounded border border-foreground bg-foreground text-background text-base transition-opacity hover:opacity-80 disabled:opacity-50"
-      >
-        {pending ? 'Saving…' : 'Save'}
-      </button>
+      <div className="flex flex-col items-start gap-1 pb-0.5">
+        <button
+          type="submit"
+          disabled={pending}
+          className="px-4 py-2 rounded border border-foreground bg-foreground text-background text-base transition-opacity hover:opacity-80 disabled:opacity-50"
+        >
+          {pending ? 'Saving…' : 'Save'}
+        </button>
+        {error && <p className="text-xs text-red-500 whitespace-nowrap">{error}</p>}
+        {saved && <p className="text-xs text-green-600">Saved.</p>}
+      </div>
     </form>
   );
 }
 
-export function ShippingForm({ printRate, artworkRate }: { printRate: number; artworkRate: number }) {
+function RegionSection({
+  title,
+  description,
+  printRate,
+  artworkRate,
+  onSavePrint,
+  onSaveArtwork,
+}: {
+  title: string;
+  description: string;
+  printRate: number;
+  artworkRate: number;
+  onSavePrint: (pence: number) => Promise<void>;
+  onSaveArtwork: (pence: number) => Promise<void>;
+}) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <p className="text-base font-medium">{title}</p>
+        <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
+      </div>
+      <RateField label="Prints" initialPence={printRate} onSave={onSavePrint} />
+      <RateField label="Artwork / paintings" initialPence={artworkRate} onSave={onSaveArtwork} />
+    </div>
+  );
+}
+
+export function ShippingForm({ rates }: { rates: ShippingRates }) {
   return (
     <div className="space-y-8">
-      <RateField
-        label="Prints shipping rate (£)"
-        description="Applied when the order contains only prints. Set to 0 for free."
-        initialPence={printRate}
-        onSave={updatePrintShippingRate}
+      <RegionSection
+        title="UK"
+        description="Applied for orders shipping within the UK. Also shown in the cart before the customer's country is known."
+        printRate={rates.printRate}
+        artworkRate={rates.artworkRate}
+        onSavePrint={updatePrintShippingRate}
+        onSaveArtwork={updateArtworkShippingRate}
       />
-      <RateField
-        label="Artwork / paintings shipping rate (£)"
-        description="Applied when the order contains any original artwork or painting."
-        initialPence={artworkRate}
-        onSave={updateArtworkShippingRate}
-      />
+      <div className="border-t border-muted/50 pt-6">
+        <RegionSection
+          title="EU / EEA"
+          description="Applied when the customer's shipping country is within the EU or EEA (Austria, France, Germany, etc.)."
+          printRate={rates.euPrintRate}
+          artworkRate={rates.euArtworkRate}
+          onSavePrint={updateEuPrintShippingRate}
+          onSaveArtwork={updateEuArtworkShippingRate}
+        />
+      </div>
+      <div className="border-t border-muted/50 pt-6">
+        <RegionSection
+          title="International"
+          description="Applied for all other countries (US, Canada, Australia, Japan, etc.)."
+          printRate={rates.intPrintRate}
+          artworkRate={rates.intArtworkRate}
+          onSavePrint={updateIntPrintShippingRate}
+          onSaveArtwork={updateIntArtworkShippingRate}
+        />
+      </div>
     </div>
   );
 }

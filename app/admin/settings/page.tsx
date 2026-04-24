@@ -21,7 +21,7 @@ export default async function SettingsPage() {
               If the basket contains only prints, the print rate applies. If any original artwork or painting is added, the artwork rate is used instead.
             </p>
           </div>
-          <ShippingForm printRate={rates.printRate} artworkRate={rates.artworkRate} />
+          <ShippingForm rates={rates} />
         </div>
 
         <div className="space-y-4 border-t border-muted pt-10">

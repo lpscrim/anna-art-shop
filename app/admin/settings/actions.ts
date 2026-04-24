@@ -23,6 +23,22 @@ export async function updateArtworkShippingRate(pence: number) {
   await upsertSetting('artwork_shipping_rate_pence', pence);
 }
 
+export async function updateEuPrintShippingRate(pence: number) {
+  await upsertSetting('eu_print_shipping_rate_pence', pence);
+}
+
+export async function updateEuArtworkShippingRate(pence: number) {
+  await upsertSetting('eu_artwork_shipping_rate_pence', pence);
+}
+
+export async function updateIntPrintShippingRate(pence: number) {
+  await upsertSetting('int_print_shipping_rate_pence', pence);
+}
+
+export async function updateIntArtworkShippingRate(pence: number) {
+  await upsertSetting('int_artwork_shipping_rate_pence', pence);
+}
+
 /** @deprecated kept for compatibility */
 export async function updateShippingRate(pence: number) {
   await updateArtworkShippingRate(pence);

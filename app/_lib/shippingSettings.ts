@@ -1,11 +1,23 @@
 import { createServerSupabase } from './supabase';
 
 export interface ShippingRates {
-  /** Rate for orders containing only prints (pence) */
+  // GB rates
   printRate: number;
-  /** Rate for orders containing any artwork/painting (pence) */
   artworkRate: number;
+  // EU / EEA rates
+  euPrintRate: number;
+  euArtworkRate: number;
+  // International rates
+  intPrintRate: number;
+  intArtworkRate: number;
 }
+
+// EU/EEA countries (excluding GB) — used to bucket a customer's country
+const EU_COUNTRY_SET = new Set([
+  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI',
+  'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT',
+  'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'CH', 'NO', 'IS',
+]);
 
 export type ShippingRegion = 'gb' | 'eu' | 'international';
 
@@ -41,19 +53,42 @@ export async function getShippingRates(): Promise<ShippingRates> {
   const { data } = await supabase
     .from('settings')
     .select('key, value')
-    .in('key', ['print_shipping_rate_pence', 'artwork_shipping_rate_pence']);
+    .in('key', [
+      'print_shipping_rate_pence',
+      'artwork_shipping_rate_pence',
+      'eu_print_shipping_rate_pence',
+      'eu_artwork_shipping_rate_pence',
+      'int_print_shipping_rate_pence',
+      'int_artwork_shipping_rate_pence',
+    ]);
 
   const map = new Map((data ?? []).map((r) => [r.key, r.value]));
+  const parse = (key: string) => map.has(key) ? parseInt(map.get(key)!, 10) : 0;
   return {
-    printRate: map.has('print_shipping_rate_pence') ? parseInt(map.get('print_shipping_rate_pence')!, 10) : 0,
-    artworkRate: map.has('artwork_shipping_rate_pence') ? parseInt(map.get('artwork_shipping_rate_pence')!, 10) : 0,
+    printRate:      parse('print_shipping_rate_pence'),
+    artworkRate:    parse('artwork_shipping_rate_pence'),
+    euPrintRate:    parse('eu_print_shipping_rate_pence'),
+    euArtworkRate:  parse('eu_artwork_shipping_rate_pence'),
+    intPrintRate:   parse('int_print_shipping_rate_pence'),
+    intArtworkRate: parse('int_artwork_shipping_rate_pence'),
   };
 }
 
-/** Returns the applicable shipping rate in pence given the item types in the order. */
+/** Returns the GB shipping rate (used at PI creation time before country is known). */
 export function resolveShippingRate(rates: ShippingRates, itemTypes: string[]): number {
+  return resolveRateForCountry(rates, itemTypes, 'GB');
+}
+
+/** Returns the shipping rate for a specific destination country. */
+export function resolveRateForCountry(
+  rates: ShippingRates,
+  itemTypes: string[],
+  country: string,
+): number {
   const hasArtwork = itemTypes.some((t) => t !== 'print');
-  return hasArtwork ? rates.artworkRate : rates.printRate;
+  if (country === 'GB') return hasArtwork ? rates.artworkRate    : rates.printRate;
+  if (EU_COUNTRY_SET.has(country)) return hasArtwork ? rates.euArtworkRate  : rates.euPrintRate;
+  return hasArtwork ? rates.intArtworkRate : rates.intPrintRate;
 }
 
 /** @deprecated Use getShippingRates + resolveShippingRate instead */

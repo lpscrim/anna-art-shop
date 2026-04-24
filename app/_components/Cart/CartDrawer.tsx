@@ -192,9 +192,16 @@ export function CartDrawer() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">SHIPPING</span>
-              <span>{effectiveShipping === 0 ? 'Free' : `£${(effectiveShipping / 100).toFixed(2)}`}</span>
+            <div className="space-y-0.5">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">SHIPPING</span>
+                <span>{effectiveShipping === 0 ? 'Free' : `£${(effectiveShipping / 100).toFixed(2)}`}</span>
+              </div>
+              {!collect && (
+                <p className="text-xs text-muted-foreground">
+                  EU &amp; international shipping may be more at checkout
+                </p>
+              )}
             </div>
             <div className="flex items-center justify-between text-sm font-semibold border-t border-muted pt-2">
               <span>TOTAL</span>
