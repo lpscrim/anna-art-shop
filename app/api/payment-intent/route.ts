@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/app/_lib/stripe';
 import { createServerSupabase } from '@/app/_lib/supabase';
-import { getShippingRatePence } from '@/app/_lib/shippingSettings';
+import { getShippingRates, resolveShippingRate } from '@/app/_lib/shippingSettings';
 import type Stripe from 'stripe';
 
 interface CartLineItem {
@@ -97,7 +97,9 @@ export async function POST(req: NextRequest) {
     }));
 
     // ── Calculate totals ────────────────────────────────────────────
-    const shippingRatePence = await getShippingRatePence();
+    const shippingRates = await getShippingRates();
+    const itemTypes = enrichedReservations.map((r) => r.type);
+    const shippingRatePence = resolveShippingRate(shippingRates, itemTypes);
     const subtotal = prices.reduce((sum, price, i) => {
       return sum + (price.unit_amount ?? 0) * lineItems[i].quantity;
     }, 0);

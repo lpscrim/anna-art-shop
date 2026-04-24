@@ -1,10 +1,10 @@
-import { getCategoriesVisible, getShippingRatePence } from '@/app/_lib/shippingSettings';
+import { getCategoriesVisible, getShippingRates } from '@/app/_lib/shippingSettings';
 import { ShippingForm } from './ShippingForm';
 import { CategoriesToggle } from './CategoriesToggle';
 
 export default async function SettingsPage() {
-  const [currentRate, categoriesVisible] = await Promise.all([
-    getShippingRatePence(),
+  const [rates, categoriesVisible] = await Promise.all([
+    getShippingRates(),
     getCategoriesVisible(),
   ]);
 
@@ -14,12 +14,13 @@ export default async function SettingsPage() {
         <div className="space-y-4">
           <div>
             <h1 className="text-3xl tracking-tight mb-16">SETTINGS</h1>
-            <h2 className="text-xl tracking-tight">SHIPPING RATE</h2>
+            <h2 className="text-xl tracking-tight">SHIPPING RATES</h2>
             <p className="text-base text-muted-foreground mt-1">
-              Flat rate applied to every order at checkout.
+              If the basket contains only prints, the print rate applies. If any original artwork or painting is added, the artwork rate is used instead.
             </p>
           </div>
-          <ShippingForm currentRate={currentRate} />
+          <ShippingForm printRate={rates.printRate} artworkRate={rates.artworkRate} />
+        </div>
         </div>
 
         <div className="space-y-4 border-t border-muted pt-10">
