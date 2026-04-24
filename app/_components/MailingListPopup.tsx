@@ -67,7 +67,7 @@ export default function MailingListPopup() {
       onClick={(e) => { if (e.target === e.currentTarget) dismiss(); }}
     >
       <div
-        className="relative w-full max-w-lg bg-background text-foreground p-8 md:p-12 overflow-y-auto max-h-[90svh]"
+        className="relative rounded-xs w-full max-w-lg bg-background text-foreground p-8 md:p-12 overflow-y-auto max-h-[90svh]"
         style={{ border: '1px solid var(--border)' }}
       >
         <button
