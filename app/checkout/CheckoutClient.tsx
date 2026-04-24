@@ -53,6 +53,7 @@ function CheckoutForm({
   const [email, setEmail] = useState('');
   const [shippingOverride, setShippingOverride] = useState<number | null>(null);
   const lastCountryRef = useRef<string | null>(null);
+  const shippingValueRef = useRef<{ name: string; phone?: string; address: { line1: string; line2?: string; city: string; state: string; postal_code: string; country: string } } | null>(null);
 
   const displayShipping = shippingOverride ?? shippingRate;
   const subtotal = total - shippingRate;
@@ -83,15 +84,13 @@ function CheckoutForm({
     setErrorMsg(null);
 
     const origin = window.location.origin;
+    const billingDetails: Record<string, unknown> = { email: email.trim() || undefined };
+
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
         return_url: `${origin}/purchase/success`,
-        payment_method_data: {
-          billing_details: {
-            email: email.trim() || undefined,
-          },
-        },
+        payment_method_data: { billing_details: billingDetails },
       },
     });
 
@@ -138,7 +137,10 @@ function CheckoutForm({
             Shipping address
           </p>
           <AddressElement
-            onChange={(e) => handleCountryChange(e.value.address?.country ?? '')}
+            onChange={(e) => {
+              shippingValueRef.current = e.value as typeof shippingValueRef.current;
+              handleCountryChange(e.value.address?.country ?? '');
+            }}
             options={{
               mode: 'shipping',
               allowedCountries: allowedCountries ?? ['GB'],
@@ -154,28 +156,28 @@ function CheckoutForm({
         </div>
       )}
 
+      {/* Own billing-address toggle — all billing suppressed in PaymentElement
+          so Stripe won't show its own 'same as shipping' checkbox alongside ours */}
+      {!collect && (
+        <div>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
+            Billing address
+          </p>
+          <AddressElement options={{ mode: 'billing', fields: { phone: 'never' } }} />
+        </div>
+      )}
+
       <div>
         <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
           Payment
         </p>
-        {/* For standard orders, always show billing fields in PaymentElement
-            rather than silently copying shipping address */}
+        {/* All billing suppressed — we handle it ourselves above.
+            'never' for every field prevents Stripe rendering its own
+            'billing same as shipping' toggle next to our checkbox. */}
         <PaymentElement
           options={{
             fields: {
-              billingDetails: collect
-                // Collection: billing already collected via AddressElement above
-                ? { email: 'never', name: 'never', phone: 'never', address: 'never' }
-                // Standard: always show billing name + address. For EU/International
-                // explicitly request country so it's never silently omitted.
-                : {
-                    email: 'never',
-                    name: 'auto',
-                    phone: 'never',
-                    address: allowedCountries && allowedCountries.length > 1
-                      ? { country: 'auto', line1: 'auto', line2: 'auto', city: 'auto', state: 'auto', postalCode: 'auto' }
-                      : 'auto',
-                  },
+              billingDetails: { email: 'never', name: 'never', phone: 'never', address: 'never' },
             },
           }}
         />
