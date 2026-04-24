@@ -34,6 +34,12 @@ export default function AdminHomePage() {
             About page
           </Link>
           <Link
+            href="/admin/home-about"
+            className="block rounded-md border border-muted bg-background px-4 py-3  transition-colors hover:border-foreground"
+          >
+            Home about section
+          </Link>
+          <Link
             href="/admin/settings"
             className="block rounded-md border border-muted bg-background px-4 py-3  transition-colors hover:border-foreground"
           >

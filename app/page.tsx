@@ -33,7 +33,9 @@ export default function Home() {
       <Suspense fallback={<ProjectsSkeleton />}>
         <Projects />
       </Suspense>
-      <About />
+      <Suspense>
+        <About />
+      </Suspense>
       <Contact />
     </main>
   );
