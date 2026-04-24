@@ -144,6 +144,7 @@ export async function POST(req: NextRequest) {
       total: totalAmount,
       shippingRate: shippingRatePence,
       stripeAccount: clientAccountId ?? null,
+      collect,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to create payment';

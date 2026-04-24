@@ -52,6 +52,7 @@ export function CartDrawer() {
             total: data.total,
             shippingRate: data.shippingRate,
             stripeAccount: data.stripeAccount ?? null,
+            collect: data.collect ?? false,
           })
         );
         closeCart();
