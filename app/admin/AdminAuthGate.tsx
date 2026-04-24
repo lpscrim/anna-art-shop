@@ -30,6 +30,91 @@ async function syncAdminCookie(token: string | null) {
   return { ok: true } as const;
 }
 
+function ChangePasswordForm({ supabase }: { supabase: ReturnType<typeof createBrowserSupabase> }) {
+  const [open, setOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [pending, setPending] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setMsg(null);
+    if (newPassword.length < 8) {
+      setMsg({ ok: false, text: "Password must be at least 8 characters." });
+      return;
+    }
+    if (newPassword !== confirm) {
+      setMsg({ ok: false, text: "Passwords do not match." });
+      return;
+    }
+    setPending(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setPending(false);
+    if (error) {
+      setMsg({ ok: false, text: error.message });
+    } else {
+      setMsg({ ok: true, text: "Password changed." });
+      setNewPassword("");
+      setConfirm("");
+      setOpen(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        Change password
+      </button>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex items-center gap-2 flex-wrap">
+      <input
+        type="password"
+        placeholder="New password"
+        value={newPassword}
+        onChange={(e) => setNewPassword(e.target.value)}
+        required
+        minLength={8}
+        className="rounded-md border border-muted bg-background px-2 py-1 text-sm w-36 focus:outline-none focus:border-foreground"
+      />
+      <input
+        type="password"
+        placeholder="Confirm"
+        value={confirm}
+        onChange={(e) => setConfirm(e.target.value)}
+        required
+        className="rounded-md border border-muted bg-background px-2 py-1 text-sm w-28 focus:outline-none focus:border-foreground"
+      />
+      <button
+        type="submit"
+        disabled={pending}
+        className="text-sm text-foreground hover:opacity-70 transition-opacity disabled:opacity-50"
+      >
+        {pending ? "Saving…" : "Save"}
+      </button>
+      <button
+        type="button"
+        onClick={() => { setOpen(false); setMsg(null); }}
+        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        Cancel
+      </button>
+      {msg && (
+        <span className={`text-sm ${msg.ok ? "text-green-700" : "text-red-600"}`}>
+          {msg.text}
+        </span>
+      )}
+    </form>
+  );
+}
+
 export default function AdminAuthGate({ children }: AdminAuthGateProps) {
   const supabase = useMemo(() => createBrowserSupabase(), []);
   const [session, setSession] = useState<Session | null>(null);
@@ -175,15 +260,18 @@ export default function AdminAuthGate({ children }: AdminAuthGateProps) {
 
   return (
     <div className="bg-background text-foreground flex py-4 pt-16 flex-col">
-      <div className="flex items-center justify-between px-6 text-base text-muted-foreground">
+      <div className="flex items-center justify-between gap-4 flex-wrap px-6 text-base text-muted-foreground">
         <span>Signed in as {session.user.email}</span>
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="text-foreground hover:text-muted-foreground transition-colors"
-        >
-          Sign out
-        </button>
+        <div className="flex items-center gap-4 flex-wrap">
+          <ChangePasswordForm supabase={supabase} />
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="text-foreground hover:text-muted-foreground transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
       <div className="flex-1">{children}</div>
     </div>
