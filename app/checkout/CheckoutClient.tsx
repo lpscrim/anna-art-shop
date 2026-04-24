@@ -92,26 +92,50 @@ function CheckoutForm({
         />
       </div>
 
-      {!collect && (
-      <div>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
-          Shipping address
-        </p>
-        <AddressElement
-          options={{
-            mode: 'shipping',
-            allowedCountries: allowedCountries ?? ['GB'],
-            fields: { phone: 'always' },
-          }}
-        />
-      </div>
+      {collect ? (
+        // Collection: no shipping needed, but collect billing/contact address
+        <div>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
+            Billing address
+          </p>
+          <AddressElement
+            options={{
+              mode: 'billing',
+              fields: { phone: 'always' },
+            }}
+          />
+        </div>
+      ) : (
+        // Standard shipping: collect shipping address
+        <div>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
+            Shipping address
+          </p>
+          <AddressElement
+            options={{
+              mode: 'shipping',
+              allowedCountries: allowedCountries ?? ['GB'],
+              fields: { phone: 'always' },
+            }}
+          />
+        </div>
       )}
 
       <div>
         <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
-          {collect ? 'Contact & payment' : 'Payment'}
+          Payment
         </p>
-        <PaymentElement options={{ fields: { billingDetails: { email: 'never' } } }} />
+        {/* For standard orders, always show billing fields in PaymentElement
+            rather than silently copying shipping address */}
+        <PaymentElement
+          options={{
+            fields: {
+              billingDetails: collect
+                ? { email: 'never', name: 'never', phone: 'never', address: 'never' }
+                : { email: 'never', name: 'auto', phone: 'never', address: 'auto' },
+            },
+          }}
+        />
       </div>
 
       {errorMsg && (
