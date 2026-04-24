@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { createServerSupabase } from '@/app/_lib/supabase';
 import { requireAdminUser } from '@/app/_lib/adminAuth';
+import type { ShippingRegion } from '@/app/_lib/shippingSettings';
 
 async function upsertSetting(key: string, pence: number) {
   await requireAdminUser();
@@ -25,6 +26,18 @@ export async function updateArtworkShippingRate(pence: number) {
 /** @deprecated kept for compatibility */
 export async function updateShippingRate(pence: number) {
   await updateArtworkShippingRate(pence);
+}
+
+export async function updateShippingRegion(region: ShippingRegion) {
+  await requireAdminUser();
+  if (!['gb', 'eu', 'international'].includes(region)) throw new Error('Invalid region');
+  const supabase = createServerSupabase();
+  const { error } = await supabase
+    .from('settings')
+    .upsert({ key: 'shipping_region', value: region }, { onConflict: 'key' });
+  if (error) throw new Error(error.message);
+  revalidatePath('/admin/settings');
+  revalidatePath('/checkout');
 }
 
 export async function updateCategoriesVisible(visible: boolean) {

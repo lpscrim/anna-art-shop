@@ -31,10 +31,12 @@ export interface CheckoutPiData {
 function CheckoutForm({
   total,
   shippingRate,
+  allowedCountries,
   onBack,
 }: {
   total: number;
   shippingRate: number;
+  allowedCountries: string[];
   onBack: () => void;
 }) {
   const stripe = useStripe();
@@ -94,12 +96,7 @@ function CheckoutForm({
         <AddressElement
           options={{
             mode: 'shipping',
-            allowedCountries: [
-              'GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI',
-              'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT',
-              'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'CH', 'NO',
-              'IS', 'US', 'CA', 'AU', 'NZ', 'JP', 'SG', 'HK', 'AE', 'SA',
-            ],
+            allowedCountries: allowedCountries ?? ['GB'],
             fields: { phone: 'always' },
           }}
         />
@@ -170,7 +167,7 @@ function getCheckoutServerSnapshot(): string | null {
 }
 
 // ── Outer client component ────────────────────────────────────────
-export default function CheckoutClient() {
+export default function CheckoutClient({ allowedCountries }: { allowedCountries?: string[] }) {
   const router = useRouter();
   const { items, shippingRate: cartShippingRate } = useCart();
   const cancellingRef = useRef(false);
@@ -349,6 +346,7 @@ export default function CheckoutClient() {
             <CheckoutForm
               total={total}
               shippingRate={shippingRate}
+              allowedCountries={allowedCountries ?? ['GB']}
               onBack={handleBack}
             />
           </Elements>

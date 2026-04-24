@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
     } else {
       return NextResponse.json({ error: 'Missing items' }, { status: 400 });
     }
+    const collect = body.collect === true;
 
     if (lineItems.length === 0) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
@@ -99,7 +100,7 @@ export async function POST(req: NextRequest) {
     // ── Calculate totals ────────────────────────────────────────────
     const shippingRates = await getShippingRates();
     const itemTypes = enrichedReservations.map((r) => r.type);
-    const shippingRatePence = resolveShippingRate(shippingRates, itemTypes);
+    const shippingRatePence = collect ? 0 : resolveShippingRate(shippingRates, itemTypes);
     const subtotal = prices.reduce((sum, price, i) => {
       return sum + (price.unit_amount ?? 0) * lineItems[i].quantity;
     }, 0);
@@ -128,6 +129,7 @@ export async function POST(req: NextRequest) {
           reserved_items: JSON.stringify(enrichedReservations),
           shipping_amount: String(shippingRatePence),
           cancel_token: cancelToken,
+          ...(collect ? { collection: 'true' } : {}),
         },
       },
       // Passing stripeAccount here is what makes this a direct charge.

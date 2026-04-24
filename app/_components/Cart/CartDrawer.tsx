@@ -10,10 +10,12 @@ export function CartDrawer() {
   const { items, count, isOpen, closeCart, removeItem, updateQuantity, clearCart, shippingRate } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [collect, setCollect] = useState(false);
   const router = useRouter();
 
   const subtotal = items.reduce((sum, i) => sum + i.priceHw * i.quantity, 0);
-  const total = subtotal + shippingRate;
+  const effectiveShipping = collect ? 0 : shippingRate;
+  const total = subtotal + effectiveShipping;
 
   async function handleCheckout() {
     if (items.length === 0 || loading) return;
@@ -26,6 +28,7 @@ export function CartDrawer() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items: items.map((i) => ({ priceId: i.priceId, quantity: i.quantity })),
+          collect,
         }),
       });
 
@@ -166,9 +169,31 @@ export function CartDrawer() {
               <span className="text-muted-foreground">SUBTOTAL</span>
               <span>£{(subtotal / 100).toFixed(2)}</span>
             </div>
+            {/* Collect in person toggle */}
+            <div className="flex items-start gap-3 py-1">
+              <button
+                role="checkbox"
+                aria-checked={collect}
+                onClick={() => setCollect((v) => !v)}
+                className={`cursor-crosshair mt-0.5 shrink-0 w-4 h-4 border transition-colors ${
+                  collect ? 'bg-foreground border-foreground' : 'bg-transparent border-foreground/40'
+                }`}
+              >
+                {collect && (
+                  <svg viewBox="0 0 10 10" className="w-full h-full text-background" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <polyline points="1.5,5 4,7.5 8.5,2.5" />
+                  </svg>
+                )}
+              </button>
+              <div>
+                <p className="text-sm leading-snug">Collect from Edinburgh (free)</p>
+                <p className="text-xs text-muted-foreground leading-snug">Arrange collection directly with the artist</p>
+              </div>
+            </div>
+
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">SHIPPING</span>
-              <span>{shippingRate === 0 ? 'Free' : `£${(shippingRate / 100).toFixed(2)}`}</span>
+              <span>{effectiveShipping === 0 ? 'Free' : `£${(effectiveShipping / 100).toFixed(2)}`}</span>
             </div>
             <div className="flex items-center justify-between text-sm font-semibold border-t border-muted pt-2">
               <span>TOTAL</span>

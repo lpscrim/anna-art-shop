@@ -17,10 +17,7 @@ export function About() {
         <div className="grid md:grid-cols-2 gap-16 max-w-7xl mx-auto">
           <div className="space-y-6 text-xl xl:text-2xl">
             <p>
-              Anna is a Scottish artist drawn to the mountains — their weight, their stillness, the way light moves across them. Working primarily in oil on canvas and mixed media, she translates landscape into something more abstract, stripping back detail to capture what a place feels like rather than how it looks.
-            </p>
-            <p>
-              Her work moves between representation and abstraction, layering colour and texture to echo the rugged forms and shifting atmospheres of the Scottish highlands. Each piece is an invitation to pause and look a little longer.
+              Anna Maia Zaitseva (b. 1994) is an artist based in Edinburgh, Scotland. Her work explores embodied representations of landscape shaped by a long-term engagement with the Scottish Highlands. 
             </p>
           </div>
 
@@ -35,7 +32,7 @@ export function About() {
         </div>
          <div className="mt-24 text-center">
           <Button size="xl">
-            <Link href="/about">More</Link>
+            <Link href="/about">Find Out More</Link>
           </Button>
         </div>
       </div>

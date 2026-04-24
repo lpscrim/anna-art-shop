@@ -7,6 +7,35 @@ export interface ShippingRates {
   artworkRate: number;
 }
 
+export type ShippingRegion = 'gb' | 'eu' | 'international';
+
+export const ALLOWED_COUNTRIES: Record<ShippingRegion, string[]> = {
+  gb: ['GB'],
+  eu: [
+    'GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI',
+    'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT',
+    'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'CH', 'NO', 'IS',
+  ],
+  international: [
+    'GB', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI',
+    'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT',
+    'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'CH', 'NO', 'IS',
+    'US', 'CA', 'AU', 'NZ', 'JP', 'SG', 'HK', 'AE', 'SA',
+  ],
+};
+
+export async function getShippingRegion(): Promise<ShippingRegion> {
+  const supabase = createServerSupabase();
+  const { data } = await supabase
+    .from('settings')
+    .select('value')
+    .eq('key', 'shipping_region')
+    .single();
+  const val = data?.value;
+  if (val === 'eu' || val === 'international') return val;
+  return 'gb';
+}
+
 export async function getShippingRates(): Promise<ShippingRates> {
   const supabase = createServerSupabase();
   const { data } = await supabase
@@ -40,6 +69,5 @@ export async function getCategoriesVisible(): Promise<boolean> {
     .select('value')
     .eq('key', 'categories_visible')
     .single();
-  // default to true if not set
   return data ? data.value !== 'false' : true;
 }
