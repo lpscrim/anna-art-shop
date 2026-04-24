@@ -184,11 +184,11 @@ export function WorkGallery({
     if (!project) return;
 
     if (lastOpenedProjectIdRef.current === projectParam) return;
-    lastOpenedProjectIdRef.current = projectParam;
 
     let cancelled = false;
     queueMicrotask(() => {
       if (cancelled) return;
+      lastOpenedProjectIdRef.current = projectParam;
 
       setSelectedCategories([]);
       setInStockOnly(false);
