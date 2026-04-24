@@ -78,28 +78,20 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
 
   // Retrieve balance_transaction if not already expanded on the charge event
   let balanceTx: Stripe.BalanceTransaction | null = null;
-  console.log('[WEBHOOK] balance_transaction raw:', charge.balance_transaction, '| stripeOpts:', stripeOpts);
-  if (charge.balance_transaction && typeof charge.balance_transaction !== 'string') {
-    balanceTx = charge.balance_transaction as Stripe.BalanceTransaction;
-    console.log('[WEBHOOK] balance_transaction already expanded, fee:', balanceTx.fee);
-  } else {
-    // Retrieve the charge explicitly with balance_transaction expanded.
-    // The event object often omits it on Connect-forwarded events.
-    try {
-      const fullCharge = await stripe.charges.retrieve(
-        charge.id,
-        { expand: ['balance_transaction'] },
-        stripeOpts,
-      );
-      if (fullCharge.balance_transaction && typeof fullCharge.balance_transaction !== 'string') {
-        balanceTx = fullCharge.balance_transaction as Stripe.BalanceTransaction;
-        console.log('[WEBHOOK] balance_transaction retrieved via charge expand, fee:', balanceTx.fee);
-      } else {
-        console.warn('[WEBHOOK] balance_transaction still null after charge expand');
-      }
-    } catch (err) {
-      console.error('[WEBHOOK] Failed to retrieve charge with balance_transaction:', err);
+  // For direct Connect charges, balance_transaction is settled asynchronously —
+  // it may be null at charge.succeeded time. Retrieve the full charge with
+  // expand to catch cases where it IS available, then fall back to estimation.
+  try {
+    const fullCharge = await stripe.charges.retrieve(
+      charge.id,
+      { expand: ['balance_transaction'] },
+      stripeOpts,
+    );
+    if (fullCharge.balance_transaction && typeof fullCharge.balance_transaction !== 'string') {
+      balanceTx = fullCharge.balance_transaction as Stripe.BalanceTransaction;
     }
+  } catch (err) {
+    console.error('[WEBHOOK] Failed to retrieve charge with balance_transaction:', err);
   }
 
   // Fetch PaymentIntent for metadata (reserved_items, shipping_amount).
@@ -124,8 +116,8 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
     ? parseInt(pi.metadata.shipping_amount, 10)
     : null;
   const subtotal = shippingCost !== null ? amountTotal - shippingCost : null;
-  const stripeFee = balanceTx?.fee ?? null;
   const platformFee = Math.round(amountTotal * 0.01);
+  const stripeFee = balanceTx?.fee ?? null;
   const netToClient = stripeFee !== null ? amountTotal - platformFee - stripeFee : null;
 
   const fmt = (pence: number) => `£${(pence / 100).toFixed(2)}`;
