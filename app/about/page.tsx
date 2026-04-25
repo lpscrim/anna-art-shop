@@ -18,7 +18,7 @@ export default async function AboutPage() {
     <main className="min-h-screen bg-background text-foreground">
 
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="px-6 pt-32 pb-20 max-w-7xl mx-auto">
+      <section className="px-6 pt-26 pb-20 max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-16 items-start">
 
           {/* Portrait */}
