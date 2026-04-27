@@ -259,7 +259,7 @@ Cache is automatically revalidated when you add/edit/delete products via admin. 
 curl "https://your-domain.com/api/revalidate?secret=YOUR_REVALIDATE_SECRET"
 ```
 
-A GitHub Actions workflow (`.github/workflows/keep-alive.yml`) pings this endpoint every 3 days to prevent Supabase free-tier from pausing.
+A GitHub Actions workflow (`.github/workflows/keep-alive.yml`) pings the Supabase REST API directly every 3 days to prevent the free-tier project from pausing. It requires one GitHub Actions secret: `SUPABASE_URL` (same value as `NEXT_PUBLIC_SUPABASE_URL`).
 
 ## Deployment
 
