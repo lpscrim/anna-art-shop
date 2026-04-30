@@ -1,6 +1,7 @@
 'use client';
 
 import { Mail, Instagram, Globe, Newspaper } from 'lucide-react';
+import Link from 'next/link';
 
 export function Contact() {
   return (
@@ -18,13 +19,13 @@ export function Contact() {
             </p>
             
             <div className="flex flex-row gap-8 items-center justify-between">
-              <a 
+              <Link 
                 href="mailto:studioannamaia@gmail.com"
                 className="flex items-center gap-3 hover:opacity-70 transition-opacity cursor-crosshair group text-lg"
               >
                 <Mail size={20} className="text-muted-foreground " />
                 <span>Studioannamaia@gmail.com</span>
-              </a>
+              </Link>
               
               <div className="flex items-center gap-3 text-lg text-muted-foreground justify-end">
                 <span className="w-5" />
@@ -37,7 +38,7 @@ export function Contact() {
             <div className=''>
               <p className="text-muted-foreground mb-4">Social</p>
               <div className="space-y-3 lg:flex lg:flex-row lg:gap-8 lg:space-y-0">
-                <a 
+                <Link 
                   href="https://www.instagram.com/annamaiaart/"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -45,7 +46,7 @@ export function Contact() {
                 >
                   <Instagram size={20} className="text-muted-foreground" />
                   <span>Instagram</span>
-                </a>
+                </Link>
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent('open-mailing-list'))}
                   className="flex items-center gap-3 cursor-crosshair hover:opacity-70 transition-opacity whitespace-nowrap"
@@ -53,7 +54,7 @@ export function Contact() {
                   <Newspaper size={20} className="text-muted-foreground" />
                   <span>Newsletter</span>
                 </button>
-                <a 
+                <Link 
                   href="https://st.storedpay.co/l/anna-maia-art/mini-original-artworks"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -61,7 +62,7 @@ export function Contact() {
                 >
                   <Globe size={20} className="text-muted-foreground" />
                   <span>Stored Shop</span>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
