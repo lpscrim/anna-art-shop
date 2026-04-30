@@ -120,8 +120,16 @@ export function WorkGallery({
     [projects, getStock]
   );
 
-  const artworkCount = useMemo(() => projects.filter((p) => p.type === 'artwork').length, [projects]);
-  const printCount = useMemo(() => projects.filter((p) => p.type === 'print').length, [projects]);
+  const artworkCount = useMemo(() => {
+    let result = projects.filter((p) => p.type === 'artwork');
+    if (inStockOnly) result = result.filter((p) => getStock(p) > 0);
+    return result.length;
+  }, [projects, inStockOnly, getStock]);
+  const printCount = useMemo(() => {
+    let result = projects.filter((p) => p.type === 'print');
+    if (inStockOnly) result = result.filter((p) => getStock(p) > 0);
+    return result.length;
+  }, [projects, inStockOnly, getStock]);
 
   // Category counts
   const visibleCategoryCounts: Record<string, number> = filteredProjects.reduce((acc, project) => {
