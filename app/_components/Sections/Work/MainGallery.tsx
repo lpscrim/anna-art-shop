@@ -83,7 +83,7 @@ export function MainGallery({
               onClick={() => onTypeToggle('artwork')}
               className={`cursor-crosshair transition-opacity ${selectedType === 'artwork' ? 'text-foreground font-semibold' : 'text-foreground/50'}`}
             >
-              Artwork [{artworkCount}]
+              Original [{artworkCount}]
             </button>
             <button
               onClick={() => onTypeToggle('print')}
