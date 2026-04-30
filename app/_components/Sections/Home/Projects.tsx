@@ -29,21 +29,11 @@ export async function Projects() {
                   <ImageWithFallback
                     src={project.imageUrl}
                     alt={project.title}
-                    className={`w-full h-full object-cover transition-all duration-500 scale-110 group-hover:scale-115 ${
-                      project.categories.includes("COLOUR")
-                        ? "grayscale group-hover:grayscale-0"
-                        : ""
-                    }`}
+                    className={`w-full h-full object-cover transition-all duration-500 scale-110 group-hover:scale-115`}
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                 </div>
-                <div className="space-y-1 flex flex-row gap-4">
-                  <h3 className="tracking-tight">{project.title}</h3>
-                  <div className="flex gap-4 text-muted-foreground">
-                    
-                    <span>{project.year}</span>
-                  </div>
-                </div>
+           
               </Link>
             ))}
         </div>
