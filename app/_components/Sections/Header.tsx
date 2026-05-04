@@ -199,26 +199,24 @@ export function Header() {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <nav className={`md:hidden flex flex-col gap-4 text-xl pt-4 `}>
-            <button
+            <Link
               onClick={() => setIsMenuOpen(false)}
-              className={`title pop-up opacity-0 text-left transition-colors ${
+              className={`title pop-up cursor-crosshair opacity-0 text-left transition-colors ${
                 isLight ? "text-card " : "text-foreground "
               }`}
+              href="/work"
             >
-              <Link href="/work" className="cursor-crosshair">
                 Work
-              </Link>
-            </button>
-            <button
+            </Link>
+            <Link
               onClick={() => setIsMenuOpen(false)}
-              className={`title pop-up-2 opacity-0 text-left transition-colors cursor-crosshair ${
+              className={`title pop-up-2  opacity-0 text-left transition-colors cursor-crosshair ${
                 isLight ? "text-card " : "text-foreground "
               }`}
+              href="/about"
             >
-              <Link href="/about" className="cursor-crosshair">
                 About
-              </Link>
-            </button>
+            </Link>
             <button
               className={`title pop-up-3 opacity-0 text-left transition-colors cursor-crosshair ${
                 isLight ? "text-card " : "text-foreground "
@@ -227,6 +225,7 @@ export function Header() {
                 conditionalScrollTo("#contact");
                 setIsMenuOpen(false);
               }}
+  
             >
               Contact
             </button>
