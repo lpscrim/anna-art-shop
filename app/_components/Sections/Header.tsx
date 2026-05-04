@@ -9,8 +9,8 @@ import { useCart } from "../Cart/CartContext";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [onHero, setOnHero] = useState(false);
   const pathname = usePathname();
+  const [onHero, setOnHero] = useState(pathname === "/");
   const router = useRouter();
 
   const isWorkPage = pathname === "/work";
