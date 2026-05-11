@@ -71,8 +71,20 @@ export function SwipeGallery({ images, alt, className = "" }: SwipeGalleryProps)
         />
       ))}
 
+      {/* Click zones */}
+      <button
+        onClick={goPrev}
+        aria-label="Previous image"
+        className="absolute inset-y-0 left-0 w-1/2 cursor-crosshair"
+      />
+      <button
+        onClick={goNext}
+        aria-label="Next image"
+        className="absolute inset-y-0 right-0 w-1/2 cursor-crosshair"
+      />
+
       {/* Dots */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2.5">
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2.5 z-10">
         {images.map((_, i) => (
           <button
             key={i}
