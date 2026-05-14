@@ -126,6 +126,20 @@ $$ LANGUAGE plpgsql;
 
 > **Note:** Verify the exact RPC implementation in Dashboard → Database → Functions.
 
+Run these grants after creating the tables and functions above. New Supabase projects no longer expose new `public` schema tables to the Data API by default, and this app accesses these tables through `@supabase/supabase-js` with the `service_role` key:
+
+```sql
+GRANT SELECT, INSERT, UPDATE, DELETE
+  ON public.products,
+     public.settings,
+     public.about_content,
+     public.order_tracking
+  TO service_role;
+
+GRANT EXECUTE ON FUNCTION public.reserve_stock(jsonb) TO service_role;
+GRANT EXECUTE ON FUNCTION public.restore_stock(jsonb) TO service_role;
+```
+
 ### Storage
 
 Create two storage buckets, both set to **Public**:

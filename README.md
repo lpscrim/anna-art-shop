@@ -205,6 +205,24 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 This is called by the Stripe webhook after a successful payment. `GREATEST(..., 0)` ensures stock never goes negative.
 
+### Data API Grants
+
+Supabase is changing the default permissions for new tables in the `public` schema. This app uses `@supabase/supabase-js` with the `service_role` key for database access, so a fresh project also needs explicit grants for the tables and RPCs above:
+
+```sql
+grant select, insert, update, delete
+  on public.products,
+     public.settings,
+     public.about_content,
+     public.order_tracking
+  to service_role;
+
+grant execute on function public.reserve_stock(jsonb) to service_role;
+grant execute on function public.restore_stock(jsonb) to service_role;
+```
+
+If you later move any table reads or writes to the browser with the `anon` or `authenticated` roles, add role-specific grants and RLS policies for those tables as part of the same setup step.
+
 ## Setup Checklist
 
 - [ ] Create Supabase project → get `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
