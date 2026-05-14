@@ -106,7 +106,7 @@ Key-value store. All values are stored as text strings.
 | Column | Type | Notes |
 |---|---|---|
 | `id` | uuid | Primary key |
-| `payment_intent_id` | text | Stripe PI ID |
+| `payment_intent_id` | text | Stripe PI ID, unique key used for dispatch tracking |
 | `charge_id` | text | Stripe Charge ID |
 | `customer_name` | text | |
 | `customer_email` | text | |
@@ -114,6 +114,8 @@ Key-value store. All values are stored as text strings.
 | `status` | text | e.g. `'paid'`, `'dispatched'` |
 | `items` | jsonb | Snapshot of ordered items |
 | `shipping_address` | jsonb | |
+| `dispatched` | boolean | Admin dispatch flag |
+| `dispatched_at` | timestamptz | When dispatch was marked complete |
 | `created_at` | timestamptz | |
 
 ### Supabase Storage

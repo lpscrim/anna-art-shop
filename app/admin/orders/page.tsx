@@ -59,18 +59,23 @@ async function getOrders(): Promise<Order[]> {
 
   const succeeded = paymentIntents.data.filter((pi) => pi.status === 'succeeded');
 
-  // Fetch dispatch statuses — we reuse the stripe_session_id column with PI IDs
+  // Fetch dispatch statuses keyed by PaymentIntent ID
   const piIds = succeeded.map((pi) => pi.id);
   const { data: tracking } = piIds.length > 0
     ? await supabase
         .from('order_tracking')
-        .select('stripe_session_id, dispatched, dispatched_at')
-        .in('stripe_session_id', piIds)
+        .select('payment_intent_id, dispatched, dispatched_at')
+        .in('payment_intent_id', piIds)
     : { data: [] };
 
   const dispatchMap = new Map<string, { dispatched: boolean; dispatched_at: string | null }>();
   for (const t of tracking ?? []) {
-    dispatchMap.set(t.stripe_session_id, { dispatched: t.dispatched, dispatched_at: t.dispatched_at });
+    if (t.payment_intent_id) {
+      dispatchMap.set(t.payment_intent_id, {
+        dispatched: t.dispatched,
+        dispatched_at: t.dispatched_at,
+      });
+    }
   }
 
   type ReservedItem = { stripe_price_id?: string; title: string; qty: number; price: number; image?: string; type?: string };
@@ -231,7 +236,7 @@ export default async function OrdersPage() {
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <p className="text-xs text-muted-foreground">{formatDateTime(order.created)}</p>
                   <DispatchButton
-                    sessionId={order.id}
+                    paymentIntentId={order.id}
                     dispatched={order.dispatched}
                     dispatchedAt={order.dispatchedAt}
                   />

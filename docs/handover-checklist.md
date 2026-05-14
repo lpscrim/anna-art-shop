@@ -62,7 +62,7 @@ CREATE TABLE about_content (
 -- Order tracking table
 CREATE TABLE order_tracking (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  payment_intent_id text,
+  payment_intent_id text UNIQUE,
   charge_id text,
   customer_name text,
   customer_email text,
@@ -70,6 +70,8 @@ CREATE TABLE order_tracking (
   status text DEFAULT 'paid',
   items jsonb,
   shipping_address jsonb,
+  dispatched boolean DEFAULT false,
+  dispatched_at timestamptz,
   created_at timestamptz DEFAULT now()
 );
 

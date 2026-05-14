@@ -3,12 +3,12 @@ import { useTransition, useState } from 'react';
 import { setDispatched } from './actions';
 
 interface Props {
-  sessionId: string;
+  paymentIntentId: string;
   dispatched: boolean;
   dispatchedAt: string | null;
 }
 
-export function DispatchButton({ sessionId, dispatched, dispatchedAt }: Props) {
+export function DispatchButton({ paymentIntentId, dispatched, dispatchedAt }: Props) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +16,7 @@ export function DispatchButton({ sessionId, dispatched, dispatchedAt }: Props) {
     setError(null);
     startTransition(async () => {
       try {
-        await setDispatched(sessionId, !dispatched);
+        await setDispatched(paymentIntentId, !dispatched);
       } catch {
         setError('Failed to update');
       }
