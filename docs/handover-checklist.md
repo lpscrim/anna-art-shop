@@ -375,8 +375,8 @@ $$ LANGUAGE plpgsql;
 - [ ] In **Developers → Webhooks**, create a webhook endpoint pointing to:
   `https://yourdomain.com/api/webhooks/stripe`
 - [ ] Select these events:
-  - `checkout.session.completed`
-  - `checkout.session.expired`
+  - `charge.succeeded`
+  - `payment_intent.canceled`
 - [ ] Copy the **Signing secret** (`whsec_...`) → `STRIPE_WEBHOOK_SECRET`
 
 ### Artist Connected Account (Stripe Connect)
@@ -482,7 +482,7 @@ Set all of the following in Vercel → Project → Settings → Environment Vari
 ### Stock Management
 - Stock is set manually in the stock field
 - Stock decrements automatically when a purchase is completed
-- Stock restores automatically if a checkout session expires
+- Stock restores automatically if a PaymentIntent is canceled
 
 ---
 
@@ -491,6 +491,6 @@ Set all of the following in Vercel → Project → Settings → Environment Vari
 - **Stripe Prices are immutable** — changing a product price creates a new Stripe Price. Old prices remain in Stripe but become inactive.
 - **Image size limit** — 4 MB per image in admin upload. The `compress-images` script in `scripts/` can be used to pre-compress images locally.
 - **Session metadata limit** — Stripe caps metadata values at 500 characters. The `reserved_items` JSON includes image URLs which can be long. Monitor if issues arise with large carts.
-- **Fee calculation** — platform fee is 5% of order total, plus 20p only when the order is below ~£5.71 (where 5% wouldn't cover Stripe's flat fee). See `app/api/checkout/route.ts`.
+- **Fee calculation** — platform fee is currently 1% of the order total. See `app/api/payment-intent/route.ts`.
 - **Categories visibility** — can be toggled on/off in `/admin/settings` without code changes.
 - **Supabase RLS** — not enabled; the service-role key is used exclusively server-side. Do not expose `SUPABASE_SERVICE_ROLE_KEY` to the browser.

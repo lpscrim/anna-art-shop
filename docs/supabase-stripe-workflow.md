@@ -337,22 +337,22 @@ Environment variable:
 Browser Cart
     │
     ▼
-POST /api/checkout
+POST /api/payment-intent
     ├── Supabase RPC: reserve_stock          ← decrements stock atomically
     ├── Stripe: prices.retrieve              ← get product names/images
     ├── Supabase: products.select (type)     ← get artwork/print type
-    └── Stripe: checkout.sessions.create     ← returns hosted checkout URL
+  └── Stripe: paymentIntents.create        ← returns client secret
             │
             ▼
-    Customer completes Stripe checkout
+  Customer completes payment in Stripe Elements at /checkout
             │
     ┌───────┴───────────────────┐
     │                           │
     ▼                           ▼
-checkout.session.completed  checkout.session.expired
+charge.succeeded        payment_intent.canceled
     │                           │
     ▼                           ▼
-notifyClient()           Supabase RPC: restore_stock
+notifyClientFromCharge()  Supabase RPC: restore_stock
 (Resend email)
 ```
 
@@ -435,17 +435,14 @@ Environment variable required:
 
 ### Stripe Connect (Payment Splitting)
 
-The site uses **Stripe Connect destination charges**. The platform (your) Stripe account receives the full payment, retains the application fee, and automatically transfers the remainder to the artist's connected account.
+The site uses **Stripe Connect direct charges**. The connected account is the merchant of record, Stripe fees come out of Anna's balance, and the platform retains a 1% application fee.
 
 Environment variable:
 - `STRIPE_CONNECT_CLIENT_ACCOUNT_ID` — the artist's connected Stripe account ID (e.g. `acct_...`)
 
-**Fee logic** (`app/api/checkout/route.ts`):
+**Fee logic** (`app/api/payment-intent/route.ts`):
 ```ts
-const percentFee = Math.round(totalAmount * 0.05);      // 5% platform fee
-const estimatedStripeFee = Math.round(totalAmount * 0.015) + 20; // ~Stripe's fee
-// Only add flat 20p if 5% alone doesn't cover the Stripe flat fee (orders < ~£5.71)
-applicationFeeAmount = percentFee >= estimatedStripeFee ? percentFee : percentFee + 20;
+const applicationFeeAmount = Math.round(totalAmount * 0.01); // 1% platform fee
 ```
 
 If `STRIPE_CONNECT_CLIENT_ACCOUNT_ID` is not set, no fee splitting occurs — the full payment stays on the platform account.
@@ -461,7 +458,7 @@ Each product in Supabase has a matching Stripe Product and Stripe Price:
 
 ## Checkout Flow
 
-**File:** `app/api/checkout/route.ts`
+**File:** `app/api/payment-intent/route.ts`
 
 ### Step 1 — Validate cart
 Accepts either `{ items: [{ priceId, quantity }] }` or legacy `{ priceId }`.
@@ -476,26 +473,23 @@ Calls `reserve_stock` RPC. If any items are out of stock:
 - Fetches `type` (`artwork`/`print`) from Supabase by `stripe_price_id`
 - Builds `enrichedReservations` array stored in session metadata
 
-### Step 4 — Create Stripe session
+### Step 4 — Create PaymentIntent
 ```ts
-stripe.checkout.sessions.create({
-  mode: 'payment',
-  line_items: [...],
-  payment_intent_data: {          // only if Connect is configured
-    application_fee_amount: ...,
-    transfer_data: { destination: clientAccountId },
-  },
+stripe.paymentIntents.create({
+  amount: totalAmount,
+  currency: 'gbp',
+  automatic_payment_methods: { enabled: true },
+  application_fee_amount: ...,    // only if Connect is configured
   metadata: {
     reserved_items: JSON.stringify([{ stripe_price_id, qty, title, price, image, type }]),
+    shipping_amount: '...',
     cancel_token: uuid,           // used to verify cancel requests
+    collection: 'true',           // only for collection orders
   },
-  expires_at: now + 30 minutes,
-  success_url: '/purchase/success?session_id={CHECKOUT_SESSION_ID}',
-  cancel_url:  '/purchase/cancelled?session_id={CHECKOUT_SESSION_ID}&cancel_token=...',
 })
 ```
 
-Returns `{ url }` — the browser redirects to Stripe's hosted checkout page.
+Returns `{ clientSecret, paymentIntentId, cancelToken, ... }` — the browser stores this in sessionStorage and pushes to `/checkout`.
 
 ---
 
@@ -506,16 +500,17 @@ Returns `{ url }` — the browser redirects to Stripe's hosted checkout page.
 **File:** `app/purchase/success/page.tsx`
 
 Server component. Retrieves the session from Stripe, verifies `payment_status === 'paid'`, displays order summary. Also renders `<ClearCart />` (client component that empties localStorage cart).
+Server component. Retrieves the PaymentIntent from Stripe using the `payment_intent` query param, verifies `status === 'succeeded'`, displays the order summary, and renders `<ClearCart />`.
 
 ### Cancelled — `/purchase/cancelled`
 
 **File:** `app/purchase/cancelled/page.tsx`
 
-Client component. On mount, calls `POST /api/checkout/expire` with `sessionId` and `cancelToken`. This explicitly expires the Stripe session, which triggers the `checkout.session.expired` webhook to restore stock.
+Static page. Stock restoration is handled earlier when the customer leaves checkout and `/api/payment-intent/cancel` cancels the PaymentIntent, with the webhook acting as a safety net.
 
-### Manual session expiry — `/api/checkout/expire`
+### Manual cancellation — `/api/payment-intent/cancel`
 
-Verifies the `cancel_token` matches the session metadata before expiring. This prevents malicious expiry of other users' sessions.
+Verifies the `cancel_token` matches the PaymentIntent metadata before canceling. This prevents malicious cancellation of other users' pending payments and restores stock immediately.
 
 ---
 
@@ -525,13 +520,13 @@ Verifies the `cancel_token` matches the session metadata before expiring. This p
 
 Verifies Stripe's signature using `STRIPE_WEBHOOK_SECRET` before processing any event.
 
-### `checkout.session.completed`
+### `charge.succeeded`
 - Logs the order
-- Calls `notifyClient()` to send order email via Resend
+- Calls `notifyClientFromCharge()` to send order email via Resend
 - Stock is **not** restored — the reservation becomes the sale
 
-### `checkout.session.expired`
-- Parses `reserved_items` from session metadata
+### `payment_intent.canceled`
+- Parses `reserved_items` from PaymentIntent metadata
 - Calls `restore_stock` RPC to return items to available stock
 
 ---

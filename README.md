@@ -64,13 +64,13 @@ They're linked: every product exists in both systems. Supabase stores Stripe's I
 ┌─────────────────────────────────────────────────────────────────────┐
 │                      CUSTOMER CHECKS OUT                            │
 │                                                                     │
-│  1. CartDrawer POSTs to /api/checkout:                              │
+│  1. CartDrawer POSTs to /api/payment-intent:                        │
 │     { items: [{ priceId: "price_XYZ", quantity: 1 }] }             │
-│  2. Server creates a Stripe Checkout Session with those line items  │
-│  3. Returns { url: "https://checkout.stripe.com/..." }              │
-│  4. Browser clears local cart, redirects to Stripe's hosted page    │
-│  5. Customer enters card details ON STRIPE (never on your site)     │
-│  6. After payment, Stripe redirects to /work?checkout=success       │
+│  2. Server reserves stock and creates a Stripe PaymentIntent        │
+│  3. Browser stores the client secret and opens /checkout            │
+│  4. Customer enters address + payment details in Stripe Elements    │
+│  5. Shipping can be recalculated before confirmation                │
+│  6. After payment, Stripe redirects to /purchase/success            │
 └─────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -79,9 +79,9 @@ They're linked: every product exists in both systems. Supabase stores Stripe's I
 │  Stripe POSTs to /api/webhooks/stripe (server-to-server)            │
 │                                                                     │
 │  1. Verify request signature with STRIPE_WEBHOOK_SECRET             │
-│  2. Read line items from the completed checkout session              │
-│  3. For each item: find product in Supabase by stripe_product_id    │
-│  4. Call decrement_stock RPC → stock_level decreases                │
+│  2. On charge.succeeded, send the order notification email          │
+│  3. On payment_intent.canceled, restore reserved stock              │
+│  4. Successful orders keep the original reservation as the sale     │
 │  5. Next page load shows updated stock (BuyButton shows N/A at 0)   │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -97,7 +97,7 @@ They're linked: every product exists in both systems. Supabase stores Stripe's I
 | `app/_data/projects.ts` | Fetches products from Supabase + gallery images from Storage |
 | `app/admin/add-product/actions.ts` | Server Action: upload images, insert DB row, create Stripe Product+Price |
 | `app/admin/edit-product/actions.ts` | Server Action: update/delete product in both Supabase and Stripe |
-| `app/api/checkout/route.ts` | Creates Stripe Checkout Session from cart items |
+| `app/api/payment-intent/route.ts` | Reserves stock and creates a Stripe PaymentIntent |
 | `app/api/webhooks/stripe/route.ts` | Handles post-payment: verifies signature, decrements stock |
 | `app/api/admin/session/route.ts` | Sets/clears admin session cookie after Supabase Auth login |
 | `app/api/revalidate/route.ts` | Cache revalidation endpoint (secret-protected) |
@@ -110,11 +110,11 @@ They're linked: every product exists in both systems. Supabase stores Stripe's I
 | What | How it's protected |
 | --- | --- |
 | Admin actions | Email allowlist + Supabase Auth token in httpOnly cookie, verified on every Server Action |
-| Card numbers | Never touch your server — Stripe's hosted checkout handles them |
+| Card numbers | Never touch your server — Stripe Elements handles them client-side |
 | Webhook | Signature verification with `STRIPE_WEBHOOK_SECRET` prevents spoofed requests |
 | Secret keys | `SUPABASE_SERVICE_ROLE_KEY` and `STRIPE_SECRET_KEY` only used in server-side code |
 | Price tampering | Customers send a `stripe_price_id`, not a raw amount — Stripe looks up the real price |
-| Stock | Decremented server-side via webhook after confirmed payment, not when added to cart |
+| Stock | Reserved when the PaymentIntent is created and restored if the intent is canceled |
 | Admin session | httpOnly, sameSite: lax, secure in production, 1-hour expiry |
 
 ---
@@ -188,22 +188,9 @@ Create a **public** Storage bucket called `product-images` in Supabase.
 
 The app reads gallery images by listing all files under `product-images/{product_id}/`.
 
-### Decrement Stock RPC
+### Stock RPCs
 
-Create this SQL function in Supabase (SQL Editor → New Query → Run):
-
-```sql
-CREATE OR REPLACE FUNCTION decrement_stock(product_id uuid, quantity int)
-RETURNS void AS $$
-BEGIN
-  UPDATE products
-  SET stock_level = GREATEST(stock_level - quantity, 0)
-  WHERE id = product_id;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-```
-
-This is called by the Stripe webhook after a successful payment. `GREATEST(..., 0)` ensures stock never goes negative.
+This app expects `reserve_stock(jsonb)` and `restore_stock(jsonb)` RPCs in Supabase. The current implementation and setup notes live in [docs/handover-checklist.md](docs/handover-checklist.md) and [docs/supabase-stripe-workflow.md](docs/supabase-stripe-workflow.md).
 
 ### Data API Grants
 
@@ -228,10 +215,10 @@ If you later move any table reads or writes to the browser with the `anon` or `a
 - [ ] Create Supabase project → get `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 - [ ] Create `products` table in Supabase (see schema above)
 - [ ] Create `product-images` Storage bucket in Supabase (set to **public**)
-- [ ] Create `decrement_stock` RPC function in Supabase (see above)
+- [ ] Create `reserve_stock(jsonb)` and `restore_stock(jsonb)` RPC functions in Supabase
 - [ ] Create Stripe account → get `STRIPE_SECRET_KEY`
 - [ ] Set up Stripe webhook pointing to `https://your-domain.com/api/webhooks/stripe` → get `STRIPE_WEBHOOK_SECRET`
-  - Subscribe to `checkout.session.completed` event
+  - Subscribe to `charge.succeeded` and `payment_intent.canceled`
 - [ ] Add your email to `ADMIN_EMAIL_ALLOWLIST` in `.env.local`
 - [ ] Create a Supabase Auth user with that email (Authentication → Users → Add User)
 - [ ] Replace hero images in `public/` (`tree1.JPG`, `pic1.JPG`)
