@@ -36,10 +36,11 @@ export async function saveAboutCV(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireAdminUser();
-    let exhibitions, education, awards, press;
+    let exhibitions, education, residencies, awards, press;
     try {
       exhibitions = JSON.parse((formData.get('exhibitions') as string | null) ?? '[]');
       education = JSON.parse((formData.get('education') as string | null) ?? '[]');
+      residencies = JSON.parse((formData.get('residencies') as string | null) ?? '[]');
       awards = JSON.parse((formData.get('awards') as string | null) ?? '[]');
       press = JSON.parse((formData.get('press') as string | null) ?? '[]');
     } catch {
@@ -48,7 +49,15 @@ export async function saveAboutCV(
     const supabase = createServerSupabase();
     const { error } = await supabase
       .from('about_content')
-      .upsert({ id: 1, exhibitions, education, awards, press, updated_at: new Date().toISOString() });
+      .upsert({
+        id: 1,
+        exhibitions,
+        education,
+        residencies,
+        awards,
+        press,
+        updated_at: new Date().toISOString(),
+      });
     if (error) return { success: false, error: error.message };
     revalidatePath('/about');
     revalidatePath('/admin/about');

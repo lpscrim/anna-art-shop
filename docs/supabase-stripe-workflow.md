@@ -97,9 +97,10 @@ Key-value store. All values are stored as text strings.
 | `bio` | text | Multi-paragraph bio (double-newline separated) |
 | `portrait_url` | text | Public URL of portrait image |
 | `exhibitions` | jsonb | Array of `{ year, title, location, type }` |
-| `education` | jsonb | Array of `{ year, qualification, institution }` |
-| `awards` | jsonb | Array of `{ year, title }` |
-| `press` | jsonb | Array of `{ year, title, publication, url? }` |
+| `education` | jsonb | Array of `{ year, qualification, institution, visible? }` |
+| `residencies` | jsonb | Array of `{ year, title, location, visible? }` |
+| `awards` | jsonb | Array of `{ year, title, visible? }` |
+| `press` | jsonb | Array of `{ year, title, publication, url?, visible? }` |
 | `gallery_images` | jsonb | Array of URLs for the studio/exhibition gallery |
 
 #### `order_tracking`

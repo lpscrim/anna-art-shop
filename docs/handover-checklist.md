@@ -53,6 +53,7 @@ CREATE TABLE about_content (
   portrait_url text,
   exhibitions jsonb DEFAULT '[]',
   education jsonb DEFAULT '[]',
+  residencies jsonb DEFAULT '[]',
   awards jsonb DEFAULT '[]',
   press jsonb DEFAULT '[]',
   gallery_images jsonb DEFAULT '[]',

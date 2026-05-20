@@ -2,7 +2,14 @@
 
 import { useState, useTransition, useRef } from 'react';
 import Image from 'next/image';
-import type { AboutContent, Exhibition, EducationItem, Award, PressItem } from '@/app/_lib/aboutContent';
+import type {
+  AboutContent,
+  Exhibition,
+  EducationItem,
+  ResidencyItem,
+  Award,
+  PressItem,
+} from '@/app/_lib/aboutContent';
 import { saveAboutText, saveAboutCV, uploadAboutPortrait, uploadGalleryImage, removeGalleryImage } from './actions';
 import { compressImage } from '../compressImage';
 
@@ -35,6 +42,14 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 
 function inputCls() {
   return 'w-full border border-muted bg-background px-3 py-2 text-sm rounded-sm focus:outline-none focus:border-foreground transition-colors';
+}
+
+function toggleCls(active: boolean) {
+  return `cursor-crosshair rounded-sm border px-2 py-2 text-xs uppercase tracking-wider transition-colors ${
+    active
+      ? 'border-foreground bg-foreground text-background'
+      : 'border-muted text-muted-foreground hover:border-foreground hover:text-foreground'
+  }`;
 }
 
 // ── CV list editors ────────────────────────────────────────────────────────
@@ -83,26 +98,64 @@ function EducationList({
   onChange: (items: EducationItem[]) => void;
 }) {
   function add() {
-    onChange([...items, { year: '', qualification: '', institution: '' }]);
+    onChange([...items, { year: '', qualification: '', institution: '', visible: true }]);
   }
   function remove(i: number) {
     onChange(items.filter((_, idx) => idx !== i));
   }
-  function update(i: number, field: keyof EducationItem, value: string) {
+  function update<K extends keyof EducationItem>(i: number, field: K, value: EducationItem[K]) {
     onChange(items.map((it, idx) => idx === i ? { ...it, [field]: value } : it));
   }
 
   return (
     <div className="space-y-3">
       {items.map((ed, i) => (
-        <div key={i} className="grid grid-cols-[5rem_1fr_1fr_2rem] gap-2 items-center">
+        <div key={i} className="grid grid-cols-[5rem_1fr_1fr_5.5rem_2rem] gap-2 items-center">
           <input className={inputCls()} placeholder="Year" value={ed.year} onChange={(e) => update(i, 'year', e.target.value)} />
           <input className={inputCls()} placeholder="Qualification" value={ed.qualification} onChange={(e) => update(i, 'qualification', e.target.value)} />
           <input className={inputCls()} placeholder="Institution" value={ed.institution} onChange={(e) => update(i, 'institution', e.target.value)} />
+          <button type="button" onClick={() => update(i, 'visible', ed.visible === false)} className={toggleCls(ed.visible !== false)}>
+            {ed.visible === false ? 'Hidden' : 'Visible'}
+          </button>
           <button type="button" onClick={() => remove(i)} className="text-muted-foreground hover:text-destructive text-lg leading-none cursor-crosshair">×</button>
         </div>
       ))}
       <button type="button" onClick={add} className="text-sm text-muted-foreground underline underline-offset-2 cursor-crosshair">+ Add education</button>
+    </div>
+  );
+}
+
+function ResidencyList({
+  items,
+  onChange,
+}: {
+  items: ResidencyItem[];
+  onChange: (items: ResidencyItem[]) => void;
+}) {
+  function add() {
+    onChange([...items, { year: '', title: '', location: '', visible: true }]);
+  }
+  function remove(i: number) {
+    onChange(items.filter((_, idx) => idx !== i));
+  }
+  function update<K extends keyof ResidencyItem>(i: number, field: K, value: ResidencyItem[K]) {
+    onChange(items.map((it, idx) => idx === i ? { ...it, [field]: value } : it));
+  }
+
+  return (
+    <div className="space-y-3">
+      {items.map((residency, i) => (
+        <div key={i} className="grid grid-cols-[5rem_1fr_1fr_5.5rem_2rem] gap-2 items-center">
+          <input className={inputCls()} placeholder="Year" value={residency.year} onChange={(e) => update(i, 'year', e.target.value)} />
+          <input className={inputCls()} placeholder="Residency" value={residency.title} onChange={(e) => update(i, 'title', e.target.value)} />
+          <input className={inputCls()} placeholder="Location" value={residency.location} onChange={(e) => update(i, 'location', e.target.value)} />
+          <button type="button" onClick={() => update(i, 'visible', residency.visible === false)} className={toggleCls(residency.visible !== false)}>
+            {residency.visible === false ? 'Hidden' : 'Visible'}
+          </button>
+          <button type="button" onClick={() => remove(i)} className="text-muted-foreground hover:text-destructive text-lg leading-none cursor-crosshair">×</button>
+        </div>
+      ))}
+      <button type="button" onClick={add} className="text-sm text-muted-foreground underline underline-offset-2 cursor-crosshair">+ Add residency</button>
     </div>
   );
 }
@@ -115,21 +168,24 @@ function AwardList({
   onChange: (items: Award[]) => void;
 }) {
   function add() {
-    onChange([...items, { year: '', title: '' }]);
+    onChange([...items, { year: '', title: '', visible: true }]);
   }
   function remove(i: number) {
     onChange(items.filter((_, idx) => idx !== i));
   }
-  function update(i: number, field: keyof Award, value: string) {
+  function update<K extends keyof Award>(i: number, field: K, value: Award[K]) {
     onChange(items.map((it, idx) => idx === i ? { ...it, [field]: value } : it));
   }
 
   return (
     <div className="space-y-3">
       {items.map((aw, i) => (
-        <div key={i} className="grid grid-cols-[5rem_1fr_2rem] gap-2 items-center">
+        <div key={i} className="grid grid-cols-[5rem_1fr_5.5rem_2rem] gap-2 items-center">
           <input className={inputCls()} placeholder="Year" value={aw.year} onChange={(e) => update(i, 'year', e.target.value)} />
           <input className={inputCls()} placeholder="Title / Award name" value={aw.title} onChange={(e) => update(i, 'title', e.target.value)} />
+          <button type="button" onClick={() => update(i, 'visible', aw.visible === false)} className={toggleCls(aw.visible !== false)}>
+            {aw.visible === false ? 'Hidden' : 'Visible'}
+          </button>
           <button type="button" onClick={() => remove(i)} className="text-muted-foreground hover:text-destructive text-lg leading-none cursor-crosshair">×</button>
         </div>
       ))}
@@ -146,23 +202,26 @@ function PressList({
   onChange: (items: PressItem[]) => void;
 }) {
   function add() {
-    onChange([...items, { year: '', title: '', publication: '', url: '' }]);
+    onChange([...items, { year: '', title: '', publication: '', url: '', visible: true }]);
   }
   function remove(i: number) {
     onChange(items.filter((_, idx) => idx !== i));
   }
-  function update(i: number, field: keyof PressItem, value: string) {
+  function update<K extends keyof PressItem>(i: number, field: K, value: PressItem[K]) {
     onChange(items.map((it, idx) => idx === i ? { ...it, [field]: value } : it));
   }
 
   return (
     <div className="space-y-3">
       {items.map((pr, i) => (
-        <div key={i} className="grid grid-cols-[5rem_1fr_1fr_1fr_2rem] gap-2 items-center">
+        <div key={i} className="grid grid-cols-[5rem_1fr_1fr_1fr_5.5rem_2rem] gap-2 items-center">
           <input className={inputCls()} placeholder="Year" value={pr.year} onChange={(e) => update(i, 'year', e.target.value)} />
           <input className={inputCls()} placeholder="Article title" value={pr.title} onChange={(e) => update(i, 'title', e.target.value)} />
           <input className={inputCls()} placeholder="Publication" value={pr.publication} onChange={(e) => update(i, 'publication', e.target.value)} />
           <input className={inputCls()} placeholder="URL (optional)" value={pr.url ?? ''} onChange={(e) => update(i, 'url', e.target.value)} />
+          <button type="button" onClick={() => update(i, 'visible', pr.visible === false)} className={toggleCls(pr.visible !== false)}>
+            {pr.visible === false ? 'Hidden' : 'Visible'}
+          </button>
           <button type="button" onClick={() => remove(i)} className="text-muted-foreground hover:text-destructive text-lg leading-none cursor-crosshair">×</button>
         </div>
       ))}
@@ -182,6 +241,7 @@ export default function AboutClient({ initial }: { initial: AboutContent }) {
   // CV state
   const [exhibitions, setExhibitions] = useState<Exhibition[]>(initial.exhibitions);
   const [education, setEducation] = useState<EducationItem[]>(initial.education);
+  const [residencies, setResidencies] = useState<ResidencyItem[]>(initial.residencies);
   const [awards, setAwards] = useState<Award[]>(initial.awards);
   const [press, setPress] = useState<PressItem[]>(initial.press);
   const [cvStatus, setCvStatus] = useState<{ ok?: boolean; msg: string }>({ msg: '' });
@@ -219,6 +279,7 @@ export default function AboutClient({ initial }: { initial: AboutContent }) {
     const fd = new FormData();
     fd.set('exhibitions', JSON.stringify(exhibitions));
     fd.set('education', JSON.stringify(education));
+    fd.set('residencies', JSON.stringify(residencies));
     fd.set('awards', JSON.stringify(awards));
     fd.set('press', JSON.stringify(press));
     startTransition(async () => {
@@ -411,6 +472,11 @@ export default function AboutClient({ initial }: { initial: AboutContent }) {
         <div className="space-y-4 border-t border-muted pt-8">
           <p className="text-sm font-medium">Education</p>
           <EducationList items={education} onChange={setEducation} />
+        </div>
+
+        <div className="space-y-4 border-t border-muted pt-8">
+          <p className="text-sm font-medium">Residencies</p>
+          <ResidencyList items={residencies} onChange={setResidencies} />
         </div>
 
         <div className="space-y-4 border-t border-muted pt-8">

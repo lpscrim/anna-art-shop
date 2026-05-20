@@ -13,6 +13,10 @@ export default async function AboutPage() {
 
   const soloExhibitions = about.exhibitions.filter((e) => e.type === 'solo');
   const groupExhibitions = about.exhibitions.filter((e) => e.type === 'group');
+  const visibleEducation = about.education.filter((item) => item.visible !== false);
+  const visibleResidencies = about.residencies.filter((item) => item.visible !== false);
+  const visibleAwards = about.awards.filter((item) => item.visible !== false);
+  const visiblePress = about.press.filter((item) => item.visible !== false);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -104,11 +108,11 @@ export default async function AboutPage() {
         )}
 
         {/* Education */}
-        {about.education.length > 0 && (
+        {visibleEducation.length > 0 && (
           <div className="mb-16">
             <h2 className="text-xs tracking-widest text-muted-foreground uppercase mb-8">Education</h2>
             <div className="space-y-3">
-              {[...about.education].sort((a, b) => Number(b.year) - Number(a.year)).map((ed, i) => (
+              {[...visibleEducation].sort((a, b) => Number(b.year) - Number(a.year)).map((ed, i) => (
                 <div key={i} className="grid grid-cols-[4rem_1fr] gap-4 text-base border-b border-muted pb-3">
                   <span className="text-muted-foreground tabular-nums">{ed.year}</span>
                   <span>
@@ -121,12 +125,29 @@ export default async function AboutPage() {
           </div>
         )}
 
+        {visibleResidencies.length > 0 && (
+          <div className="mb-16">
+            <h2 className="text-xs tracking-widest text-muted-foreground uppercase mb-8">Residencies</h2>
+            <div className="space-y-3">
+              {[...visibleResidencies].sort((a, b) => Number(b.year) - Number(a.year)).map((residency, i) => (
+                <div key={i} className="grid grid-cols-[4rem_1fr] gap-4 text-base border-b border-muted pb-3">
+                  <span className="text-muted-foreground tabular-nums">{residency.year}</span>
+                  <span>
+                    <span className="font-medium">{residency.title}</span>
+                    {residency.location && <span className="text-muted-foreground">, {residency.location}</span>}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Awards */}
-        {about.awards.length > 0 && (
+        {visibleAwards.length > 0 && (
           <div className="mb-16">
             <h2 className="text-xs tracking-widest text-muted-foreground uppercase mb-8">Awards &amp; Recognition</h2>
             <div className="space-y-3">
-              {[...about.awards].sort((a, b) => Number(b.year) - Number(a.year)).map((aw, i) => (
+              {[...visibleAwards].sort((a, b) => Number(b.year) - Number(a.year)).map((aw, i) => (
                 <div key={i} className="grid grid-cols-[4rem_1fr] gap-4 text-base border-b border-muted pb-3">
                   <span className="text-muted-foreground tabular-nums">{aw.year}</span>
                   <span className="font-medium">{aw.title}</span>
@@ -137,11 +158,11 @@ export default async function AboutPage() {
         )}
 
         {/* Press */}
-        {about.press.length > 0 && (
+        {visiblePress.length > 0 && (
           <div className="mb-16">
             <h2 className="text-xs tracking-widest text-muted-foreground uppercase mb-8">Press &amp; Publications</h2>
             <div className="space-y-3">
-              {[...about.press].sort((a, b) => Number(b.year) - Number(a.year)).map((pr, i) => (
+              {[...visiblePress].sort((a, b) => Number(b.year) - Number(a.year)).map((pr, i) => (
                 <div key={i} className="grid grid-cols-[4rem_1fr] gap-4 text-base border-b border-muted pb-3">
                   <span className="text-muted-foreground tabular-nums">{pr.year}</span>
                   <span>
