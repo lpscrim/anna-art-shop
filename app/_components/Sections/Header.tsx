@@ -110,7 +110,7 @@ export function Header() {
             <button
               className={`relative title text-2xl cursor-crosshair nav-underline transition-colors duration-500 ${isLight ? "text-card" : "text-foreground"}`}
             >
-              <Link href="/about">
+              <Link href="/about" className="cursor-crosshair">
                 <span
                   className={`text-foreground  transition-all duration-500 ${
                     isLight
