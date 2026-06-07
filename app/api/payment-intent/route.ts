@@ -54,16 +54,8 @@ export async function POST(req: NextRequest) {
       .filter((r) => !r.reserved);
 
     if (failed.length > 0) {
-      const succeeded = (result as { stripe_price_id: string; title: string; reserved: boolean }[])
-        .filter((r) => r.reserved);
-      if (succeeded.length > 0) {
-        await supabase.rpc('restore_stock', {
-          items: succeeded.map((s) => ({
-            stripe_price_id: s.stripe_price_id,
-            qty: reservations.find((r) => r.stripe_price_id === s.stripe_price_id)!.qty,
-          })),
-        });
-      }
+      // New reserve_stock is all-or-nothing: if any item failed, nothing was
+      // decremented, so no restore_stock call is needed.
       return NextResponse.json(
         {
           error: `Out of stock: ${failed.map((f) => f.title).join(', ')}`,
