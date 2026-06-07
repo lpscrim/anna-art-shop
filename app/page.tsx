@@ -1,9 +1,16 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { About } from "./_components/Sections/Home/About";
 import { Contact } from "./_components/Sections/Home/Contact";
 import { Hero } from "./_components/Sections/Home/Hero";
 import { Projects } from "./_components/Sections/Home/Projects";
 import { ProjectsSkeleton } from "./_components/Sections/Home/ProjectsSkeleton";
+
+export const revalidate = 60;
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
 
 function OrganizationJsonLd() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://annamaiaart.com";

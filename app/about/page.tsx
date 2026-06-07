@@ -3,9 +3,12 @@ import { getAboutContent } from '@/app/_lib/aboutContent';
 import AboutGallery from './AboutGallery';
 import type { Metadata } from 'next';
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: 'About',
   description: 'Artist biography, CV, and selected exhibitions for Anna Maia Zaitseva.',
+  alternates: { canonical: '/about' },
 };
 
 export default async function AboutPage() {

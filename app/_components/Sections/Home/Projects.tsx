@@ -16,7 +16,7 @@ export async function Projects() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {projects
+          {[...projects]
             .sort((a, b) => a.id - b.id)
             .slice(0, 4)
             .map((project, idx) => (
@@ -29,7 +29,10 @@ export async function Projects() {
                   <ImageWithFallback
                     src={project.imageUrl}
                     alt={project.title}
-                    className={`w-full h-full object-cover transition-all duration-500 scale-110 group-hover:scale-115`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    priority={idx < 2}
+                    className={`object-cover transition-all duration-500 scale-110 group-hover:scale-115`}
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                 </div>

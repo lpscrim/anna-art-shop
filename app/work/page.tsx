@@ -4,10 +4,13 @@ import { getProjects } from "../_data/projects";
 import { WorkGallery } from "../_components/Sections/Work/WorkGallery";
 import { getCategoriesVisible } from "../_lib/shippingSettings";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Work",
   description:
     "Browse landscape and abstract paintings by Anna Maia. Oil on canvas, mixed media, and original artwork available to purchase.",
+  alternates: { canonical: '/work' },
 };
 
 

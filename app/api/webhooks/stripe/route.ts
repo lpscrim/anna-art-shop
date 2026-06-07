@@ -4,6 +4,15 @@ import { createServerSupabase } from '@/app/_lib/supabase';
 import type Stripe from 'stripe';
 import { Resend } from 'resend';
 
+function escapeHtml(s: string | null | undefined): string {
+  if (!s) return '';
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 export async function POST(req: NextRequest) {
   const stripe = getStripe();
   const sig = req.headers.get('stripe-signature');
@@ -17,15 +26,11 @@ export async function POST(req: NextRequest) {
 
   let event: Stripe.Event;
   try {
-    if (connectSecret) {
-      try {
-        event = stripe.webhooks.constructEvent(rawBody, sig!, connectSecret);
-      } catch {
-        event = stripe.webhooks.constructEvent(rawBody, sig!, accountSecret);
-      }
-    } else {
-      event = stripe.webhooks.constructEvent(rawBody, sig!, accountSecret);
-    }
+    // Use the connect secret exclusively when configured — never fall back
+    // silently after a failure, which would allow forged events signed with
+    // the platform-account secret to bypass connect-secret validation.
+    const secret = connectSecret ?? accountSecret;
+    event = stripe.webhooks.constructEvent(rawBody, sig!, secret);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     return NextResponse.json({ error: `Webhook Error: ${message}` }, { status: 400 });
@@ -143,9 +148,9 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
     const reserved = JSON.parse(pi?.metadata?.reserved_items ?? '[]') as { title: string; qty: number; price: number; image?: string; type?: string }[];
     itemsHtml = reserved
       .map((i) => `<div style="display:inline-block;margin:8px;vertical-align:top;text-align:center;width:160px">
-        ${i.image ? `<img src="${i.image}" alt="${i.title}" width="160" height="160" style="object-fit:cover;border-radius:6px;display:block">` : ''}
-        <p style="margin:6px 0 2px;font-weight:600">${i.title}</p>
-        ${i.type ? `<p style="margin:0 0 2px;color:#888;font-size:12px;text-transform:capitalize">${i.type}</p>` : ''}
+        ${i.image ? `<img src="${encodeURI(i.image)}" alt="${escapeHtml(i.title)}" width="160" height="160" style="object-fit:cover;border-radius:6px;display:block">` : ''}
+        <p style="margin:6px 0 2px;font-weight:600">${escapeHtml(i.title)}</p>
+        ${i.type ? `<p style="margin:0 0 2px;color:#888;font-size:12px;text-transform:capitalize">${escapeHtml(i.type)}</p>` : ''}
         <p style="margin:0;color:#555">x${i.qty} &mdash; ${fmt(i.price)}</p>
       </div>`)
       .join('');
@@ -156,13 +161,13 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
   const isCollection = pi?.metadata?.collection === 'true';
 
   const html = `
-    <h2>New Order — ${billingName ?? 'New Customer'}${isCollection ? ' 📦 COLLECTION' : ''}</h2>
-    <p><strong>Customer:</strong> ${billingName ?? 'Unknown'}<br>
-    <strong>Email:</strong> ${billingEmail ?? 'Unknown'}<br>
-    <strong>Phone:</strong> ${phone}</p>
+    <h2>New Order — ${escapeHtml(billingName) || 'New Customer'}${isCollection ? ' 📦 COLLECTION' : ''}</h2>
+    <p><strong>Customer:</strong> ${escapeHtml(billingName) || 'Unknown'}<br>
+    <strong>Email:</strong> ${escapeHtml(billingEmail) || 'Unknown'}<br>
+    <strong>Phone:</strong> ${escapeHtml(phone)}</p>
     ${isCollection
       ? `<p style="background:#fffbeb;border:1px solid #f59e0b;padding:8px 12px;border-radius:4px;font-weight:600">⚠️ Customer has chosen to collect from Edinburgh — no shipping required.</p>`
-      : `<p><strong>Shipping address:</strong><br>${addressLines}</p>`
+      : `<p><strong>Shipping address:</strong><br>${escapeHtml(addressLines)}</p>`
     }
     <h3>Items</h3>
     <div>${itemsHtml}</div>

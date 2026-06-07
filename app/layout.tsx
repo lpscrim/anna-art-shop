@@ -1,21 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import { getSiteUrl } from './_lib/siteUrl';
 
 import "./globals.css";
 import { Header } from "./_components/Sections/Header";
 import { Footer } from "./_components/Sections/Footer";
 import { CartShell } from "./_components/Cart/CartShell";
 import MailingListPopup from "./_components/MailingListPopup";
-
-
-function getSiteUrl(): string {
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
-  if (explicit) return explicit;
-
-  const vercel = process.env.VERCEL_URL;
-  if (vercel) return `https://${vercel}`;
-
-  return "https://annamaiaart.com";
-}
 
 const siteUrl = new URL(getSiteUrl()).origin;
 
@@ -45,9 +35,6 @@ export const metadata: Metadata = {
   },
   description:
     "The portfolio of AnnaMaiaArt showcasing landscape and abstract paintings.",
-  alternates: {
-    canonical: "/",
-  },
   keywords: seoKeywords,
   category: "art",
   authors: [{ name: "Anna Maia" }],
