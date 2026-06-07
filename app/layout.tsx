@@ -30,30 +30,30 @@ const seoKeywords = [
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Annamaiaart",
-    template: "%s | Annamaiaart",
+    default: "Anna Maia — Artist",
+    template: "%s | Anna Maia",
   },
   description:
-    "The portfolio of AnnaMaiaArt showcasing landscape and abstract paintings.",
+    "Anna Maia Zaitseva is an artist based in Edinburgh, Scotland. Original paintings and prints available to purchase.",
   keywords: seoKeywords,
   category: "art",
-  authors: [{ name: "Anna Maia" }],
-  creator: "Anna Maia",
-  publisher: "Anna Maia",
+  authors: [{ name: "Anna Maia Zaitseva" }],
+  creator: "Anna Maia Zaitseva",
+  publisher: "Anna Maia Zaitseva",
   openGraph: {
     type: "website",
     url: siteUrl,
-    siteName: "Annamaiaart",
-    title: "Annamaiaart",
+    siteName: "Anna Maia — Artist",
+    title: "Anna Maia — Artist",
     description:
-      "The portfolio of AnnaMaiaArt showcasing landscape and abstract paintings.",
+      "Anna Maia Zaitseva is an artist based in Edinburgh, Scotland. Original paintings and prints available to purchase.",
     locale: "en_GB",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Annamaiaart",
+    title: "Anna Maia — Artist",
     description:
-      "The portfolio of AnnaMaiaArt showcasing landscape and abstract paintings.",
+      "Anna Maia Zaitseva is an artist based in Edinburgh, Scotland. Original paintings and prints available to purchase.",
   },
 };
 

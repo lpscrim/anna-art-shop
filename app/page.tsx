@@ -16,11 +16,12 @@ function OrganizationJsonLd() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://annamaiaart.com";
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "Annamaiaart",
+    "@type": "Person",
+    name: "Anna Maia Zaitseva",
     url: siteUrl,
+    jobTitle: "Artist",
     description:
-      "The portfolio of AnnaMaiaArt showcasing landscape and abstract paintings.",
+      "Anna Maia Zaitseva is an artist based in Edinburgh, Scotland. Her work explores embodied representations of landscape shaped by a long-term engagement with the Scottish Highlands.",
     sameAs: ["https://www.instagram.com/annamaiaart/"],
   };
 
