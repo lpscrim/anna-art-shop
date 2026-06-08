@@ -26,7 +26,7 @@ export async function About() {
             <SwipeGallery
               images={images}
               alt="Anna Maia"
-              className="w-full lg:w-7/8 rounded-sm aspect-4/3 overflow-hidden"
+              className="w-full lg:w-7/8 rounded-xs aspect-4/3 overflow-hidden"
             />
           </div>
         </div>
