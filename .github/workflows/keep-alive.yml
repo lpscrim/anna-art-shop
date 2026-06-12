@@ -12,6 +12,7 @@ jobs:
     steps:
       - name: Ping Supabase REST API
         run: |
+          echo "Pinging URL: ${{ secrets.SUPABASE_URL }}/rest/v1/products?select=id&limit=1"
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "apikey: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}" \
             "${{ secrets.SUPABASE_URL }}/rest/v1/products?select=id&limit=1")
