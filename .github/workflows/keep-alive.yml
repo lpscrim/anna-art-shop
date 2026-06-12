@@ -14,20 +14,20 @@ jobs:
         run: npm install @supabase/supabase-js
       - name: Ping Supabase via JS client
         run: |
-          node - <<'EOF'
-          const { createClient } = require('@supabase/supabase-js');
+          cat << 'EOF' > ping.mjs
+          import { createClient } from '@supabase/supabase-js';
           const supabase = createClient(
             process.env.SUPABASE_URL,
             process.env.SUPABASE_PUBLISHABLE_KEY
           );
-          supabase.from('products').select('id').limit(1).then(({ error }) => {
-            if (error) {
-              console.error('Ping failed:', error.message);
-              process.exit(1);
-            }
-            console.log('Ping successful');
-          });
+          const { error } = await supabase.from('products').select('id').limit(1);
+          if (error) {
+            console.error('Ping failed:', error.message);
+            process.exit(1);
+          }
+          console.log('Ping successful');
           EOF
+          node ping.mjs
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
