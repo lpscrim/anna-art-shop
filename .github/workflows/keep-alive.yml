@@ -21,11 +21,11 @@ jobs:
             process.env.SUPABASE_PUBLISHABLE_KEY
           );
           const { error } = await supabase.from('products').select('id').limit(1);
-          if (error) {
+          if (error && !error.message.includes('permission denied')) {
             console.error('Ping failed:', error.message);
             process.exit(1);
           }
-          console.log('Ping successful');
+          console.log('Ping successful - DB is alive');
           EOF
           node ping.mjs
         env:
