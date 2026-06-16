@@ -189,6 +189,8 @@ export async function addProduct(
     // ---------- Revalidate ----------
     revalidatePath('/');
     revalidatePath('/work');
+    revalidatePath('/admin/edit-product');
+    revalidatePath('/admin/featured');
 
     return { success: true, productId: product.id };
   } catch (err: unknown) {
