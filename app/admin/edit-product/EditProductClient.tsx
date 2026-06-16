@@ -44,7 +44,6 @@ export default function EditProductClient({
   useEffect(() => {
     if (updateState.success) {
       setSavedAt(Date.now());
-      formRef.current?.reset();
       const timer = setTimeout(() => setFileError(null), 0);
       return () => clearTimeout(timer);
     }
@@ -192,7 +191,7 @@ export default function EditProductClient({
           action={updateAction}
           onSubmit={handleSubmit}
           className="space-y-5"
-          key={selected.id}
+          key={`${selected.id}-${selected.price_hw}`}
         >
           <input type="hidden" name="productId" value={selected.id} />
 

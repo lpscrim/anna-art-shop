@@ -114,5 +114,5 @@ export async function getYearFilterEnabled(): Promise<boolean> {
     .select('value')
     .eq('key', 'year_filter_enabled')
     .single();
-  return data?.value === 'true' ?? false;
+  return data?.value === 'true';
 }
