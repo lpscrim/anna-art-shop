@@ -120,7 +120,7 @@ export function CartDrawer() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{item.name}</p>
                 <p className="text-sm text-muted-foreground">
-                  £{(item.priceHw / 100).toFixed(2)}
+                  £{(() => { const v = item.priceHw / 100; return v % 1 === 0 ? v.toFixed(0) : v.toFixed(2); })()}
                 </p>
 
                 {/* Quantity */}
@@ -147,7 +147,7 @@ export function CartDrawer() {
               {/* Line total + remove */}
               <div className="flex flex-col items-end gap-1 shrink-0">
                 <span className="text-sm font-medium">
-                  £{((item.priceHw * item.quantity) / 100).toFixed(2)}
+                  £{(() => { const v = (item.priceHw * item.quantity) / 100; return v % 1 === 0 ? v.toFixed(0) : v.toFixed(2); })()}
                 </span>
                 <button
                   onClick={() => removeItem(item.priceId)}
