@@ -39,18 +39,16 @@ export function BuyButton({ stripePriceId, stockLevel, priceHw, name, imageUrl }
       disabled={outOfStock || notAvailable}
       size='lg'
     >
-      <div className="relative inline-flex alttext">
-        <span className={`transition-opacity duration-200 ${outOfStock ? 'opacity-100 text-red-600' : 'group-hover:opacity-0 opacity-100'}`}>
-          {outOfStock
-            ? 'N/A'
-            : 'Buy'}
-        </span>
-        {!outOfStock && (
-          <span className="absolute inset-0 flex items-center justify-center transition-opacity duration-200 opacity-0 group-hover:opacity-100">
-            £{displayPrice}
-          </span>
+      <span className="inline-flex items-center justify-center min-w-[3ch]">
+        {outOfStock ? (
+          <span className="text-red-600">N/A</span>
+        ) : (
+          <>
+            <span className="transition-opacity duration-200 group-hover:opacity-0 group-hover:hidden">Buy</span>
+            <span className="transition-opacity duration-200 opacity-0 hidden group-hover:inline group-hover:opacity-100">£{displayPrice}</span>
+          </>
         )}
-      </div>
+      </span>
     </Button>
   );
 }
