@@ -8,7 +8,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: 'About',
   description: 'Artist biography, CV, and selected exhibitions for Anna Maia Zaitseva.',
-  alternates: { canonical: '/about' },
+  alternates: { canonical: 'https://annamaiaart.com/about' },
 };
 
 export default async function AboutPage() {

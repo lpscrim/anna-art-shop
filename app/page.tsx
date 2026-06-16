@@ -9,7 +9,7 @@ import { ProjectsSkeleton } from "./_components/Sections/Home/ProjectsSkeleton";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  alternates: { canonical: '/' },
+  alternates: { canonical: 'https://annamaiaart.com' },
 };
 
 function OrganizationJsonLd() {

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "Work",
   description:
     "Browse landscape and abstract paintings by Anna Maia. Oil on canvas, mixed media, and original artwork available to purchase.",
-  alternates: { canonical: '/work' },
+  alternates: { canonical: 'https://annamaiaart.com/work' },
 };
 
 
