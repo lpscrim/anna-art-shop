@@ -24,11 +24,7 @@ export function Card(project: {
         width={!useFill ? project.imageWidth : undefined}
         height={!useFill ? project.imageHeight : undefined}
         quality={project.imageQuality}
-        className={`w-full h-full object-cover transition-all duration-500 scale-110 group-hover:scale-115 ${
-          project.categories.includes("B+W")
-            ? "grayscale"
-            : ""
-        }`}
+        className={`w-full h-full object-cover transition-all duration-500 scale-110 group-hover:scale-115`}
       />
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
     </div>
