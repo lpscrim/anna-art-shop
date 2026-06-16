@@ -40,7 +40,7 @@ export async function addProduct(
     const categoriesRaw = formData.get('categories') as string | null;
     const medium = formData.get('medium') as string | null;
     const dimensions = formData.get('dimensions') as string | null;
-    const year = formData.get('year') as string | null;
+    const displayDate = formData.get('display_date') as string | null;
     const typeRaw = formData.get('type') as string | null;
     const imageFile = formData.get('image') as File | null;
     const secondaryFiles = formData.getAll('secondary') as File[];
@@ -117,7 +117,8 @@ export async function addProduct(
         categories,
         medium: (medium ?? '').trim(),
         dimensions: (dimensions ?? '').trim(),
-        year: year?.trim() || new Date().getFullYear().toString(),
+        display_date: displayDate?.trim() || new Date().toISOString().slice(0, 10),
+        year: (displayDate?.trim() || new Date().toISOString()).slice(0, 4),
         type: typeRaw === 'print' ? 'print' : 'artwork',
       })
       .select()

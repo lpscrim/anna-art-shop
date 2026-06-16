@@ -9,6 +9,8 @@ interface Project {
   medium: string;
   dimensions: string;
   year: string;
+  display_date: string;
+  featured: boolean;
   imageUrl: string;
   galleryImages?: string[];
   text?: string;
@@ -35,6 +37,10 @@ export interface MainGalleryProps {
   artworkCount: number;
   printCount: number;
   showCategories: boolean;
+  showYearFilter: boolean;
+  availableYears: string[];
+  selectedYear: string | null;
+  onYearToggle: (year: string) => void;
 }
 
 export function MainGallery({
@@ -54,6 +60,10 @@ export function MainGallery({
   artworkCount,
   printCount,
   showCategories,
+  showYearFilter,
+  availableYears,
+  selectedYear,
+  onYearToggle,
 }: MainGalleryProps) {
   return (
     <>
@@ -92,6 +102,21 @@ export function MainGallery({
               Print [{printCount}]
             </button>
           </div>
+          {showYearFilter && availableYears.length > 1 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {availableYears.map((yr) => (
+              <button
+                key={yr}
+                onClick={() => onYearToggle(yr)}
+                className={`cursor-crosshair transition-opacity ${
+                  selectedYear === yr ? 'text-foreground font-semibold' : 'text-foreground/50'
+                }`}
+              >
+                &apos;{yr.slice(2)}
+              </button>
+            ))}
+          </div>
+          )}
           {showCategories && (
           <div className="flex flex-wrap gap-0 mt-2">
             {sortedVisibleCategories.map(([category, count]) => {

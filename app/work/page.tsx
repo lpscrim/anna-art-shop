@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getProjects } from "../_data/projects";
 import { WorkGallery } from "../_components/Sections/Work/WorkGallery";
-import { getCategoriesVisible } from "../_lib/shippingSettings";
+import { getCategoriesVisible, getYearFilterEnabled } from "../_lib/shippingSettings";
 
 export const revalidate = 60;
 
@@ -16,9 +16,10 @@ export const metadata: Metadata = {
 
 
 export default async function WorkPage() {
-  const [projects, showCategories] = await Promise.all([
+  const [projects, showCategories, showYearFilter] = await Promise.all([
     getProjects(),
     getCategoriesVisible(),
+    getYearFilterEnabled(),
   ]);
 
   // Count categories
@@ -41,6 +42,7 @@ export default async function WorkPage() {
           projects={projects} 
           categoryCounts={sortedCategories}
           showCategories={showCategories}
+          showYearFilter={showYearFilter}
         />
       </Suspense>
     </main>

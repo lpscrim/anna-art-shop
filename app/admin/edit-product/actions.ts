@@ -50,7 +50,7 @@ export async function updateProduct(
     const categoriesRaw = formData.get('categories') as string | null;
     const medium = formData.get('medium') as string | null;
     const dimensions = formData.get('dimensions') as string | null;
-    const year = formData.get('year') as string | null;
+    const displayDate = formData.get('display_date') as string | null;
     const typeRaw = formData.get('type') as string | null;
     const removeCover = formData.get('removeCover') === 'on';
     const removeGallery = formData.getAll('removeGallery') as string[];
@@ -167,7 +167,8 @@ export async function updateProduct(
         categories,
         medium: (medium ?? '').trim(),
         dimensions: (dimensions ?? '').trim(),
-        year: year?.trim() || new Date().getFullYear().toString(),
+        display_date: displayDate?.trim() || new Date().toISOString().slice(0, 10),
+        year: (displayDate?.trim() || new Date().toISOString()).slice(0, 4),
         image_url: imageUrl,
         type: typeRaw === 'print' ? 'print' : 'artwork',
       })

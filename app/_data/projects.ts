@@ -6,11 +6,13 @@ export interface Project {
   categories: string[];
   medium: string;
   dimensions: string;
-  year: string;
+  year: string;           // derived from display_date for display
+  display_date: string;   // YYYY-MM-DD, controls sort order
+  featured: boolean;
   imageUrl: string;       // Supabase Storage public URL
   galleryImages?: string[];
   text: string;
-  price_hw: number;       // price in cents
+  price_hw: number;       // price in pence
   stock_level: number;
   stripe_price_id: string | null;
   type: 'artwork' | 'print';
@@ -40,7 +42,8 @@ export async function getProjects(): Promise<Project[]> {
   const { data: products, error } = await supabase
     .from('products')
     .select('*')
-    .order('id', { ascending: true });
+    .order('display_date', { ascending: false })
+    .order('id', { ascending: false });
 
   if (error || !products) {
     console.error('Failed to fetch products from Supabase:', error);
@@ -61,7 +64,9 @@ export async function getProjects(): Promise<Project[]> {
         categories: product.categories ?? [],
         medium: product.medium ?? '',
         dimensions: product.dimensions ?? '',
-        year: product.year ?? new Date().getFullYear().toString(),
+        display_date: product.display_date ?? new Date().toISOString().slice(0, 10),
+        year: (product.display_date ?? product.year ?? new Date().toISOString()).slice(0, 4),
+        featured: product.featured ?? false,
         imageUrl: product.image_url ?? '',
         ...(galleryImages.length > 0 && { galleryImages }),
         text: product.description ?? '',

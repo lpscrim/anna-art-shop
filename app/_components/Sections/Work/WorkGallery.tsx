@@ -13,6 +13,8 @@ interface Project {
   medium: string;
   dimensions: string;
   year: string;
+  display_date: string;
+  featured: boolean;
   imageUrl: string;
   galleryImages?: string[];
   text?: string;
@@ -26,12 +28,14 @@ interface WorkGalleryProps {
   projects: Project[];
   categoryCounts: [string, number][];
   showCategories: boolean;
+  showYearFilter: boolean;
 }
 
 export function WorkGallery({
   projects,
   categoryCounts,
   showCategories,
+  showYearFilter,
 }: WorkGalleryProps) {
 
   const searchParams = useSearchParams();
@@ -41,6 +45,7 @@ export function WorkGallery({
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [selectedType, setSelectedType] = useState<'artwork' | 'print' | null>('artwork');
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState<string[]>([]);
@@ -100,11 +105,20 @@ export function WorkGallery({
   );
 
 
-  // Filtered projects by selected categories and stock filter
+  // Sorted list of unique years derived from display_date
+  const availableYears = useMemo(() => {
+    const years = new Set(projects.map((p) => p.display_date.slice(0, 4)));
+    return Array.from(years).sort((a, b) => Number(b) - Number(a));
+  }, [projects]);
+
+  // Filtered projects
   const filteredProjects = useMemo(() => {
     let result = projects;
     if (selectedType) {
       result = result.filter((p) => p.type === selectedType);
+    }
+    if (selectedYear) {
+      result = result.filter((p) => p.display_date.slice(0, 4) === selectedYear);
     }
     if (selectedCategories.length > 0) {
       result = result.filter((p) => selectedCategories.every(cat => p.categories.includes(cat)));
@@ -113,7 +127,7 @@ export function WorkGallery({
       result = result.filter((p) => getStock(p) > 0);
     }
     return result;
-  }, [projects, selectedType, selectedCategories, inStockOnly, getStock]);
+  }, [projects, selectedType, selectedYear, selectedCategories, inStockOnly, getStock]);
 
   const inStockCount = useMemo(
     () => projects.filter((p) => getStock(p) > 0).length,
@@ -158,6 +172,11 @@ export function WorkGallery({
 
   const handleTypeToggle = (type: 'artwork' | 'print') => {
     setSelectedType((prev) => prev === type ? null : type);
+    setSelectedCategories([]);
+  };
+
+  const handleYearToggle = (year: string) => {
+    setSelectedYear((prev) => prev === year ? null : year);
     setSelectedCategories([]);
   };
 
@@ -263,6 +282,10 @@ export function WorkGallery({
         artworkCount={artworkCount}
         printCount={printCount}
         showCategories={showCategories}
+        showYearFilter={showYearFilter}
+        availableYears={availableYears}
+        selectedYear={selectedYear}
+        onYearToggle={handleYearToggle}
       /> }
       <PhotoModal
         isOpen={modalOpen}

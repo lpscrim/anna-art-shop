@@ -106,3 +106,13 @@ export async function getCategoriesVisible(): Promise<boolean> {
     .single();
   return data ? data.value !== 'false' : true;
 }
+
+export async function getYearFilterEnabled(): Promise<boolean> {
+  const supabase = createServerSupabase();
+  const { data } = await supabase
+    .from('settings')
+    .select('value')
+    .eq('key', 'year_filter_enabled')
+    .single();
+  return data?.value === 'true' ?? false;
+}

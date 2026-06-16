@@ -22,6 +22,12 @@ export default function AdminHomePage() {
             Edit products
           </Link>
           <Link
+            href="/admin/featured"
+            className="block rounded-md border border-muted bg-background px-4 py-3  transition-colors hover:border-foreground"
+          >
+            Featured
+          </Link>
+          <Link
             href="/admin/orders"
             className="block rounded-md border border-muted bg-background px-4 py-3  transition-colors hover:border-foreground"
           >

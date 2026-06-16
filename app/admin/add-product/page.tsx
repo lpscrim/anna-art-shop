@@ -225,13 +225,14 @@ export default function AddProductPage() {
             />
           </label>
 
-          {/* Year */}
+          {/* Date */}
           <label className="block">
-            <span className="text-sm font-medium">Year</span>
+            <span className="text-sm font-medium">Date</span>
+            <span className="block text-xs text-muted-foreground mt-0.5">Controls gallery sort order. Year is derived from this.</span>
             <input
-              name="year"
-              type="text"
-              defaultValue={new Date().getFullYear().toString()}
+              name="display_date"
+              type="date"
+              defaultValue={new Date().toISOString().slice(0, 10)}
               className="mt-1 block w-full rounded-md border border-muted bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
             />
           </label>

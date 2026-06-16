@@ -6,6 +6,10 @@ import Link from "next/link";
 export async function Projects() {
   const projects = await getProjects();
 
+  // Show featured projects; fall back to 4 most recent if none are marked
+  const featured = projects.filter((p) => p.featured);
+  const displayed = featured.length > 0 ? featured.slice(0, 4) : projects.slice(0, 4);
+
   return (
     <section id="work" className="min-h-screen px-6 py-24 ">
       <div className=" mx-auto">
@@ -16,9 +20,7 @@ export async function Projects() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[...projects]
-            .sort((a, b) => a.id - b.id)
-            .slice(0, 4)
+          {displayed
             .map((project, idx) => (
               <Link
                 key={project.id}

@@ -6,8 +6,9 @@ async function getAdminProducts(): Promise<AdminProduct[]> {
   const supabase = createServerSupabase();
   const { data: products, error } = await supabase
     .from('products')
-    .select('id, name, description, price_hw, stock_level, categories, medium, dimensions, year, image_url, stripe_product_id, stripe_price_id, type')
-    .order('id', { ascending: true });
+    .select('*')
+    .order('display_date', { ascending: false })
+    .order('id', { ascending: false });
 
   if (error || !products) {
     console.error('Failed to fetch products:', error);
@@ -40,12 +41,13 @@ async function getAdminProducts(): Promise<AdminProduct[]> {
         categories: product.categories ?? [],
         medium: product.medium ?? '',
         dimensions: product.dimensions ?? '',
-        year: product.year ?? new Date().getFullYear().toString(),
+        display_date: product.display_date ?? new Date().toISOString().slice(0, 10),
         image_url: product.image_url ?? '',
         stripe_product_id: product.stripe_product_id ?? null,
         stripe_price_id: product.stripe_price_id ?? null,
         gallery,
         type: (product.type === 'print' ? 'print' : 'artwork') as 'artwork' | 'print',
+        featured: product.featured ?? false,
       };
     })
   );

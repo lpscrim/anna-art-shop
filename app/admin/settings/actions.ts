@@ -66,3 +66,14 @@ export async function updateCategoriesVisible(visible: boolean) {
   revalidatePath('/admin/settings');
   revalidatePath('/work');
 }
+
+export async function updateYearFilterEnabled(enabled: boolean) {
+  await requireAdminUser();
+  const supabase = createServerSupabase();
+  const { error } = await supabase
+    .from('settings')
+    .upsert({ key: 'year_filter_enabled', value: String(enabled) }, { onConflict: 'key' });
+  if (error) throw new Error(error.message);
+  revalidatePath('/admin/settings');
+  revalidatePath('/work');
+}

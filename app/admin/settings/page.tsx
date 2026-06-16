@@ -1,13 +1,15 @@
-import { getCategoriesVisible, getShippingRates, getShippingRegion } from '@/app/_lib/shippingSettings';
+import { getCategoriesVisible, getShippingRates, getShippingRegion, getYearFilterEnabled } from '@/app/_lib/shippingSettings';
 import { ShippingForm } from './ShippingForm';
 import { ShippingRegionToggle } from './ShippingRegionToggle';
 import { CategoriesToggle } from './CategoriesToggle';
+import { YearFilterToggle } from './YearFilterToggle';
 
 export default async function SettingsPage() {
-  const [rates, shippingRegion, categoriesVisible] = await Promise.all([
+  const [rates, shippingRegion, categoriesVisible, yearFilterEnabled] = await Promise.all([
     getShippingRates(),
     getShippingRegion(),
     getCategoriesVisible(),
+    getYearFilterEnabled(),
   ]);
 
   return (
@@ -42,6 +44,16 @@ export default async function SettingsPage() {
             </p>
           </div>
           <CategoriesToggle current={categoriesVisible} />
+        </div>
+
+        <div className="space-y-4 border-t border-muted pt-10">
+          <div>
+            <h2 className="text-xl tracking-tight">YEAR FILTERS</h2>
+            <p className="text-base text-muted-foreground mt-1">
+              Show year filter buttons on the Work gallery so visitors can switch between years.
+            </p>
+          </div>
+          <YearFilterToggle current={yearFilterEnabled} />
         </div>
       </div>
     </div>

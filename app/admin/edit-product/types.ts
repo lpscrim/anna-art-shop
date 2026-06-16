@@ -12,10 +12,11 @@ export interface AdminProduct {
   categories: string[];
   medium: string;
   dimensions: string;
-  year: string;
+  display_date: string;  // YYYY-MM-DD
   image_url: string;
   stripe_product_id: string | null;
   stripe_price_id: string | null;
   gallery: AdminGalleryImage[];
   type: 'artwork' | 'print';
+  featured: boolean;
 }
