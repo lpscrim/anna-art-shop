@@ -172,7 +172,7 @@ export function MainGallery({
                 <span className="invisible">{project.year}</span>
               </div>
               {getStockLevel(project) === 0 && (
-                <h3 className="text-background">SOLD OUT</h3>
+                <h3 className="text-background">N/A</h3>
               )}
             </div>
           </div>
