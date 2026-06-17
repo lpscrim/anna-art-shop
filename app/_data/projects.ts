@@ -42,6 +42,7 @@ export async function getProjects(): Promise<Project[]> {
   const { data: products, error } = await supabase
     .from('products')
     .select('*')
+    .eq('hidden', false)
     .order('display_date', { ascending: false })
     .order('id', { ascending: false });
 

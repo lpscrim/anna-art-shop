@@ -19,4 +19,5 @@ export interface AdminProduct {
   gallery: AdminGalleryImage[];
   type: 'artwork' | 'print';
   featured: boolean;
+  hidden: boolean;
 }

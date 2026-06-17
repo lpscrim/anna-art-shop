@@ -48,6 +48,7 @@ async function getAdminProducts(): Promise<AdminProduct[]> {
         gallery,
         type: (product.type === 'print' ? 'print' : 'artwork') as 'artwork' | 'print',
         featured: product.featured ?? false,
+        hidden: product.hidden ?? false,
       };
     })
   );

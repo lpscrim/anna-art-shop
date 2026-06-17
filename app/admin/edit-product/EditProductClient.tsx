@@ -6,14 +6,17 @@ import Image from "next/image";
 import type { AdminProduct } from "./types";
 import {
   deleteProduct,
+  toggleProductVisibility,
   updateProduct,
   type DeleteProductState,
+  type ToggleVisibilityState,
   type UpdateProductState,
 } from "./actions";
 import { compressImage } from "../compressImage";
 
 const initialUpdateState: UpdateProductState = { success: false };
 const initialDeleteState: DeleteProductState = { success: false };
+const initialToggleState: ToggleVisibilityState = { success: false };
 const MAX_FILE_SIZE = 4 * 1024 * 1024;
 const MAX_TOTAL_SIZE = 4 * 1024 * 1024; // Vercel serverless limit
 const MAX_SECONDARY = 4;
@@ -40,6 +43,10 @@ export default function EditProductClient({
     deleteProduct,
     initialDeleteState,
   );
+  const [toggleState, toggleAction, isToggling] = useActionState(
+    toggleProductVisibility,
+    initialToggleState,
+  );
 
   useEffect(() => {
     if (updateState.success) {
@@ -50,10 +57,10 @@ export default function EditProductClient({
   }, [updateState]);
 
   useEffect(() => {
-    if (updateState.success || deleteState.success) {
+    if (updateState.success || deleteState.success || toggleState.success) {
       router.refresh();
     }
-  }, [updateState.success, deleteState.success, router]);
+  }, [updateState.success, deleteState.success, toggleState.success, router]);
 
   const resolvedSelectedId = useMemo(() => {
     if (selectedId !== null && products.some((p) => p.id === selectedId)) {
@@ -180,11 +187,43 @@ export default function EditProductClient({
           >
             {products.map((product) => (
               <option key={product.id} value={product.id}>
-                {product.name}
+                {product.name}{product.hidden ? ' (hidden)' : ''}
               </option>
             ))}
           </select>
         </label>
+
+        {/* Visibility toggle */}
+        <form action={toggleAction} key={`toggle-${selected.id}`}>
+          <input type="hidden" name="productId" value={selected.id} />
+          <input type="hidden" name="hidden" value={selected.hidden ? 'false' : 'true'} />
+          <div className="flex items-center justify-between rounded-md border border-muted px-4 py-3">
+            <div>
+              <p className="text-sm font-medium">
+                {selected.hidden ? 'Hidden from site' : 'Visible on site'}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {selected.hidden
+                  ? 'This product is not shown in the gallery.'
+                  : 'This product appears in the public gallery.'}
+              </p>
+            </div>
+            <button
+              type="submit"
+              disabled={isToggling}
+              className={`ml-4 shrink-0 rounded-md border px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
+                selected.hidden
+                  ? 'border-foreground bg-foreground text-background hover:opacity-80'
+                  : 'border-muted bg-background text-foreground hover:border-foreground'
+              }`}
+            >
+              {isToggling ? '…' : selected.hidden ? 'Show' : 'Hide'}
+            </button>
+          </div>
+          {toggleState.error && (
+            <p className="mt-1 text-xs text-red-500">{toggleState.error}</p>
+          )}
+        </form>
 
         <form
           ref={formRef}

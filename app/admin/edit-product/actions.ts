@@ -279,3 +279,37 @@ export async function deleteProduct(
     return { success: false, error: message };
   }
 }
+
+export interface ToggleVisibilityState {
+  success: boolean;
+  error?: string;
+}
+
+export async function toggleProductVisibility(
+  _prev: ToggleVisibilityState,
+  formData: FormData
+): Promise<ToggleVisibilityState> {
+  try {
+    await requireAdminUser();
+    const productId = (formData.get('productId') as string | null)?.trim();
+    const hidden = formData.get('hidden') === 'true';
+    if (!productId) return { success: false, error: 'Invalid product ID.' };
+
+    const supabase = createServerSupabase();
+    const { error } = await supabase
+      .from('products')
+      .update({ hidden })
+      .eq('id', productId);
+
+    if (error) return { success: false, error: error.message };
+
+    revalidatePath('/');
+    revalidatePath('/work');
+    revalidatePath('/admin/edit-product');
+
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return { success: false, error: message };
+  }
+}
