@@ -164,7 +164,8 @@ export function MainGallery({
             <div className="absolute inset-x-0 text-lg top-0 px-4 group-hover:opacity-100 opacity-0 flex flex-col group-hover:mt-2 z-60 transition-all duration-500 pointer-events-none max-w-full">
 
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-background wrap-break-word max-w-full">
-                <span className="invisible">{project.year}</span>
+                <span className="font-semibold">{project.title}</span>
+                <span className="">{project.year}</span>
               </div>
               {getStockLevel(project) === 0 && (
                 <h3 className="text-background">N/A</h3>
