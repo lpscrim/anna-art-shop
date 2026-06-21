@@ -1,14 +1,14 @@
 import { CartProvider } from './CartContext';
 import { CartDrawer } from './CartDrawer';
-import { getShippingRatePence, getCollectionEnabled } from '@/app/_lib/shippingSettings';
+import { getShippingRates, getCollectionEnabled } from '@/app/_lib/shippingSettings';
 
 export async function CartShell({ children }: { children: React.ReactNode }) {
-  const [shippingRate, collectionEnabled] = await Promise.all([
-    getShippingRatePence(),
+  const [rates, collectionEnabled] = await Promise.all([
+    getShippingRates(),
     getCollectionEnabled(),
   ]);
   return (
-    <CartProvider shippingRate={shippingRate}>
+    <CartProvider shippingRate={rates.artworkRate} printShippingRate={rates.printRate}>
       {children}
       <CartDrawer collectionEnabled={collectionEnabled} />
     </CartProvider>

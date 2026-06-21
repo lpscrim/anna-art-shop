@@ -11,9 +11,10 @@ interface BuyButtonProps {
   name: string;
   /** Thumbnail URL (shown in cart) */
   imageUrl: string;
+  type?: 'artwork' | 'print';
 }
 
-export function BuyButton({ stripePriceId, stockLevel, priceHw, name, imageUrl }: BuyButtonProps) {
+export function BuyButton({ stripePriceId, stockLevel, priceHw, name, imageUrl, type = 'artwork' }: BuyButtonProps) {
   const { addItem } = useCart();
 
   const outOfStock = stockLevel <= 0;
@@ -30,6 +31,7 @@ export function BuyButton({ stripePriceId, stockLevel, priceHw, name, imageUrl }
       imageUrl,
       priceHw,
       stockLevel,
+      type,
     });
   }
 

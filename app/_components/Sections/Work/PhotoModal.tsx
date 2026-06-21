@@ -295,6 +295,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
                 priceHw={priceHw}
                 name={name}
                 imageUrl={images[0] || image}
+                type={productType ?? 'artwork'}
               />
             </div>
             

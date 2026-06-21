@@ -7,14 +7,17 @@ import { useRouter } from 'next/navigation';
 import { CHECKOUT_STORAGE_KEY } from '@/app/checkout/CheckoutClient';
 
 export function CartDrawer({ collectionEnabled = false }: { collectionEnabled?: boolean }) {
-  const { items, count, isOpen, closeCart, removeItem, updateQuantity, clearCart, shippingRate } = useCart();
+  const { items, count, isOpen, closeCart, removeItem, updateQuantity, clearCart, shippingRate, printShippingRate } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [collect, setCollect] = useState(false);
   const router = useRouter();
 
   const subtotal = items.reduce((sum, i) => sum + i.priceHw * i.quantity, 0);
-  const effectiveShipping = collect ? 0 : shippingRate;
+  // Use print rate only if every item is a print
+  const hasArtwork = items.some((i) => i.type !== 'print');
+  const baseShipping = items.length > 0 && !hasArtwork ? printShippingRate : shippingRate;
+  const effectiveShipping = collect ? 0 : baseShipping;
   const total = subtotal + effectiveShipping;
 
   async function handleCheckout() {

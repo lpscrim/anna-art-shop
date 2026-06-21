@@ -16,12 +16,15 @@ export interface CartItem {
   quantity: number;
   /** Available stock (cap for quantity) */
   stockLevel: number;
+  /** Product type — determines which shipping rate applies */
+  type: 'artwork' | 'print';
 }
 
 interface CartContextValue {
   items: CartItem[];
   count: number;
   shippingRate: number;
+  printShippingRate: number;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (priceId: string) => void;
   updateQuantity: (priceId: string, quantity: number) => void;
@@ -59,7 +62,7 @@ export function useCart() {
 }
 
 // ─── Provider ────────────────────────────────────────────────────
-export function CartProvider({ children, shippingRate = 0 }: { children: React.ReactNode; shippingRate?: number }) {
+export function CartProvider({ children, shippingRate = 0, printShippingRate = 0 }: { children: React.ReactNode; shippingRate?: number; printShippingRate?: number }) {
   // Use an external store so we always stay in sync with localStorage
   const listeners = useRef(new Set<() => void>());
   const subscribe = useCallback((cb: () => void) => {
@@ -207,7 +210,7 @@ export function CartProvider({ children, shippingRate = 0 }: { children: React.R
 
   return (
     <CartContext.Provider value={{
-      items, count, shippingRate, addItem, removeItem, updateQuantity, clearCart,
+      items, count, shippingRate, printShippingRate, addItem, removeItem, updateQuantity, clearCart,
       isOpen, openCart, closeCart, toggleCart,
     }}>
       {children}
