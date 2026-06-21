@@ -281,6 +281,13 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
           {!isProject && <span className="opacity-0">{"0"}</span>}
         </div>
         <div className="flex flex-row mr-3 w-60">
+            <div className="flex justify-center w-20  text-foreground z-100">
+              {isProject && text && (
+              <Button onClick={() => setTextOpen(!textOpen)} size="lg">
+                Info
+              </Button>
+                        )}
+            </div>
             <div className="flex justify-center w-20 text-foreground z-100">
               <BuyButton
                 stripePriceId={stripePriceId}
@@ -290,13 +297,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
                 imageUrl={images[0] || image}
               />
             </div>
-            <div className="flex justify-center w-20  text-foreground z-100">
-              {isProject && text && (
-              <Button onClick={() => setTextOpen(!textOpen)} size="lg">
-                Info
-              </Button>
-                        )}
-            </div>
+            
           <div className="flex justify-center w-20 text-foreground z-100">
             <Button onClick={onClose} size="lg">
               Back

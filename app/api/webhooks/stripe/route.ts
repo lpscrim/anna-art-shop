@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/app/_lib/stripe';
 import { createServerSupabase } from '@/app/_lib/supabase';
+import { revalidatePath } from 'next/cache';
 import type Stripe from 'stripe';
 import { Resend } from 'resend';
 
@@ -61,6 +62,8 @@ export async function POST(req: NextRequest) {
         const reserved = JSON.parse(raw) as { stripe_price_id: string; qty: number }[];
         const supabase = createServerSupabase();
         await supabase.rpc('restore_stock', { items: reserved });
+        revalidatePath('/work');
+        revalidatePath('/');
       } catch (err) {
         console.error('Failed to restore stock on PI cancellation:', err);
       }
@@ -75,6 +78,8 @@ export async function POST(req: NextRequest) {
         const reserved = JSON.parse(raw) as { stripe_price_id: string; qty: number }[];
         const supabase = createServerSupabase();
         await supabase.rpc('restore_stock', { items: reserved });
+        revalidatePath('/work');
+        revalidatePath('/');
       } catch (err) {
         console.error(`Failed to restore stock on ${event.type}:`, err);
       }
