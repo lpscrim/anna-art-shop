@@ -67,6 +67,20 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  if (event.type === 'payment_intent.payment_failed' || (event.type as string) === 'payment_intent.expired') {
+    const pi = event.data.object as Stripe.PaymentIntent;
+    const raw = pi.metadata?.reserved_items;
+    if (raw) {
+      try {
+        const reserved = JSON.parse(raw) as { stripe_price_id: string; qty: number }[];
+        const supabase = createServerSupabase();
+        await supabase.rpc('restore_stock', { items: reserved });
+      } catch (err) {
+        console.error(`Failed to restore stock on ${event.type}:`, err);
+      }
+    }
+  }
+
   return NextResponse.json({ received: true });
 }
 

@@ -295,6 +295,29 @@ export default function CheckoutClient({ allowedCountries }: { allowedCountries?
     }
   }, [router]);
 
+  // Cancel the PI (and restore stock) if the user closes the tab or navigates
+  // away without pressing Back or completing payment. sendBeacon is used because
+  // it outlives the page unload. The cancel endpoint is a no-op if the PI has
+  // already succeeded or is not in a cancellable state.
+  useEffect(() => {
+    function handlePageHide() {
+      const stored = sessionStorage.getItem(CHECKOUT_STORAGE_KEY);
+      if (!stored) return;
+      try {
+        const { paymentIntentId, cancelToken } = JSON.parse(stored) as CheckoutPiData;
+        if (!paymentIntentId || !cancelToken) return;
+        const payload = JSON.stringify({ paymentIntentId, cancelToken });
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon('/api/payment-intent/cancel', blob);
+        sessionStorage.removeItem(CHECKOUT_STORAGE_KEY);
+      } catch {
+        // ignore
+      }
+    }
+    window.addEventListener('pagehide', handlePageHide);
+    return () => window.removeEventListener('pagehide', handlePageHide);
+  }, []);
+
   async function handleBack() {
     if (cancellingRef.current || !piData) {
       router.back();
