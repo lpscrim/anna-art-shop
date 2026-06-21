@@ -116,3 +116,13 @@ export async function getYearFilterEnabled(): Promise<boolean> {
     .single();
   return data?.value === 'true';
 }
+
+export async function getCollectionEnabled(): Promise<boolean> {
+  const supabase = createServerSupabase();
+  const { data } = await supabase
+    .from('settings')
+    .select('value')
+    .eq('key', 'collection_enabled')
+    .single();
+  return data?.value === 'true';
+}

@@ -216,11 +216,16 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
       <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
 
       ${isCollection
-        ? `<p style="font-size:14px"><strong>Collection</strong><br>You've chosen to collect from Edinburgh. We'll be in touch to arrange a time.</p>`
+        ? `<p style="font-size:14px"><strong>Collection</strong><br>You've chosen to collect from Edinburgh.</p>`
         : `<p style="font-size:14px"><strong>Shipping to</strong><br><span style="color:#555">${escapeHtml(addressLines)}</span></p>`
       }
 
-      <p style="font-size:13px;color:#888;margin-top:32px">If you have any questions about your order, reply to this email.</p>
+      ${isCollection
+        ? `<p style="font-size:14px;margin-top:32px">I'll be in touch with you directly soon to arrange a convenient time for collection.</p>`
+        : ''
+      }
+      <p style="font-size:14px;margin-top:32px">Thank you so much for your purchase. It really means a lot that you're supporting my work.</p>
+      <p style="font-size:14px;margin-top:8px">Thanks,<br>Anna</p>
     </div>
   `;
 

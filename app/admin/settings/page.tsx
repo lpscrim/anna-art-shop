@@ -1,15 +1,17 @@
-import { getCategoriesVisible, getShippingRates, getShippingRegion, getYearFilterEnabled } from '@/app/_lib/shippingSettings';
+import { getCategoriesVisible, getCollectionEnabled, getShippingRates, getShippingRegion, getYearFilterEnabled } from '@/app/_lib/shippingSettings';
 import { ShippingForm } from './ShippingForm';
 import { ShippingRegionToggle } from './ShippingRegionToggle';
 import { CategoriesToggle } from './CategoriesToggle';
 import { YearFilterToggle } from './YearFilterToggle';
+import { CollectionToggle } from './CollectionToggle';
 
 export default async function SettingsPage() {
-  const [rates, shippingRegion, categoriesVisible, yearFilterEnabled] = await Promise.all([
+  const [rates, shippingRegion, categoriesVisible, yearFilterEnabled, collectionEnabled] = await Promise.all([
     getShippingRates(),
     getShippingRegion(),
     getCategoriesVisible(),
     getYearFilterEnabled(),
+    getCollectionEnabled(),
   ]);
 
   return (
@@ -54,6 +56,16 @@ export default async function SettingsPage() {
             </p>
           </div>
           <YearFilterToggle current={yearFilterEnabled} />
+        </div>
+
+        <div className="space-y-4 border-t border-muted pt-10">
+          <div>
+            <h2 className="text-xl tracking-tight">COLLECTION</h2>
+            <p className="text-base text-muted-foreground mt-1">
+              Show the &ldquo;Collect from Edinburgh&rdquo; option at checkout.
+            </p>
+          </div>
+          <CollectionToggle current={collectionEnabled} />
         </div>
       </div>
     </div>

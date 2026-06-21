@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CHECKOUT_STORAGE_KEY } from '@/app/checkout/CheckoutClient';
 
-export function CartDrawer() {
+export function CartDrawer({ collectionEnabled = false }: { collectionEnabled?: boolean }) {
   const { items, count, isOpen, closeCart, removeItem, updateQuantity, clearCart, shippingRate } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -171,27 +171,28 @@ export function CartDrawer() {
               <span>£{(subtotal / 100).toFixed(2)}</span>
             </div>
             {/* Collect in person toggle */}
-            <div className="flex items-start gap-3 py-1">
-              <button
-                role="checkbox"
-                aria-checked={collect}
-                onClick={() => setCollect((v) => !v)}
-                className={`cursor-crosshair mt-0.5 shrink-0 w-4 h-4 border transition-colors ${
-                  collect ? 'bg-foreground border-foreground' : 'bg-transparent border-foreground/40'
-                }`}
-              >
-                {collect && (
-                  <svg viewBox="0 0 10 10" className="w-full h-full text-background" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <polyline points="1.5,5 4,7.5 8.5,2.5" />
-                  </svg>
-                )}
-              </button>
-              <div>
-                <p className="text-sm leading-snug">Collect from Edinburgh (free)</p>
-                <p className="text-xs text-muted-foreground leading-snug">Arrange collection directly with the artist</p>
+            {collectionEnabled && (
+              <div className="flex items-start gap-3 py-1">
+                <button
+                  role="checkbox"
+                  aria-checked={collect}
+                  onClick={() => setCollect((v) => !v)}
+                  className={`cursor-crosshair mt-0.5 shrink-0 w-4 h-4 border transition-colors ${
+                    collect ? 'bg-foreground border-foreground' : 'bg-transparent border-foreground/40'
+                  }`}
+                >
+                  {collect && (
+                    <svg viewBox="0 0 10 10" className="w-full h-full text-background" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <polyline points="1.5,5 4,7.5 8.5,2.5" />
+                    </svg>
+                  )}
+                </button>
+                <div>
+                  <p className="text-sm leading-snug">Collect from Edinburgh (free)</p>
+                  <p className="text-xs text-muted-foreground leading-snug">Arrange collection directly with the artist</p>
+                </div>
               </div>
-            </div>
-
+            )}
             <div className="space-y-0.5">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">SHIPPING</span>

@@ -77,3 +77,14 @@ export async function updateYearFilterEnabled(enabled: boolean) {
   revalidatePath('/admin/settings');
   revalidatePath('/work');
 }
+
+export async function updateCollectionEnabled(enabled: boolean) {
+  await requireAdminUser();
+  const supabase = createServerSupabase();
+  const { error } = await supabase
+    .from('settings')
+    .upsert({ key: 'collection_enabled', value: String(enabled) }, { onConflict: 'key' });
+  if (error) throw new Error(error.message);
+  revalidatePath('/admin/settings');
+  revalidatePath('/');
+}
