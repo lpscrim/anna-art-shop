@@ -197,7 +197,7 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
 
   const customerHtml = `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#111">
-      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px">Thank you${billingName ? `, ${escapeHtml(billingName.split(' ')[0])}` : ''}!</h1>
+      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px">${billingName ? `Hi ${escapeHtml(billingName.split(' ')[0])},` : 'Order confirmed'}</h1>
       <p style="color:#555;margin-top:0">Your order has been confirmed.</p>
 
       <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
