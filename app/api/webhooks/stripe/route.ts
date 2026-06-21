@@ -58,6 +58,10 @@ export async function POST(req: NextRequest) {
 
   if (event.type === 'payment_intent.canceled') {
     const pi = event.data.object as Stripe.PaymentIntent;
+    // Skip if the cancel endpoint already restored stock (flag set before cancellation)
+    if (pi.metadata?.stock_restored === 'true') {
+      return NextResponse.json({ received: true });
+    }
     const raw = pi.metadata?.reserved_items;
     if (raw) {
       try {
