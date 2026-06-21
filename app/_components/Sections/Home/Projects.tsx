@@ -39,11 +39,11 @@ export async function Projects() {
                 />
                 <div className="absolute inset-x-0 text-lg top-4 px-4 group-hover:opacity-100 opacity-0 flex flex-col group-hover:mt-2 z-60 transition-all duration-500 pointer-events-none max-w-full">
                   <div className="hidden md:flex flex-wrap gap-x-4 gap-y-1 text-background wrap-break-word max-w-full">
-                    <span className="font-semibold">{project.title}</span>
+                    <span className="font-medium tracking-wider">{project.title}</span>
                     <span>{project.year}</span>
                   </div>
                   {project.stock_level === 0 && (
-                    <span className="text-background">N/A</span>
+                    <span className="text-background text-base">N/A</span>
                   )}
                 </div>
                 <div className="md:hidden text-base px-4 py-2 bg-background text-foreground/90 flex flex-col z-50 pointer-events-none max-w-full">

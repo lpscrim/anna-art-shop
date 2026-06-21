@@ -75,7 +75,7 @@ export function MainGallery({
                 setSelectedCategories([]);
                 setInStockOnly(false);
               }}
-              className={`cursor-crosshair transition-opacity ${selectedCategories.length === 0 && !inStockOnly ? "text-foreground" : "text-foreground/50"}`}
+              className={`cursor-crosshair transition-opacity tracking-wide ${selectedCategories.length === 0 && !inStockOnly ? "text-foreground" : "text-foreground/50"}`}
             >
               All [{totalCount}]
             </button>
@@ -83,7 +83,7 @@ export function MainGallery({
               onClick={() => {
                 setInStockOnly(!inStockOnly);
               }}
-              className={`cursor-crosshair transition-opacity ${inStockOnly ? "text-foreground font-semibold" : "text-foreground/50"}`}
+              className={`cursor-crosshair transition-opacity tracking-wide ${inStockOnly ? "text-foreground font-semibold" : "text-foreground/50"}`}
             >
               Available [{inStockCount}]
             </button>
@@ -91,13 +91,13 @@ export function MainGallery({
           <div className="flex flex-wrap gap-2 mt-2">
             <button
               onClick={() => onTypeToggle("artwork")}
-              className={`cursor-crosshair transition-opacity ${selectedType === "artwork" ? "text-foreground font-semibold" : "text-foreground/50"}`}
+              className={`cursor-crosshair transition-opacity tracking-wide ${selectedType === "artwork" ? "text-foreground font-semibold" : "text-foreground/50"}`}
             >
               Original [{artworkCount}]
             </button>
             <button
               onClick={() => onTypeToggle("print")}
-              className={`cursor-crosshair transition-opacity ${selectedType === "print" ? "text-foreground font-semibold" : "text-foreground/50"}`}
+              className={`cursor-crosshair transition-opacity tracking-wide ${selectedType === "print" ? "text-foreground font-semibold" : "text-foreground/50"}`}
             >
               Print [{printCount}]
             </button>
@@ -108,7 +108,7 @@ export function MainGallery({
                 <button
                   key={yr}
                   onClick={() => onYearToggle(yr)}
-                  className={`cursor-crosshair transition-opacity ${
+                  className={`cursor-crosshair transition-opacity tracking-wide ${
                     selectedYear === yr
                       ? "text-foreground font-semibold"
                       : "text-foreground/50"
@@ -135,7 +135,7 @@ export function MainGallery({
                         !isUnselectable && toggleCategory(categoryStr)
                       }
                       disabled={isUnselectable}
-                      className={`pr-1 py-1 rounded transition-colors cursor-crosshair text-foreground ${isSelected ? "underline font-semibold" : ""} ${isUnselectable ? "opacity-30 cursor-not-allowed" : "hover:bg-background/10"}`}
+                      className={`pr-1 py-1 rounded transition-colors cursor-crosshair tracking-wide text-foreground ${isSelected ? "underline font-semibold" : ""} ${isUnselectable ? "opacity-30 cursor-not-allowed" : "hover:bg-background/10"}`}
                     >
                       {categoryStr}{" "}
                       <span className="text-foreground/60">[{count}]</span>
@@ -165,11 +165,11 @@ export function MainGallery({
             />
             <div className="absolute inset-x-0 text-lg top-4 px-4 group-hover:opacity-100 opacity-0 flex flex-col group-hover:mt-2 z-60 transition-all duration-500 pointer-events-none max-w-full">
               <div className="hidden md:flex flex-wrap gap-x-4 gap-y-1 text-background wrap-break-word max-w-full">
-                <span className="font-semibold">{project.title}</span>
+                <span className="font-medium tracking-wider">{project.title}</span>
                 <span className="">{project.year}</span>
               </div>
               {getStockLevel(project) === 0 && (
-                <h3 className="text-background">N/A</h3>
+                <h3 className="text-background text-base">N/A</h3>
               )}
             </div>
             <div className="md:hidden text-base px-4 py-2 bg-background text-foreground/90 group-hover:opacity-100 opacity-100 flex flex-col z-50 transition-all duration-500 pointer-events-none max-w-full">

@@ -274,7 +274,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
       <div className="relative py-0 flex flex-row w-full justify-between z-100 bg-background ">
         <div className="flex py-2 px-6 w-full items-center z-100">
           {isProject && (
-            <span className="text-foreground text-xl">
+            <span className="text-foreground tracking-wider text-xl">
               {name} 
             </span>
           )}
