@@ -17,7 +17,7 @@ interface Project {
   price_hw: number;
   stock_level: number;
   stripe_price_id: string | null;
-  type: 'artwork' | 'print';
+  type: "artwork" | "print";
 }
 
 export interface MainGalleryProps {
@@ -32,8 +32,8 @@ export interface MainGalleryProps {
   toggleCategory: (cat: string) => void;
   onCardClick: (index: number, project: Project) => void;
   getStockLevel: (project: Project) => number;
-  selectedType: 'artwork' | 'print' | null;
-  onTypeToggle: (type: 'artwork' | 'print') => void;
+  selectedType: "artwork" | "print" | null;
+  onTypeToggle: (type: "artwork" | "print") => void;
   artworkCount: number;
   printCount: number;
   showCategories: boolean;
@@ -90,62 +90,64 @@ export function MainGallery({
           </div>
           <div className="flex flex-wrap gap-2 mt-2">
             <button
-              onClick={() => onTypeToggle('artwork')}
-              className={`cursor-crosshair transition-opacity ${selectedType === 'artwork' ? 'text-foreground font-semibold' : 'text-foreground/50'}`}
+              onClick={() => onTypeToggle("artwork")}
+              className={`cursor-crosshair transition-opacity ${selectedType === "artwork" ? "text-foreground font-semibold" : "text-foreground/50"}`}
             >
               Original [{artworkCount}]
             </button>
             <button
-              onClick={() => onTypeToggle('print')}
-              className={`cursor-crosshair transition-opacity ${selectedType === 'print' ? 'text-foreground font-semibold' : 'text-foreground/50'}`}
+              onClick={() => onTypeToggle("print")}
+              className={`cursor-crosshair transition-opacity ${selectedType === "print" ? "text-foreground font-semibold" : "text-foreground/50"}`}
             >
               Print [{printCount}]
             </button>
           </div>
           {showYearFilter && availableYears.length > 1 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {availableYears.map((yr) => (
-              <button
-                key={yr}
-                onClick={() => onYearToggle(yr)}
-                className={`cursor-crosshair transition-opacity ${
-                  selectedYear === yr ? 'text-foreground font-semibold' : 'text-foreground/50'
-                }`}
-              >
-                &apos;{yr.slice(2)}
-              </button>
-            ))}
-          </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {availableYears.map((yr) => (
+                <button
+                  key={yr}
+                  onClick={() => onYearToggle(yr)}
+                  className={`cursor-crosshair transition-opacity ${
+                    selectedYear === yr
+                      ? "text-foreground font-semibold"
+                      : "text-foreground/50"
+                  }`}
+                >
+                  &apos;{yr.slice(2)}
+                </button>
+              ))}
+            </div>
           )}
           {showCategories && (
-          <div className="flex flex-wrap gap-0 mt-2">
-            {sortedVisibleCategories.map(([category, count]) => {
-              const categoryStr = String(category);
-              const isSelected = selectedCategories.includes(categoryStr);
-              const isUnselectable = count === 0;
-              return (
-                <span
-                  key={categoryStr}
-                  className="inline-flex items-center text-base sm:text-lg transition-opacity"
-                >
-                  <button
-                    onClick={() =>
-                      !isUnselectable && toggleCategory(categoryStr)
-                    }
-                    disabled={isUnselectable}
-                    className={`pr-1 py-1 rounded transition-colors cursor-crosshair text-foreground ${isSelected ? "underline font-semibold" : ""} ${isUnselectable ? "opacity-30 cursor-not-allowed" : "hover:bg-background/10"}`}
+            <div className="flex flex-wrap gap-0 mt-2">
+              {sortedVisibleCategories.map(([category, count]) => {
+                const categoryStr = String(category);
+                const isSelected = selectedCategories.includes(categoryStr);
+                const isUnselectable = count === 0;
+                return (
+                  <span
+                    key={categoryStr}
+                    className="inline-flex items-center text-base sm:text-lg transition-opacity"
                   >
-                    {categoryStr}{" "}
-                    <span className="text-foreground/60">[{count}]</span>
-                  </button>
-                </span>
-              );
-            })}
-          </div>
+                    <button
+                      onClick={() =>
+                        !isUnselectable && toggleCategory(categoryStr)
+                      }
+                      disabled={isUnselectable}
+                      className={`pr-1 py-1 rounded transition-colors cursor-crosshair text-foreground ${isSelected ? "underline font-semibold" : ""} ${isUnselectable ? "opacity-30 cursor-not-allowed" : "hover:bg-background/10"}`}
+                    >
+                      {categoryStr}{" "}
+                      <span className="text-foreground/60">[{count}]</span>
+                    </button>
+                  </span>
+                );
+              })}
+            </div>
           )}
         </div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 px-0">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 px-0">
         {filteredProjects.map((project, idx) => (
           <div key={project.id} className="relative group">
             <Card
@@ -162,8 +164,7 @@ export function MainGallery({
               handleOnClick={() => onCardClick(idx, project)}
             />
             <div className="absolute inset-x-0 text-lg top-0 px-4 group-hover:opacity-100 opacity-0 flex flex-col group-hover:mt-2 z-60 transition-all duration-500 pointer-events-none max-w-full">
-
-              <div className="flex flex-wrap gap-x-4 gap-y-1 text-background wrap-break-word max-w-full">
+              <div className="invisible sm:visible flex flex-wrap gap-x-4 gap-y-1 text-background wrap-break-word max-w-full">
                 <span className="font-semibold">{project.title}</span>
                 <span className="">{project.year}</span>
               </div>
@@ -171,6 +172,13 @@ export function MainGallery({
                 <h3 className="text-background">N/A</h3>
               )}
             </div>
+            <span className="absolute bottom-0 left-0 right-0 text-base px-4 py-2 bg-background/80 text-foreground/90 group-hover:opacity-100 opacity-100 flex flex-col z-50 transition-all duration-500 pointer-events-none max-w-full">
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mx-auto wrap-break-word max-w-full">
+                <span className="font-semibold">{project.title},</span>
+                <span className="">{project.dimensions},</span>
+                <span className="">£{project.price_hw/100}</span>
+              </div>
+            </span>
           </div>
         ))}
       </div>
