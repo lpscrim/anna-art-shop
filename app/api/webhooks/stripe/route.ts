@@ -143,24 +143,37 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
     ?? (charge.billing_details as { phone?: string } | null)?.phone
     ?? 'Not provided';
 
-  let itemsHtml = '';
+  type ReservedItem = { title: string; qty: number; price: number; image?: string; type?: string };
+  let reservedItems: ReservedItem[] = [];
   try {
-    const reserved = JSON.parse(pi?.metadata?.reserved_items ?? '[]') as { title: string; qty: number; price: number; image?: string; type?: string }[];
-    itemsHtml = reserved
-      .map((i) => `<div style="display:inline-block;margin:8px;vertical-align:top;text-align:center;width:160px">
-        ${i.image ? `<img src="${encodeURI(i.image)}" alt="${escapeHtml(i.title)}" width="160" height="160" style="object-fit:cover;border-radius:6px;display:block">` : ''}
-        <p style="margin:6px 0 2px;font-weight:600">${escapeHtml(i.title)}</p>
-        ${i.type ? `<p style="margin:0 0 2px;color:#888;font-size:12px;text-transform:capitalize">${escapeHtml(i.type)}</p>` : ''}
-        <p style="margin:0;color:#555">x${i.qty} &mdash; ${fmt(i.price)}</p>
-      </div>`)
-      .join('');
-  } catch {
-    itemsHtml = '<p>See Stripe dashboard for items</p>';
-  }
+    reservedItems = JSON.parse(pi?.metadata?.reserved_items ?? '[]');
+  } catch { /* fall through — empty array */ }
+
+  const ownerItemsHtml = reservedItems.length > 0
+    ? reservedItems
+        .map((i) => `<div style="display:inline-block;margin:8px;vertical-align:top;text-align:center;width:160px">
+          ${i.image ? `<img src="${encodeURI(i.image)}" alt="${escapeHtml(i.title)}" width="160" height="160" style="object-fit:cover;border-radius:6px;display:block">` : ''}
+          <p style="margin:6px 0 2px;font-weight:600">${escapeHtml(i.title)}</p>
+          ${i.type ? `<p style="margin:0 0 2px;color:#888;font-size:12px;text-transform:capitalize">${escapeHtml(i.type)}</p>` : ''}
+          <p style="margin:0;color:#555">x${i.qty} &mdash; ${fmt(i.price)}</p>
+        </div>`)
+        .join('')
+    : '<p>See Stripe dashboard for items</p>';
+
+  const customerItemsHtml = reservedItems.length > 0
+    ? reservedItems
+        .map((i) => `<div style="margin-bottom:32px">
+          ${i.image ? `<img src="${encodeURI(i.image)}" alt="${escapeHtml(i.title)}" width="520" style="width:100%;max-width:520px;height:auto;display:block;border-radius:6px;margin-bottom:12px">` : ''}
+          <p style="margin:0 0 4px;font-size:16px;font-weight:600">${escapeHtml(i.title)}</p>
+          ${i.type ? `<p style="margin:0 0 4px;color:#888;font-size:13px;text-transform:capitalize">${escapeHtml(i.type)}</p>` : ''}
+          <p style="margin:0;color:#555;font-size:14px">Qty: ${i.qty} &mdash; ${fmt(i.price)}</p>
+        </div>`)
+        .join('')
+    : '';
 
   const isCollection = pi?.metadata?.collection === 'true';
 
-  const html = `
+  const ownerHtml = `
     <h2>New Order — ${escapeHtml(billingName) || 'New Customer'}${isCollection ? ' 📦 COLLECTION' : ''}</h2>
     <p><strong>Customer:</strong> ${escapeHtml(billingName) || 'Unknown'}<br>
     <strong>Email:</strong> ${escapeHtml(billingEmail) || 'Unknown'}<br>
@@ -170,7 +183,7 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
       : `<p><strong>Shipping address:</strong><br>${escapeHtml(addressLines)}</p>`
     }
     <h3>Items</h3>
-    <div>${itemsHtml}</div>
+    <div>${ownerItemsHtml}</div>
     <table style="width:100%;max-width:360px;border-collapse:collapse;margin-top:12px;font-size:14px">
       ${subtotal !== null ? `<tr><td style="color:#555;padding:3px 0">Subtotal</td><td style="text-align:right">${fmt(subtotal)}</td></tr>` : ''}
       ${shippingCost !== null ? `<tr><td style="color:#555;padding:3px 0">Shipping</td><td style="text-align:right">${shippingCost === 0 ? 'Free' : fmt(shippingCost)}</td></tr>` : ''}
@@ -182,16 +195,60 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
     <p style="color:#888;font-size:12px;margin-top:12px">Charge: ${charge.id} | Payment Intent: ${pi?.id ?? 'N/A'}</p>
   `;
 
+  const customerHtml = `
+    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#111">
+      <h1 style="font-size:24px;font-weight:700;margin-bottom:4px">Thank you${billingName ? `, ${escapeHtml(billingName.split(' ')[0])}` : ''}!</h1>
+      <p style="color:#555;margin-top:0">Your order has been confirmed.</p>
+
+      <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
+
+      <h2 style="font-size:16px;font-weight:600;margin-bottom:16px">Your order</h2>
+      ${customerItemsHtml}
+
+      <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
+
+      <table style="width:100%;max-width:400px;border-collapse:collapse;font-size:14px">
+        ${subtotal !== null ? `<tr><td style="color:#555;padding:4px 0">Subtotal</td><td style="text-align:right">${fmt(subtotal)}</td></tr>` : ''}
+        ${shippingCost !== null ? `<tr><td style="color:#555;padding:4px 0">Shipping</td><td style="text-align:right">${shippingCost === 0 ? 'Free' : fmt(shippingCost)}</td></tr>` : ''}
+        <tr style="border-top:1px solid #eee"><td style="padding:8px 0 4px;font-weight:600;font-size:15px">Total</td><td style="text-align:right;font-weight:600;font-size:15px;padding-top:8px">${fmt(amountTotal)}</td></tr>
+      </table>
+
+      <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
+
+      ${isCollection
+        ? `<p style="font-size:14px"><strong>Collection</strong><br>You've chosen to collect from Edinburgh. We'll be in touch to arrange a time.</p>`
+        : `<p style="font-size:14px"><strong>Shipping to</strong><br><span style="color:#555">${escapeHtml(addressLines)}</span></p>`
+      }
+
+      <p style="font-size:13px;color:#888;margin-top:32px">If you have any questions about your order, reply to this email.</p>
+    </div>
+  `;
+
+  const fromAddress = process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev';
+
   try {
-    const fromAddress = process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev';
     const result = await resend.emails.send({
       from: fromAddress,
       to: recipients,
       subject: `New Order — ${billingName ?? billingEmail ?? charge.id}`,
-      html,
+      html: ownerHtml,
     });
     console.log('[NOTIFY EMAIL RESULT]', JSON.stringify(result));
   } catch (err) {
     console.error('[NOTIFY EMAIL FAILED]', err);
+  }
+
+  if (billingEmail) {
+    try {
+      const result = await resend.emails.send({
+        from: fromAddress,
+        to: [billingEmail],
+        subject: `Order confirmed`,
+        html: customerHtml,
+      });
+      console.log('[CUSTOMER EMAIL RESULT]', JSON.stringify(result));
+    } catch (err) {
+      console.error('[CUSTOMER EMAIL FAILED]', err);
+    }
   }
 }
