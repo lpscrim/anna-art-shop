@@ -1,6 +1,6 @@
-import { ImageWithFallback } from "@/app/_components/UI/Layout/ImageWithFallback";
 import { getProjects } from "@/app/_data/projects";
 import Button from "@/app/_components/UI/Layout/Button";
+import { Card } from "@/app/_components/UI/Layout/Card";
 import Link from "next/link";
 
 export async function Projects() {
@@ -20,27 +20,42 @@ export async function Projects() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {displayed
-            .map((project, idx) => (
-              <Link
-                key={project.id}
-                href={`/work?project=${project.id}`}
-                className={`group cursor-crosshair${idx === 3 ? " hidden md:block" : ""}`}
-              >
-                <div className="relative aspect-4/5 bg-muted overflow-hidden mb-4 rounded-xs">
-                  <ImageWithFallback
-                    src={project.imageUrl}
-                    alt={project.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    priority={idx < 2}
-                    className={`object-cover transition-all duration-500 scale-110 group-hover:scale-115`}
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+          {displayed.map((project, idx) => (
+            <Link
+              key={project.id}
+              href={`/work?project=${project.id}`}
+              className={`cursor-crosshair${idx === 3 ? " hidden md:block" : ""}`}
+            >
+              <div className="relative group">
+                <Card
+                  imageUrl={project.imageUrl}
+                  title={project.title}
+                  categories={project.categories}
+                  galleryImages={project.galleryImages}
+                  year={project.year}
+                  imageSizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  imageWidth={900}
+                  imageHeight={1125}
+                />
+                <div className="absolute inset-x-0 text-lg top-0 px-4 group-hover:opacity-100 opacity-0 flex flex-col group-hover:mt-2 z-60 transition-all duration-500 pointer-events-none max-w-full">
+                  <div className="hidden md:flex flex-wrap gap-x-4 gap-y-1 text-background wrap-break-word max-w-full">
+                    <span className="font-semibold">{project.title}</span>
+                    <span>{project.year}</span>
+                  </div>
+                  {project.stock_level === 0 && (
+                    <span className="text-background">N/A</span>
+                  )}
                 </div>
-           
-              </Link>
-            ))}
+                <div className="md:hidden text-base px-4 py-2 bg-background text-foreground/90 flex flex-col z-50 pointer-events-none max-w-full">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 mx-auto wrap-break-word max-w-full">
+                    <span className="font-semibold">{project.title},</span>
+                    <span>{project.dimensions},</span>
+                    <span>£{project.price_hw / 100}</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
         <div className="mt-24 text-center  ">
           <Button size="xl">

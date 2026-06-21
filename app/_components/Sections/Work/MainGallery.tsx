@@ -164,7 +164,7 @@ export function MainGallery({
               handleOnClick={() => onCardClick(idx, project)}
             />
             <div className="absolute inset-x-0 text-lg top-0 px-4 group-hover:opacity-100 opacity-0 flex flex-col group-hover:mt-2 z-60 transition-all duration-500 pointer-events-none max-w-full">
-              <div className="invisible sm:visible flex flex-wrap gap-x-4 gap-y-1 text-background wrap-break-word max-w-full">
+              <div className="hidden md:flex flex-wrap gap-x-4 gap-y-1 text-background wrap-break-word max-w-full">
                 <span className="font-semibold">{project.title}</span>
                 <span className="">{project.year}</span>
               </div>
@@ -172,13 +172,13 @@ export function MainGallery({
                 <h3 className="text-background">N/A</h3>
               )}
             </div>
-            <span className="absolute bottom-0 left-0 right-0 text-base px-4 py-2 bg-background/80 text-foreground/90 group-hover:opacity-100 opacity-100 flex flex-col z-50 transition-all duration-500 pointer-events-none max-w-full">
+            <div className="md:hidden text-base px-4 py-2 bg-background text-foreground/90 group-hover:opacity-100 opacity-100 flex flex-col z-50 transition-all duration-500 pointer-events-none max-w-full">
               <div className="flex flex-wrap gap-x-4 gap-y-1 mx-auto wrap-break-word max-w-full">
                 <span className="font-semibold">{project.title},</span>
                 <span className="">{project.dimensions},</span>
                 <span className="">£{project.price_hw/100}</span>
               </div>
-            </span>
+            </div>
           </div>
         ))}
       </div>
