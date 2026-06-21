@@ -46,7 +46,7 @@ export function Hero() {
           transition={{ duration: 2, ease: 'easeInOut', delay: 1.5 }}
         />
         <motion.h1 
-          className="absolute inset-0 flex items-center text-center font-medium justify-center text-[3vw]/[3vw] tracking-wide text-card z-20 flex-col"
+          className="absolute inset-0 flex items-center text-center font-medium justify-center text-[3vw]/[3vw] tracking-widest text-card z-20 flex-col"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.95 }}
           transition={{ duration: 7, delay: 0.15 }}
@@ -86,7 +86,7 @@ export function Hero() {
           animate={{ opacity: 0.95 }}
           transition={{ duration: 7, delay: 0.15 }}
         >
-          <span className='mb-4'>ANNA MAIA <div className="w-1/2 mx-auto border-b-1 border-card pb-4 " /></span>
+          <span className='mb-4'>ANNA MAIA <div className="w-1/2 mx-auto border-b border-card pb-4 " /></span>
           
           <span className='text-[3vw]/[3vw]'>ARTIST</span>
         </motion.h1>
