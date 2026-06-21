@@ -280,7 +280,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
           )}
           {!isProject && <span className="opacity-0">{"0"}</span>}
         </div>
-        <div className="flex flex-row mr-3 w-60">
+        <div className="flex flex-row mr-3 w-70">
             <div className="flex justify-center w-20  text-foreground z-100">
               {isProject && text && (
               <Button onClick={() => setTextOpen(!textOpen)} size="lg">
@@ -288,7 +288,7 @@ export const PhotoModal: React.FC<PhotoModalProps> = ({
               </Button>
                         )}
             </div>
-            <div className="flex justify-center w-20 text-foreground z-100">
+            <div className="flex justify-center w-25 text-foreground z-100">
               <BuyButton
                 stripePriceId={stripePriceId}
                 stockLevel={stockLevel}

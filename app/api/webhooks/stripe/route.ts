@@ -51,6 +51,8 @@ export async function POST(req: NextRequest) {
       amount: charge.amount,
       currency: charge.currency,
     });
+    revalidatePath('/work');
+    revalidatePath('/');
     await notifyClientFromCharge(charge, stripe);
   }
 
