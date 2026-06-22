@@ -300,7 +300,7 @@ export default function CheckoutClient({ allowedCountries }: { allowedCountries?
   // it outlives the page unload. The cancel endpoint is a no-op if the PI has
   // already succeeded or is not in a cancellable state.
   useEffect(() => {
-    function handlePageHide() {
+    function sendCancelBeacon() {
       const stored = sessionStorage.getItem(CHECKOUT_STORAGE_KEY);
       if (!stored) return;
       try {
@@ -314,8 +314,17 @@ export default function CheckoutClient({ allowedCountries }: { allowedCountries?
         // ignore
       }
     }
-    window.addEventListener('pagehide', handlePageHide);
-    return () => window.removeEventListener('pagehide', handlePageHide);
+
+    // pagehide: tab close or full page reload
+    window.addEventListener('pagehide', sendCancelBeacon);
+    // popstate: browser Back/Forward button (soft navigation in Next.js App Router)
+    // pagehide does NOT fire for soft navigations, so this is the only reliable
+    // hook for browser-back from the checkout page.
+    window.addEventListener('popstate', sendCancelBeacon);
+    return () => {
+      window.removeEventListener('pagehide', sendCancelBeacon);
+      window.removeEventListener('popstate', sendCancelBeacon);
+    };
   }, []);
 
   async function handleBack() {
