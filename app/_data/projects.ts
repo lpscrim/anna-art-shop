@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createServerSupabase } from '@/app/_lib/supabase';
 
 export interface Project {
   id: number;
@@ -18,26 +18,8 @@ export interface Project {
   type: 'artwork' | 'print';
 }
 
-function getSupabaseClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) return null;
-  return createClient(url, key);
-}
-
-/**
- * Fetch all projects from the Supabase `products` table.
- *
- * Each row is expected to have at minimum:
- *   id, name, description, price_hw, image_url, stock_level,
- *   stripe_product_id, stripe_price_id, categories, year
- *
- * For gallery images we look in Supabase Storage under the
- * `product-images/{product_id}/` prefix.
- */
 export async function getProjects(): Promise<Project[]> {
-  const supabase = getSupabaseClient();
-  if (!supabase) return [];
+  const supabase = createServerSupabase();
 
   const { data: products, error } = await supabase
     .from('products')
