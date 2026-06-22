@@ -15,7 +15,13 @@ export function createServerSupabase() {
         'Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY'
       );
     }
-    _supabase = createClient(url, key);
+    _supabase = createClient(url, key, {
+      global: {
+        // Opt out of Next.js Data Cache for all Supabase fetches so stock
+        // levels are always read fresh from the database.
+        fetch: (input, init) => fetch(input, { ...init, cache: 'no-store' }),
+      },
+    });
   }
   return _supabase;
 }

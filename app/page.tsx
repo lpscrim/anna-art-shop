@@ -6,7 +6,8 @@ import { Hero } from "./_components/Sections/Home/Hero";
 import { Projects } from "./_components/Sections/Home/Projects";
 import { ProjectsSkeleton } from "./_components/Sections/Home/ProjectsSkeleton";
 
-export const revalidate = 60;
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   alternates: { canonical: 'https://annamaiaart.com' },

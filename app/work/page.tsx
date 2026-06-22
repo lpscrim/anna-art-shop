@@ -4,7 +4,8 @@ import { getProjects } from "../_data/projects";
 import { WorkGallery } from "../_components/Sections/Work/WorkGallery";
 import { getCategoriesVisible, getYearFilterEnabled } from "../_lib/shippingSettings";
 
-export const revalidate = 60;
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: "Work",
