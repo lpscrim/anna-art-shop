@@ -86,7 +86,16 @@ export function Header() {
             <button
               className={`relative title text-2xl nav-underline transition-colors duration-500 ${isLight ? "text-card" : "text-foreground"}`}
             >
-              <Link href="/work" className="cursor-crosshair">
+              <Link
+                href="/work"
+                className="cursor-crosshair"
+                onClick={(e) => {
+                  if (pathname.startsWith('/work')) {
+                    e.preventDefault();
+                    router.replace('/work');
+                  }
+                }}
+              >
                 <span
                   className={`text-foreground  transition-all duration-500 ${
                     isLight

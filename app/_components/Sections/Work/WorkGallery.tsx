@@ -199,7 +199,9 @@ export function WorkGallery({
     lastOpenedProjectIdRef.current = String(project.id);
     const next = new URLSearchParams(searchParams.toString());
     next.set("project", String(project.id));
-    router.push(`${pathname}?${next.toString()}`, { scroll: false });
+    // replace not push — keeps ?project= out of history so browser back
+    // never re-opens the modal unexpectedly.
+    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   };
 
   // Deep link: /work?project={project.id}
@@ -256,7 +258,8 @@ export function WorkGallery({
     : stockLevel;
 
   const handleCloseModal = () => {
-    router.back();
+    // replace to clean URL without adding a history entry
+    router.replace(pathname, { scroll: false });
   };
 
   const handleThumbClick = (idx: number) => {
