@@ -295,41 +295,50 @@ export default function CheckoutClient({ allowedCountries }: { allowedCountries?
     }
   }, [router]);
 
-  // Cancel the PI (and restore stock) whenever this component unmounts or the
-  // tab is hard-closed. Three paths are covered:
+  // Cancel the PI (and restore stock) on any exit from the checkout page.
   //
-  //  1. Browser Back button (Next.js soft nav): React unmounts the component →
-  //     cleanup runs → sendCancelBeacon() fires.
-  //  2. Tab / browser close (hard unload): pagehide fires → sendCancelBeacon().
-  //  3. handleBack() [ Back ] button: removes sessionStorage BEFORE calling
-  //     router.back(), so when cleanup fires the stored data is already gone
-  //     and sendCancelBeacon() is a no-op (no double-cancel).
+  // cancelPI() removes the sessionStorage entry FIRST, then fires the request.
+  // This means whichever of the three listeners below fires first will send the
+  // cancel; all subsequent calls become no-ops — no double-cancel.
   //
-  // The cancel endpoint returns { cancelled: false } for already-succeeded PIs
-  // so it is safe to call even after a successful payment redirect.
+  //  1. popstate  — browser Back button pressed (fires BEFORE unmount)
+  //  2. pagehide  — tab close / hard reload
+  //  3. cleanup   — React unmount catch-all (soft nav, programmatic navigate)
+  //
+  // fetch + keepalive:true is used instead of sendBeacon because keepalive
+  // is guaranteed to complete even during soft navigations where the page
+  // context is still alive but the component is being torn down.
+  //
+  // handleBack() removes sessionStorage BEFORE calling router.back(), so when
+  // popstate and the cleanup fire they find nothing and are no-ops.
   useEffect(() => {
-    function sendCancelBeacon() {
+    function cancelPI() {
       const stored = sessionStorage.getItem(CHECKOUT_STORAGE_KEY);
       if (!stored) return;
+      let paymentIntentId: string, cancelToken: string;
       try {
-        const { paymentIntentId, cancelToken } = JSON.parse(stored) as CheckoutPiData;
-        if (!paymentIntentId || !cancelToken) return;
-        const payload = JSON.stringify({ paymentIntentId, cancelToken });
-        const blob = new Blob([payload], { type: 'application/json' });
-        navigator.sendBeacon('/api/payment-intent/cancel', blob);
-        sessionStorage.removeItem(CHECKOUT_STORAGE_KEY);
-      } catch {
-        // ignore
-      }
+        const data = JSON.parse(stored) as CheckoutPiData;
+        paymentIntentId = data.paymentIntentId;
+        cancelToken = data.cancelToken;
+      } catch { return; }
+      if (!paymentIntentId || !cancelToken) return;
+      // Remove BEFORE sending so any subsequent call is a no-op
+      sessionStorage.removeItem(CHECKOUT_STORAGE_KEY);
+      fetch('/api/payment-intent/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentIntentId, cancelToken }),
+        keepalive: true,
+      }).catch(() => {});
     }
 
-    // Hard close / reload
-    window.addEventListener('pagehide', sendCancelBeacon);
+    window.addEventListener('popstate', cancelPI);
+    window.addEventListener('pagehide', cancelPI);
 
     return () => {
-      window.removeEventListener('pagehide', sendCancelBeacon);
-      // Soft navigation (browser back, any unmount) — this is the key path
-      sendCancelBeacon();
+      window.removeEventListener('popstate', cancelPI);
+      window.removeEventListener('pagehide', cancelPI);
+      cancelPI();
     };
   }, []);
 
