@@ -10,6 +10,7 @@ interface CartLineItem {
 }
 
 export async function POST(req: NextRequest) {
+  let reservations: { stripe_price_id: string; qty: number }[] = [];
   try {
     const body = await req.json();
 
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
 
     // ── Reserve stock atomically ────────────────────────────────────
     const supabase = createServerSupabase();
-    const reservations = lineItems.map((i) => ({
+    reservations = lineItems.map((i) => ({
       stripe_price_id: i.priceId,
       qty: i.quantity,
     }));
@@ -139,6 +140,16 @@ export async function POST(req: NextRequest) {
       collect,
     });
   } catch (err: unknown) {
+    // If anything after reserve_stock fails (e.g. Stripe minimum amount error),
+    // restore the stock so it isn't stuck at 0 with no PI to cancel.
+    if (reservations && reservations.length > 0) {
+      try {
+        const supabaseForRestore = createServerSupabase();
+        await supabaseForRestore.rpc('restore_stock', { items: reservations });
+      } catch (restoreErr) {
+        console.error('Failed to restore stock after PI creation error:', restoreErr);
+      }
+    }
     const message = err instanceof Error ? err.message : 'Failed to create payment';
     return NextResponse.json({ error: message }, { status: 500 });
   }
