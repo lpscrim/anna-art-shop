@@ -295,10 +295,18 @@ export default function CheckoutClient({ allowedCountries }: { allowedCountries?
     }
   }, [router]);
 
-  // Cancel the PI (and restore stock) if the user closes the tab or navigates
-  // away without pressing Back or completing payment. sendBeacon is used because
-  // it outlives the page unload. The cancel endpoint is a no-op if the PI has
-  // already succeeded or is not in a cancellable state.
+  // Cancel the PI (and restore stock) whenever this component unmounts or the
+  // tab is hard-closed. Three paths are covered:
+  //
+  //  1. Browser Back button (Next.js soft nav): React unmounts the component →
+  //     cleanup runs → sendCancelBeacon() fires.
+  //  2. Tab / browser close (hard unload): pagehide fires → sendCancelBeacon().
+  //  3. handleBack() [ Back ] button: removes sessionStorage BEFORE calling
+  //     router.back(), so when cleanup fires the stored data is already gone
+  //     and sendCancelBeacon() is a no-op (no double-cancel).
+  //
+  // The cancel endpoint returns { cancelled: false } for already-succeeded PIs
+  // so it is safe to call even after a successful payment redirect.
   useEffect(() => {
     function sendCancelBeacon() {
       const stored = sessionStorage.getItem(CHECKOUT_STORAGE_KEY);
@@ -315,15 +323,13 @@ export default function CheckoutClient({ allowedCountries }: { allowedCountries?
       }
     }
 
-    // pagehide: tab close or full page reload
+    // Hard close / reload
     window.addEventListener('pagehide', sendCancelBeacon);
-    // popstate: browser Back/Forward button (soft navigation in Next.js App Router)
-    // pagehide does NOT fire for soft navigations, so this is the only reliable
-    // hook for browser-back from the checkout page.
-    window.addEventListener('popstate', sendCancelBeacon);
+
     return () => {
       window.removeEventListener('pagehide', sendCancelBeacon);
-      window.removeEventListener('popstate', sendCancelBeacon);
+      // Soft navigation (browser back, any unmount) — this is the key path
+      sendCancelBeacon();
     };
   }, []);
 
