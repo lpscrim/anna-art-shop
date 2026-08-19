@@ -175,8 +175,8 @@ export function MainGallery({
             <div className="md:hidden text-base px-4 py-2 bg-background text-foreground/90 group-hover:opacity-100 opacity-100 flex flex-col z-50 transition-all duration-500 pointer-events-none max-w-full">
               <div className="flex flex-wrap gap-x-4 gap-y-1 mx-auto wrap-break-word max-w-full">
                 <span className="font-semibold">{project.title},</span>
-                <span className="">{project.dimensions},</span>
-                <span className="">£{project.price_hw/100}</span>
+                <span >{project.dimensions},</span>
+                 {project.stock_level === 0 ? <span className="text-red-600">Sold</span> : <span>£{(project.price_hw / 100).toFixed(2)}</span>}
               </div>
             </div>
           </div>
