@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/app/_lib/stripe';
 import { createServerSupabase } from '@/app/_lib/supabase';
 import { revalidatePath } from 'next/cache';
+import { readChunkedMetadataValue } from '@/app/_lib/stripeMetadataChunks';
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
     // Restore stock immediately — the webhook will see stock_restored: 'true'
     // and skip its own restore, preventing double-incrementing.
     try {
-      const reserved = JSON.parse(pi.metadata?.reserved_items ?? '[]') as { stripe_price_id: string; qty: number }[];
+      const reserved = JSON.parse(readChunkedMetadataValue(pi.metadata, 'reserved_items') || '[]') as { stripe_price_id: string; qty: number }[];
       if (reserved.length > 0) {
         const supabase = createServerSupabase();
         await supabase.rpc('restore_stock', { items: reserved });

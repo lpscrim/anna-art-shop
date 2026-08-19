@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/app/_lib/stripe';
 import { createServerSupabase } from '@/app/_lib/supabase';
 import { getShippingRates, resolveShippingRate } from '@/app/_lib/shippingSettings';
+import { chunkMetadataValue } from '@/app/_lib/stripeMetadataChunks';
 import type Stripe from 'stripe';
 
 interface CartLineItem {
@@ -119,7 +120,7 @@ export async function POST(req: NextRequest) {
           ? { application_fee_amount: applicationFeeAmount }
           : {}),
         metadata: {
-          reserved_items: JSON.stringify(enrichedReservations),
+          ...chunkMetadataValue('reserved_items', JSON.stringify(enrichedReservations)),
           shipping_amount: String(shippingRatePence),
           cancel_token: cancelToken,
           ...(collect ? { collection: 'true' } : {}),

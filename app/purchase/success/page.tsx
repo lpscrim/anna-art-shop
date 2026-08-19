@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ClearCart } from "./clearCart";
 import { ImageWithFallback } from "../../_components/UI/Layout/ImageWithFallback";
+import { readChunkedMetadataValue } from "@/app/_lib/stripeMetadataChunks";
 import type Stripe from "stripe";
 
 interface SuccessPageProps {
@@ -43,7 +44,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   };
   let reservedItems: ReservedItem[] = [];
   try {
-    reservedItems = JSON.parse(pi.metadata?.reserved_items ?? "[]");
+    reservedItems = JSON.parse(readChunkedMetadataValue(pi.metadata, "reserved_items") || "[]");
   } catch {
     // show empty items gracefully
   }

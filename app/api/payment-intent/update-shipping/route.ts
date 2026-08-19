@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/app/_lib/stripe';
 import { getShippingRates, resolveRateForCountry } from '@/app/_lib/shippingSettings';
+import { readChunkedMetadataValue } from '@/app/_lib/stripeMetadataChunks';
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
     // Parse item types from reserved_items metadata
     let itemTypes: string[] = [];
     try {
-      const reserved = JSON.parse(pi.metadata.reserved_items ?? '[]') as { type?: string }[];
+      const reserved = JSON.parse(readChunkedMetadataValue(pi.metadata, 'reserved_items') || '[]') as { type?: string }[];
       itemTypes = reserved.map((r) => r.type ?? 'artwork');
     } catch {
       // default empty — will use artwork rate

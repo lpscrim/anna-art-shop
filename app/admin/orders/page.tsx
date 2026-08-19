@@ -6,6 +6,7 @@ import Image from 'next/image';
 import type Stripe from 'stripe';
 import { DispatchButton } from './DispatchButton';
 import { ExportButton, type ExportOrder } from './ExportButton';
+import { readChunkedMetadataValue } from '@/app/_lib/stripeMetadataChunks';
 
 interface ShippingAddress {
   line1: string | null;
@@ -93,7 +94,7 @@ async function getOrders(): Promise<Order[]> {
     // Items + shipping come from PI metadata (set at checkout creation time)
     let reservedItems: ReservedItem[] = [];
     try {
-      reservedItems = JSON.parse(pi.metadata?.reserved_items ?? '[]');
+      reservedItems = JSON.parse(readChunkedMetadataValue(pi.metadata, 'reserved_items') || '[]');
     } catch { /* empty */ }
 
     const shippingCost = parseInt(pi.metadata?.shipping_amount ?? '0', 10);

@@ -4,6 +4,7 @@ import { createServerSupabase } from '@/app/_lib/supabase';
 import { revalidatePath } from 'next/cache';
 import type Stripe from 'stripe';
 import { Resend } from 'resend';
+import { readChunkedMetadataValue } from '@/app/_lib/stripeMetadataChunks';
 
 function escapeHtml(s: string | null | undefined): string {
   if (!s) return '';
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
     if (pi.metadata?.stock_restored === 'true') {
       return NextResponse.json({ received: true });
     }
-    const raw = pi.metadata?.reserved_items;
+    const raw = readChunkedMetadataValue(pi.metadata, 'reserved_items');
     if (raw) {
       try {
         const reserved = JSON.parse(raw) as { stripe_price_id: string; qty: number }[];
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
 
   if (event.type === 'payment_intent.payment_failed' || (event.type as string) === 'payment_intent.expired') {
     const pi = event.data.object as Stripe.PaymentIntent;
-    const raw = pi.metadata?.reserved_items;
+    const raw = readChunkedMetadataValue(pi.metadata, 'reserved_items');
     if (raw) {
       try {
         const reserved = JSON.parse(raw) as { stripe_price_id: string; qty: number }[];
@@ -171,7 +172,7 @@ async function notifyClientFromCharge(charge: Stripe.Charge, stripe: ReturnType<
   type ReservedItem = { title: string; qty: number; price: number; image?: string; type?: string };
   let reservedItems: ReservedItem[] = [];
   try {
-    reservedItems = JSON.parse(pi?.metadata?.reserved_items ?? '[]');
+    reservedItems = JSON.parse(readChunkedMetadataValue(pi?.metadata, 'reserved_items') || '[]');
   } catch { /* fall through — empty array */ }
 
   const ownerItemsHtml = reservedItems.length > 0
