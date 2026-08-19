@@ -34,6 +34,7 @@ export interface MainGalleryProps {
   getStockLevel: (project: Project) => number;
   selectedType: "artwork" | "print" | null;
   onTypeToggle: (type: "artwork" | "print") => void;
+  onShowAllTypes: () => void;
   artworkCount: number;
   printCount: number;
   showCategories: boolean;
@@ -57,6 +58,7 @@ export function MainGallery({
   getStockLevel,
   selectedType,
   onTypeToggle,
+  onShowAllTypes,
   artworkCount,
   printCount,
   showCategories,
@@ -89,6 +91,12 @@ export function MainGallery({
             </button>
           </div>
           <div className="flex flex-wrap gap-2 mt-2">
+            <button
+              onClick={onShowAllTypes}
+              className={`cursor-crosshair transition-opacity tracking-wide ${selectedType === null ? "text-foreground font-semibold" : "text-foreground/50"}`}
+            >
+              All [{artworkCount + printCount}]
+            </button>
             <button
               onClick={() => onTypeToggle("artwork")}
               className={`cursor-crosshair transition-opacity tracking-wide ${selectedType === "artwork" ? "text-foreground font-semibold" : "text-foreground/50"}`}

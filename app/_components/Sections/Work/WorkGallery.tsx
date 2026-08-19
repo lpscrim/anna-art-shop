@@ -44,7 +44,7 @@ export function WorkGallery({
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [inStockOnly, setInStockOnly] = useState(false);
-  const [selectedType, setSelectedType] = useState<'artwork' | 'print' | null>('artwork');
+  const [selectedType, setSelectedType] = useState<'artwork' | 'print' | null>(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -175,6 +175,11 @@ export function WorkGallery({
     setSelectedCategories([]);
   };
 
+  const handleShowAllTypes = () => {
+    setSelectedType(null);
+    setSelectedCategories([]);
+  };
+
   const handleYearToggle = (year: string) => {
     setSelectedYear((prev) => prev === year ? null : year);
     setSelectedCategories([]);
@@ -282,6 +287,7 @@ export function WorkGallery({
         onCardClick={handleCardClick}
         selectedType={selectedType}
         onTypeToggle={handleTypeToggle}
+        onShowAllTypes={handleShowAllTypes}
         artworkCount={artworkCount}
         printCount={printCount}
         showCategories={showCategories}
