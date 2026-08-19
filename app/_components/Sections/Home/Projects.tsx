@@ -50,7 +50,7 @@ export async function Projects() {
                   <div className="flex flex-wrap gap-x-4 gap-y-1 mx-auto wrap-break-word max-w-full">
                     <span className="font-semibold">{project.title},</span>
                     <span>{project.dimensions},</span>
-                    <span>£{(project.price_hw / 100).toFixed(2)}</span>
+                    {project.stock_level === 0 ? <span className="text-red-600">Sold</span> : <span>£{(project.price_hw / 100).toFixed(2)}</span>}
                   </div>
                 </div>
               </div>
