@@ -43,7 +43,7 @@ export function BuyButton({ stripePriceId, stockLevel, priceHw, name, imageUrl, 
     >
       <span className="inline-flex items-center justify-center min-w-[3ch]">
         {outOfStock ? (
-          <span className="text-red-600">N/A</span>
+          <span className="text-red-600">Sold</span>
         ) : (
           <>
             <span className="transition-opacity duration-200 group-hover:opacity-0 group-hover:hidden">Buy</span>

@@ -43,7 +43,7 @@ export async function Projects() {
                     <span>{project.year}</span>
                   </div>
                   {project.stock_level === 0 && (
-                    <span className="text-background text-base">N/A</span>
+                    <span className="text-background text-base">Sold</span>
                   )}
                 </div>
                 <div className="md:hidden text-base px-4 py-2 bg-background text-foreground/90 flex flex-col z-50 pointer-events-none max-w-full">

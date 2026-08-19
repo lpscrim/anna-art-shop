@@ -169,7 +169,7 @@ export function MainGallery({
                 <span className="">{project.year}</span>
               </div>
               {getStockLevel(project) === 0 && (
-                <h3 className="text-background text-base">N/A</h3>
+                <h3 className="text-background text-base">Sold</h3>
               )}
             </div>
             <div className="md:hidden text-base px-4 py-2 bg-background text-foreground/90 group-hover:opacity-100 opacity-100 flex flex-col z-50 transition-all duration-500 pointer-events-none max-w-full">
