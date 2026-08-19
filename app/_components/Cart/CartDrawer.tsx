@@ -170,7 +170,7 @@ export function CartDrawer({ collectionEnabled = false }: { collectionEnabled?: 
               <p className="text-sm text-red-500">{error}</p>
             )}
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">SUBTOTAL</span>
+              <span >SUBTOTAL</span>
               <span>£{(subtotal / 100).toFixed(2)}</span>
             </div>
             {/* Collect in person toggle */}
@@ -198,7 +198,7 @@ export function CartDrawer({ collectionEnabled = false }: { collectionEnabled?: 
             )}
             <div className="space-y-0.5">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">SHIPPING</span>
+                <span >SHIPPING</span>
                 <span>{effectiveShipping === 0 ? 'Free' : `£${(effectiveShipping / 100).toFixed(2)}`}</span>
               </div>
               {!collect && (
