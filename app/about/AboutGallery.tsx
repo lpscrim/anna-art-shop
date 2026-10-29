@@ -65,18 +65,10 @@ export default function AboutGallery({ images }: { images: string[] }) {
       {/* Lightbox */}
       {lightbox && (
         <div
-
-
-
-
-
-
-
-
-          className="fixed inset-0 z-50 flex pt-16 items-center justify-center p-4 bg-black/80 lightbox-container"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm lightbox-container"
           onClick={() => setLightbox(null)}
         >
-          <div className="relative max-w-5xl max-h-[80svh] w-full h-full" onClick={(e) => e.stopPropagation()}>
+          <div className="relative max-w-5xl max-h-[80svh] w-full h-full" onClick={() => setLightbox(null)}>
             <Image
               src={lightbox}
               alt=""
@@ -85,17 +77,10 @@ export default function AboutGallery({ images }: { images: string[] }) {
               sizes="100vw"
             />
           </div>
-          <button
-            onClick={() => setLightbox(null)}
-            aria-label="Close"
-            className="absolute top-4 right-5 text-white/70 hover:text-white text-3xl leading-none cursor-crosshair"
-          >
-            ×
-          </button>
+
         </div>
       )}
     </>
   );
 }
-
 
