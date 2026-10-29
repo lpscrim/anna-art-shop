@@ -46,7 +46,7 @@ export default function AboutGallery({ images }: { images: string[] }) {
           return (
             <button
               key={url}
-              className="relative aspect-square overflow-hidden rounded-sm cursor-crosshair group"
+              className="relative aspect-square overflow-hidden rounded-xs cursor-crosshair group"
               onClick={() => setLightbox(url)}
               aria-label={`View image ${i + 1} larger`}
             >

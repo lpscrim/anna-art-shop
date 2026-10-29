@@ -30,7 +30,7 @@ export default async function AboutPage() {
 
           {/* Portrait */}
           {about.portrait_url ? (
-            <div className="relative aspect-3/4 w-full overflow-hidden rounded-sm">
+            <div className="relative aspect-3/4 w-full overflow-hidden rounded-xs">
               <Image
                 src={about.portrait_url}
                 alt="Anna Maia Zaitseva"
@@ -41,7 +41,7 @@ export default async function AboutPage() {
               />
             </div>
           ) : (
-            <div className="aspect-3/4 w-full bg-muted rounded-sm" />
+            <div className="aspect-3/4 w-full bg-muted rounded-xs" />
           )}
 
           {/* Statement */}
