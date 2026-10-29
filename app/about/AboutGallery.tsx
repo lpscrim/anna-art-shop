@@ -53,7 +53,7 @@ export default function AboutGallery({ images }: { images: string[] }) {
                 src={url}
                 alt={`Exhibition image ${i + 1}`}
                 fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                className="object-cover transition-transform duration-500 group-hover:scale-105 w-full h-full"
                 sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
               />
             </button>
