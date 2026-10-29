@@ -65,7 +65,7 @@ export default function AboutGallery({ images }: { images: string[] }) {
       {/* Lightbox */}
       {lightbox && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm lightbox-container"
+          className="fixed inset-0 z-950 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm lightbox-container"
           onClick={() => setLightbox(null)}
         >
           <div className="relative max-w-5xl max-h-[80svh] w-full h-full" onClick={() => setLightbox(null)}>
