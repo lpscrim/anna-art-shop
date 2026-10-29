@@ -65,7 +65,7 @@ export default async function AboutPage() {
       {about.gallery_images.length > 0 && (
         <section className="px-6 py-16 bg-muted/20">
           <div className="max-w-7xl mx-auto">
-            <p className="text-xs tracking-widest text-muted-foreground uppercase mb-8">Studio &amp; Exhibition</p>
+            <p className="text-xs tracking-widest text-muted-foreground uppercase mb-8">Gallery</p>
             <AboutGallery images={about.gallery_images} />
           </div>
         </section>
@@ -103,24 +103,6 @@ export default async function AboutPage() {
                   <span>
                     <span className="font-medium">{ex.title}</span>
                     {ex.location && <span className="text-muted-foreground">, {ex.location}</span>}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Education */}
-        {visibleEducation.length > 0 && (
-          <div className="mb-16">
-            <h2 className="text-xs tracking-widest text-muted-foreground uppercase mb-8">Education</h2>
-            <div className="space-y-3">
-              {[...visibleEducation].sort((a, b) => Number(b.year) - Number(a.year)).map((ed, i) => (
-                <div key={i} className="grid grid-cols-[4rem_1fr] gap-4 text-base border-b border-muted pb-3">
-                  <span className="text-muted-foreground tabular-nums">{ed.year}</span>
-                  <span>
-                    <span className="font-medium">{ed.qualification}</span>
-                    {ed.institution && <span className="text-muted-foreground">, {ed.institution}</span>}
                   </span>
                 </div>
               ))}
@@ -181,6 +163,24 @@ export default async function AboutPage() {
                         View →
                       </a>
                     )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Education */}
+        {visibleEducation.length > 0 && (
+          <div className="mb-16">
+            <h2 className="text-xs tracking-widest text-muted-foreground uppercase mb-8">Education</h2>
+            <div className="space-y-3">
+              {[...visibleEducation].sort((a, b) => Number(b.year) - Number(a.year)).map((ed, i) => (
+                <div key={i} className="grid grid-cols-[4rem_1fr] gap-4 text-base border-b border-muted pb-3">
+                  <span className="text-muted-foreground tabular-nums">{ed.year}</span>
+                  <span>
+                    <span className="font-medium">{ed.qualification}</span>
+                    {ed.institution && <span className="text-muted-foreground">, {ed.institution}</span>}
                   </span>
                 </div>
               ))}
