@@ -1,10 +1,40 @@
+// app/about/AboutGallery.tsx
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function AboutGallery({ images }: { images: string[] }) {
   const [lightbox, setLightbox] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (lightbox) {
+      // Lock scroll
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Unlock scroll
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      // Ensure scroll is unlocked on component unmount
+      document.body.style.overflow = '';
+    };
+  }, [lightbox]);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (lightbox && event.target instanceof HTMLElement && !event.target.closest('.lightbox-container')) {
+        setLightbox(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [lightbox]);
 
   if (!images.length) return null;
 
@@ -34,7 +64,7 @@ export default function AboutGallery({ images }: { images: string[] }) {
       {/* Lightbox */}
       {lightbox && (
         <div
-          className="fixed inset-0 z-50 flex pt-16 items-center justify-center p-4 bg-black/80"
+          className="fixed inset-0 z-50 flex pt-16 items-center justify-center p-4 bg-black/80 lightbox-container"
           onClick={() => setLightbox(null)}
         >
           <div className="relative max-w-5xl max-h-[80svh] w-full h-full" onClick={(e) => e.stopPropagation()}>
@@ -58,3 +88,4 @@ export default function AboutGallery({ images }: { images: string[] }) {
     </>
   );
 }
+
