@@ -25,6 +25,7 @@ export default function AboutGallery({ images }: { images: string[] }) {
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
       if (lightbox && event.target instanceof HTMLElement && !event.target.closest('.lightbox-container')) {
+        console.log('Lightbox clicked outside, closing...');
         setLightbox(null);
       }
     };
@@ -65,7 +66,33 @@ export default function AboutGallery({ images }: { images: string[] }) {
       {lightbox && (
         <div
           className="fixed inset-0 z-50 flex pt-16 items-center justify-center p-4 bg-black/80 lightbox-container"
-          onClick={() => setLightbox(null)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          onClick={(e) => {
+            e.stopPropagation();
+            if (e.target === e.currentTarget) {
+              console.log('Lightbox clicked outside, closing...');
+              setLightbox(null);
+            }
+          }}
         >
           <div className="relative max-w-5xl max-h-[80svh] w-full h-full" onClick={(e) => e.stopPropagation()}>
             <Image
@@ -88,4 +115,5 @@ export default function AboutGallery({ images }: { images: string[] }) {
     </>
   );
 }
+
 
